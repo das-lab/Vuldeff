@@ -8,4 +8,4 @@ Due to the lack of large-scale, real, and uniformly formatted vulnerability data
 We will publish the dataset once the paper is accepted.
 
 ## Vulnerabilities detected by VULDEFF
-We will disclose the source code of the vulnerabilities after the paper is accepted.
+
