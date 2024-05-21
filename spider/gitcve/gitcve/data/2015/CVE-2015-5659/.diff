@@ -1,0 +1,85 @@
+diff --git a/pref-shimane-cms/CHANGELOG.md b/pref-shimane-cms/CHANGELOG.md
+new file mode 100644
+index 0000000..4eb0b0c
+--- /dev/null
++++ b/pref-shimane-cms/CHANGELOG.md
+@@ -0,0 +1,11 @@
++# Changelog
++
++## Version 2.0.1 (2015/10/7)
++
++* Bugfix
++
++  * SQLインジェクションにより、情報を不正取得できてしまう不具合を修正
++
++## Version 2.0.0 (2014/9/6)
++
++* 初期リリース
+\ No newline at end of file
+diff --git a/pref-shimane-cms/app/controllers/concerns/susanoo/pages_controller.rb b/pref-shimane-cms/app/controllers/concerns/susanoo/pages_controller.rb
+index 7850dfe..79c8e07 100644
+--- a/pref-shimane-cms/app/controllers/concerns/susanoo/pages_controller.rb
++++ b/pref-shimane-cms/app/controllers/concerns/susanoo/pages_controller.rb
+@@ -254,7 +254,6 @@ def initialize(attr = {})
+           super
+         end
+ 
+-
+         #
+         #=== 検索を実施する
+         #
+@@ -278,7 +277,43 @@ def last_modified_sortable?
+             false
+           end
+         end
++
++        #
++        #=== ソート順を返す
++        #
++        def order_by
++          order_option = ''
++          if valid_order_params?
++            direction = self.order_direction || 'ASC'
++            order_option = "#{self.order_column} #{direction}"
++          end
++          order_option.present? ? order_option : @@default_order
++        end
++
++        #
++        #=== ソートパラメータを検証する
++        #
++        def valid_order_params?
++          if self.order_column.blank?
++            return false
++          end
++
++          permit_column_params = ['pages.name', 'page_contents.last_modified']
++          permit_dir_params = ['ASC', 'DESC']
++
++          unless permit_column_params.include?(self.order_column)
++            return false
++          end
++
++          if self.order_direction.present? &&
++            !permit_dir_params.include?(self.order_direction.upcase)
++            return false
++          end
++
++          return true
++        end
+       end
++
+   end
+ end
+ 
+diff --git a/pref-shimane-cms/config/initializers/version.rb b/pref-shimane-cms/config/initializers/version.rb
+index cf364a6..23cc027 100644
+--- a/pref-shimane-cms/config/initializers/version.rb
++++ b/pref-shimane-cms/config/initializers/version.rb
+@@ -1,5 +1,5 @@
+ module PrefShimaneCms
+   class Application
+-    VERSION = '2.0.0'
++    VERSION = '2.0.1'
+   end
+ end

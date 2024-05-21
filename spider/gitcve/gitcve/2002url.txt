@@ -1,0 +1,1 @@
+CVE-2002-2443 https://github.com/krb5/krb5/commit/cf1a0c411b2668c57c41e9c4efd15ba17b6b322c

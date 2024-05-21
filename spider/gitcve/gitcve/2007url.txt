@@ -1,0 +1,2 @@
+CVE-2007-6761 https://github.com/torvalds/linux/commit/0b29669c065f60501e7289e1950fa2a618962358
+CVE-2007-6762 https://github.com/torvalds/linux/commit/2a2f11c227bdf292b3a2900ad04139d301b56ac4

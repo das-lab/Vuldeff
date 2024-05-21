@@ -1,0 +1,130 @@
+diff --git a/gogs.go b/gogs.go
+index 4fb0dcce01..82a3ae685f 100644
+--- a/gogs.go
++++ b/gogs.go
+@@ -17,7 +17,7 @@ import (
+ 	"github.com/gogits/gogs/modules/setting"
+ )
+ 
+-const APP_VER = "0.5.6.1024 Beta"
++const APP_VER = "0.5.6.1025 Beta"
+ 
+ func init() {
+ 	runtime.GOMAXPROCS(runtime.NumCPU())
+diff --git a/models/issue.go b/models/issue.go
+index f16c2e256d..8004647c72 100644
+--- a/models/issue.go
++++ b/models/issue.go
+@@ -211,7 +211,10 @@ func GetIssues(uid, rid, pid, mid int64, page int, isClosed bool, labelIds, sort
+ 
+ 	if len(labelIds) > 0 {
+ 		for _, label := range strings.Split(labelIds, ",") {
+-			sess.And("label_ids like '%$" + label + "|%'")
++			// Prevent SQL inject.
++			if com.StrTo(label).MustInt() > 0 {
++				sess.And("label_ids like '%$" + label + "|%'")
++			}
+ 		}
+ 	}
+ 
+diff --git a/models/repo.go b/models/repo.go
+index dc47b2e6e9..888dea1ea6 100644
+--- a/models/repo.go
++++ b/models/repo.go
+@@ -1131,17 +1131,21 @@ type SearchOption struct {
+ 	Keyword string
+ 	Uid     int64
+ 	Limit   int
++	Private bool
++}
++
++// FilterSQLInject tries to prevent SQL injection.
++func FilterSQLInject(key string) string {
++	key = strings.TrimSpace(key)
++	key = strings.Split(key, " ")[0]
++	key = strings.Replace(key, ",", "", -1)
++	return key
+ }
+ 
+ // SearchRepositoryByName returns given number of repositories whose name contains keyword.
+ func SearchRepositoryByName(opt SearchOption) (repos []*Repository, err error) {
+ 	// Prevent SQL inject.
+-	opt.Keyword = strings.TrimSpace(opt.Keyword)
+-	if len(opt.Keyword) == 0 {
+-		return repos, nil
+-	}
+-
+-	opt.Keyword = strings.Split(opt.Keyword, " ")[0]
++	opt.Keyword = FilterSQLInject(opt.Keyword)
+ 	if len(opt.Keyword) == 0 {
+ 		return repos, nil
+ 	}
+@@ -1154,6 +1158,9 @@ func SearchRepositoryByName(opt SearchOption) (repos []*Repository, err error) {
+ 	if opt.Uid > 0 {
+ 		sess.Where("owner_id=?", opt.Uid)
+ 	}
++	if !opt.Private {
++		sess.And("is_private=false")
++	}
+ 	sess.And("lower_name like '%" + opt.Keyword + "%'").Find(&repos)
+ 	return repos, err
+ }
+diff --git a/models/user.go b/models/user.go
+index 6b0f796b56..ce85008ba4 100644
+--- a/models/user.go
++++ b/models/user.go
+@@ -574,13 +574,7 @@ func GetUserByEmail(email string) (*User, error) {
+ 
+ // SearchUserByName returns given number of users whose name contains keyword.
+ func SearchUserByName(opt SearchOption) (us []*User, err error) {
+-	// Prevent SQL inject.
+-	opt.Keyword = strings.TrimSpace(opt.Keyword)
+-	if len(opt.Keyword) == 0 {
+-		return us, nil
+-	}
+-
+-	opt.Keyword = strings.Split(opt.Keyword, " ")[0]
++	opt.Keyword = FilterSQLInject(opt.Keyword)
+ 	if len(opt.Keyword) == 0 {
+ 		return us, nil
+ 	}
+diff --git a/routers/api/v1/repos.go b/routers/api/v1/repos.go
+index 37a3e47a63..2dee512f2b 100644
+--- a/routers/api/v1/repos.go
++++ b/routers/api/v1/repos.go
+@@ -31,6 +31,26 @@ func SearchRepos(ctx *middleware.Context) {
+ 		opt.Limit = 10
+ 	}
+ 
++	// Check visibility.
++	if ctx.IsSigned && opt.Uid > 0 {
++		if ctx.User.Id == opt.Uid {
++			opt.Private = true
++		} else {
++			u, err := models.GetUserById(opt.Uid)
++			if err != nil {
++				ctx.JSON(500, map[string]interface{}{
++					"ok":    false,
++					"error": err.Error(),
++				})
++				return
++			}
++			if u.IsOrganization() && u.IsOrgOwner(ctx.User.Id) {
++				opt.Private = true
++			}
++			// FIXME: how about collaborators?
++		}
++	}
++
+ 	repos, err := models.SearchRepositoryByName(opt)
+ 	if err != nil {
+ 		ctx.JSON(500, map[string]interface{}{
+diff --git a/templates/.VERSION b/templates/.VERSION
+index 647ef439f9..3e75e45dc3 100644
+--- a/templates/.VERSION
++++ b/templates/.VERSION
+@@ -1 +1 @@
+-0.5.6.1024 Beta
+\ No newline at end of file
++0.5.6.1025 Beta
+\ No newline at end of file

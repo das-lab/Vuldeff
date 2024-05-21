@@ -1,0 +1,90 @@
+diff --git a/src/lib/gssapi/krb5/gssapiP_krb5.h b/src/lib/gssapi/krb5/gssapiP_krb5.h
+index 97e090d099f..16635006db1 100644
+--- a/src/lib/gssapi/krb5/gssapiP_krb5.h
++++ b/src/lib/gssapi/krb5/gssapiP_krb5.h
+@@ -1397,6 +1397,11 @@ OM_uint32 KRB5_CALLCONV
+ iakerb_gss_export_sec_context(OM_uint32 *minor_status,
+                               gss_ctx_id_t *context_handle,
+                               gss_buffer_t interprocess_token);
++
++OM_uint32 KRB5_CALLCONV
++iakerb_gss_import_sec_context(OM_uint32 *minor_status,
++                              const gss_buffer_t interprocess_token,
++                              gss_ctx_id_t *context_handle);
+ #endif /* LEAN_CLIENT */
+ 
+ OM_uint32 KRB5_CALLCONV
+diff --git a/src/lib/gssapi/krb5/gssapi_krb5.c b/src/lib/gssapi/krb5/gssapi_krb5.c
+index c4dfdd6fbd1..aea60dc09fd 100644
+--- a/src/lib/gssapi/krb5/gssapi_krb5.c
++++ b/src/lib/gssapi/krb5/gssapi_krb5.c
+@@ -970,7 +970,7 @@ static struct gss_config iakerb_mechanism = {
+     NULL,
+ #else
+     iakerb_gss_export_sec_context,
+-    NULL,
++    iakerb_gss_import_sec_context,
+ #endif
+     krb5_gss_inquire_cred_by_mech,
+     krb5_gss_inquire_names_for_mech,
+diff --git a/src/lib/gssapi/krb5/iakerb.c b/src/lib/gssapi/krb5/iakerb.c
+index e25862df47d..32a341ec58d 100644
+--- a/src/lib/gssapi/krb5/iakerb.c
++++ b/src/lib/gssapi/krb5/iakerb.c
+@@ -1057,7 +1057,7 @@ iakerb_gss_export_sec_context(OM_uint32 *minor_status,
+                               gss_buffer_t interprocess_token)
+ {
+     OM_uint32 maj;
+-    iakerb_ctx_id_t ctx = (iakerb_ctx_id_t)context_handle;
++    iakerb_ctx_id_t ctx = (iakerb_ctx_id_t)*context_handle;
+ 
+     /* We don't currently support exporting partially established contexts. */
+     if (!ctx->established)
+@@ -1072,13 +1072,41 @@ iakerb_gss_export_sec_context(OM_uint32 *minor_status,
+     return maj;
+ }
+ 
+-/*
+- * Until we implement partial context exports, there are no IAKERB exported
+- * context tokens, only tokens for the underlying krb5 context.  So we do not
+- * need to implement an iakerb_gss_import_sec_context() yet; it would be
+- * unreachable except via a manually constructed token.
+- */
++OM_uint32 KRB5_CALLCONV
++iakerb_gss_import_sec_context(OM_uint32 *minor_status,
++                              gss_buffer_t interprocess_token,
++                              gss_ctx_id_t *context_handle)
++{
++    OM_uint32 maj, tmpmin;
++    krb5_error_code code;
++    gss_ctx_id_t gssc;
++    krb5_gss_ctx_id_t kctx;
++    iakerb_ctx_id_t ctx;
++
++    maj = krb5_gss_import_sec_context(minor_status, interprocess_token, &gssc);
++    if (maj != GSS_S_COMPLETE)
++        return maj;
++    kctx = (krb5_gss_ctx_id_t)gssc;
++
++    if (!kctx->established) {
++        /* We don't currently support importing partially established
++         * contexts. */
++        krb5_gss_delete_sec_context(&tmpmin, &gssc, GSS_C_NO_BUFFER);
++        return GSS_S_FAILURE;
++    }
+ 
++    code = iakerb_alloc_context(&ctx, kctx->initiate);
++    if (code != 0) {
++        krb5_gss_delete_sec_context(&tmpmin, &gssc, GSS_C_NO_BUFFER);
++        *minor_status = code;
++        return GSS_S_FAILURE;
++    }
++
++    ctx->gssc = gssc;
++    ctx->established = 1;
++    *context_handle = (gss_ctx_id_t)ctx;
++    return GSS_S_COMPLETE;
++}
+ #endif /* LEAN_CLIENT */
+ 
+ OM_uint32 KRB5_CALLCONV

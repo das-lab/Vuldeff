@@ -1,0 +1,275 @@
+diff --git a/apps/common/templates/calculate_form_title.html b/apps/common/templates/calculate_form_title.html
+index 2994f1d3387..adaec981d30 100644
+--- a/apps/common/templates/calculate_form_title.html
++++ b/apps/common/templates/calculate_form_title.html
+@@ -1,10 +1,6 @@
+ {% load i18n %}
+ {% if title %}
+-    {% if striptags %}
+-        {{ title|capfirst|striptags }}
+-    {% else %}
+-        {{ title|capfirst|safe }}
+-    {% endif %}
++    {{ title|capfirst }}
+ {% else %}
+     {% if read_only %}
+         {% if object_name %}
+@@ -15,9 +11,9 @@
+     {% else %}
+         {% if object %}
+             {% if object_name %}
+-                {% blocktrans %}Edit {{ object_name }}:{% endblocktrans %} {% if not striptags %}<a href="{{ object.get_absolute_url }}">{% endif %}{{ object|capfirst }}{% if not striptags %}</a>{% endif %}
++                {% blocktrans with object as object and object_name as object_name %}Edit {{ object_name }}: {{ object }}{% endblocktrans %}
+             {% else %}
+-                {% trans "Edit" %}: {% if not striptags %}<a href="{{ object.get_absolute_url }}">{% endif %}{{ object|capfirst }}{% if not striptags %}</a>{% endif %}
++                {% blocktrans with object as object %}Edit: {{ object }}{% endblocktrans %}
+             {% endif %}
+         {% else %}
+             {% if object_name %}
+@@ -25,6 +21,6 @@
+             {% else %}
+                 {% trans "Create" %}
+             {% endif %}
+-        {% endif %}                
++        {% endif %}
+     {% endif %}
+ {% endif %}
+diff --git a/apps/common/templates/generic_detail.html b/apps/common/templates/generic_detail.html
+index c5cc9789e89..e7f0dac78a8 100644
+--- a/apps/common/templates/generic_detail.html
++++ b/apps/common/templates/generic_detail.html
+@@ -2,15 +2,15 @@
+ {% load i18n %}
+ {% load subtemplates_tags %}
+ 
+-{% block title %} :: {% with "true" as read_only %}{% with "true" as striptags %}{% include "calculate_form_title.html" %}{% endwith %}{% endwith %}{% endblock %}
++{% block title %} :: {% with "true" as read_only %}{% include "calculate_form_title.html" %}{% endwith %}{% endblock %}
+ 
+ {% block sidebar %}
+     {% for subtemplate in sidebar_subtemplates %}
+         <div class="generic_subform">
+             {% include subtemplate %}
+-        </div>        
++        </div>
+     {% endfor %}
+-  
++
+     {% for subtemplate in sidebar_subtemplates_list %}
+         {% with "true" as side_bar %}
+             {% if subtemplate.form %}
+@@ -26,18 +26,18 @@
+             {% endif %}
+                 </div>
+                 {% if subtemplate.grid_clear or not subtemplate.grid %}
+-                    <div class=""></div> 
++                    <div class=""></div>
+             {% endif %}
+         {% endwith %}
+-    {% endfor %}     
++    {% endfor %}
+ {% endblock %}
+ 
+ {% block stylesheets %}
+     <style type="text/css">
+-        #subform form  textarea, 
++        #subform form  textarea,
+         #subform form  select option,
+-        #subform form  input, 
+-        #subform form  select, 
++        #subform form  input,
++        #subform form  select,
+         #subform form  input { background: none; color: black; border: none; }
+     </style>
+ {% endblock %}
+@@ -51,14 +51,14 @@
+                 </div>
+             </div>
+             {% if grid_clear or not grid %}
+-                <div class=""></div> 
++                <div class=""></div>
+             {% endif %}
+         {% endwith %}
+     {% endif %}
+-    
++
+     <div class="container_12">
+         {% for subtemplate in subtemplates_list %}
+-            <div class="grid_{{ subtemplate.grid|default:12 }}">       
++            <div class="grid_{{ subtemplate.grid|default:12 }}">
+                 {% with "true" as read_only %}
+                     {% render_subtemplate subtemplate.name subtemplate.context as rendered_subtemplate %}
+                     <div class="generic_subform">
+@@ -67,10 +67,10 @@
+                 {% endwith %}
+             </div>
+             {% if subtemplate.grid_clear or not subtemplate.grid %}
+-                <div class="clear"></div> 
++                <div class="clear"></div>
+             {% endif %}
+          {% endfor %}
+-    </div>    
+-    
++    </div>
++
+ {% endblock %}
+ 
+diff --git a/apps/common/templates/generic_form.html b/apps/common/templates/generic_form.html
+index f78216e9870..5fedec55279 100644
+--- a/apps/common/templates/generic_form.html
++++ b/apps/common/templates/generic_form.html
+@@ -1,7 +1,7 @@
+ {% extends "base.html" %}
+ {% load subtemplates_tags %}
+ 
+-{% block title %} :: {% with "true" as striptags %}{% include "calculate_form_title.html" %}{% endwith %}{% endblock %}
++{% block title %} :: {% include "calculate_form_title.html" %}{% endblock %}
+ 
+ {% block sidebar %}
+     {% for subtemplate in sidebar_subtemplates_list %}
+@@ -25,10 +25,10 @@
+             {% include "generic_form_subtemplate.html" %}
+         </div>
+     {% endif %}
+-                             
++
+ <div class="container_12">
+     {% for subtemplate in subtemplates_list %}
+-        <div class="grid_{{ subtemplate.grid|default:12 }}">       
++        <div class="grid_{{ subtemplate.grid|default:12 }}">
+             {% if subtemplate.form %}
+                 {% render_subtemplate subtemplate.name subtemplate.context as rendered_subtemplate %}
+                     <div class="generic_subform">
+@@ -40,7 +40,7 @@
+             {% endif %}
+         </div>
+         {% if subtemplate.grid_clear or not subtemplate.grid %}
+-            <div class="clear"></div> 
++            <div class="clear"></div>
+         {% endif %}
+      {% endfor %}
+ </div>
+diff --git a/apps/common/templates/generic_list.html b/apps/common/templates/generic_list.html
+index 19e7a34b51f..d1fb13ac250 100644
+--- a/apps/common/templates/generic_list.html
++++ b/apps/common/templates/generic_list.html
+@@ -3,7 +3,7 @@
+ {% load navigation_tags %}
+ {% load subtemplates_tags %}
+ 
+-{% block title %} :: {% blocktrans with title|striptags as stripped_title %}List of {{ stripped_title }}{% endblocktrans %}{% endblock %}
++{% block title %} :: {% blocktrans with title as title %}List of {{ title }}{% endblocktrans %}{% endblock %}
+ {#{% block secondary_links %}{{ secondary_links|safe }}{% endblock %}#}
+ 
+ {% block sidebar %}
+diff --git a/apps/common/templates/generic_list_horizontal.html b/apps/common/templates/generic_list_horizontal.html
+index c70d5299ec5..39915c8ef50 100644
+--- a/apps/common/templates/generic_list_horizontal.html
++++ b/apps/common/templates/generic_list_horizontal.html
+@@ -3,7 +3,7 @@
+ {% load navigation_tags %}
+ {% load subtemplates_tags %}
+ 
+-{% block title %} :: {% blocktrans with title|striptags as stripped_title %}List of {{ stripped_title }}{% endblocktrans %}{% endblock %}
++{% block title %} :: {% blocktrans with title as title %}List of {{ title }}{% endblocktrans %}{% endblock %}
+ {#{% block secondary_links %}{{ secondary_links|safe }}{% endblock %}#}
+ 
+ {% block sidebar %}
+diff --git a/apps/common/templates/generic_list_subtemplate.html b/apps/common/templates/generic_list_subtemplate.html
+index 81dfa73983c..6d826f3f078 100644
+--- a/apps/common/templates/generic_list_subtemplate.html
++++ b/apps/common/templates/generic_list_subtemplate.html
+@@ -16,8 +16,8 @@ <h3>
+     </h3>
+     <div class="content">
+         <p>
+-{% else %}    
+-    {% autopaginate object_list %} 
++{% else %}
++    {% autopaginate object_list %}
+     <div class="content">
+     <h2 class="title">
+         {% ifnotequal page_obj.paginator.num_pages 1 %}
+@@ -53,9 +53,9 @@ <h2 class="title">
+                             </button>
+                         </div>
+                     {% endif %}
+-                {% endif %}          
+-            {% endif %}          
+-        
++                {% endif %}
++            {% endif %}
++
+             {% if scrollable_content %}
+                 <div style="border: 1px solid; height: {{ scrollable_content_height }}; overflow: auto;">
+             {% endif %}
+@@ -78,11 +78,11 @@ <h2 class="title">
+ 
+                             {% for column in object_list.0|get_model_list_columns %}
+                                 <th>{{ column.name|capfirst }}</th>
+-                            {% endfor %}            
++                            {% endfor %}
+ 
+                             {% for column in extra_columns %}
+                                 <th>{{ column.name|capfirst }}</th>
+-                            {% endfor %}        
++                            {% endfor %}
+ 
+                             {% if not hide_links %}
+                                 <th class="">&nbsp;</th>
+@@ -91,7 +91,7 @@ <h2 class="title">
+                     {% endif %}
+                     {% for object in object_list %}
+                         <tr class="{% cycle 'odd' 'even2' %}">
+-                        {% if multi_select or multi_select_as_buttons %}    
++                        {% if multi_select or multi_select_as_buttons %}
+                             <td>
+                             {% if multi_select_item_properties %}
+                                 <input type="checkbox" class="checkbox" name="properties_{{ object|get_encoded_parameter:multi_select_item_properties }}" value="" />
+@@ -117,7 +117,7 @@ <h2 class="title">
+                             {% else %}
+                                 <td>{{ object|object_property:column.attribute }}</td>
+                             {% endif %}
+-                        {% endfor %}                        
++                        {% endfor %}
+                         {% if not hide_columns %}
+                             {% for column in object|get_model_list_columns %}
+                                 <td>{{ object|object_property:column.attribute }}</td>
+@@ -149,15 +149,15 @@ <h2 class="title">
+                             {% endif %}
+                         </tr>
+                     {% empty %}
+-                        <tr><td colspan=99 class="tc">{% blocktrans with title|striptags as stripped_title %}There are no {{ stripped_title }}{% endblocktrans %}</td></tr>
++                        <tr><td colspan=99 class="tc">{% blocktrans with title as title %}There are no {{ title }}{% endblocktrans %}</td></tr>
+                     {% endfor %}
+                 </tbody>
+             </table>
+-            
++
+             {% if scrollable_content %}
+-                </div>            
+-            {% endif %}            
+-            
++                </div>
++            {% endif %}
++
+             {% if object_list %}
+                 {% if multi_select or multi_select_as_buttons %}
+                     {% if multi_select_as_buttons %}
+@@ -179,13 +179,13 @@ <h2 class="title">
+                             </button>
+                         </div>
+                     {% endif %}
+-                {% endif %}  
+-            {% endif %}  
++                {% endif %}
++            {% endif %}
+         </form>
+         {% paginate %}
+-        
++
+         {% if side_bar %}
+             </p>
+-        {% endif %} 
++        {% endif %}
+     </div>
+ </div>

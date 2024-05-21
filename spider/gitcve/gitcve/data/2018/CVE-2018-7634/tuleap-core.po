@@ -1,0 +1,1121 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Thomas Gorka <thomas.gorka@enalean.com>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 2.0.3\n"
+
+#, php-format
+msgid ""
+"\"%s\" label already exists. If you save your modifications, both labels "
+"will be merged."
+msgstr ""
+"Le label \"%s\" existe déjà. Si vous sauvegardez vos modifications, alors "
+"les labels seront fusionnés."
+
+#, php-format
+msgid "\"%s\" label already exists. Please choose another one."
+msgstr "Le label \"%s\" label exist déjà. Merci de choisir un autre nom."
+
+#, php-format
+msgid "%d member"
+msgid_plural "%d members"
+msgstr[0] "%d membre"
+msgstr[1] "%d membres"
+
+#, php-format
+msgid "%s has multiple corresponding users."
+msgstr "%s a plusieurs utilisateurs associés."
+
+msgid "A project cannot be its own parent."
+msgstr "Un projet ne peut être son propre parent."
+
+msgid "Access"
+msgstr "Accès"
+
+msgid "Access Logs"
+msgstr "Journal des accès"
+
+msgid "Add binding"
+msgstr "Ajouter le lien"
+
+msgid "Add dashboard"
+msgstr "Ajouter un tableau de bord"
+
+msgid "Add label"
+msgstr "Ajouter un label"
+
+msgid "Add link"
+msgstr "Ajouter un lien"
+
+msgid "Add member"
+msgstr "Ajouter un membre"
+
+msgid "Add parent project"
+msgstr "Ajouter projet parent"
+
+msgid "Add users group"
+msgstr "Ajouter un groupe"
+
+msgid "Add users group binding"
+msgstr "Ajouter un lien à un groupe"
+
+msgid "Add widget"
+msgstr "Ajouter un widget"
+
+msgid "Adding a non-project member"
+msgstr "Ajouter un utilisateur non membre du projet"
+
+msgid "Administrator"
+msgstr "Administrateur"
+
+msgid "Agile Dashboard"
+msgstr "Agile Dashboard"
+
+msgid "All groups"
+msgstr "Tous les groupes"
+
+msgid "Already used"
+msgstr "Déjà utilisé"
+
+msgid ""
+"An error occured with your upload. Please try again or choose another image."
+msgstr ""
+"Une erreur est survenue lors de votre téléversement. Merci d'essayer à "
+"nouveau ou de choisir une autre image."
+
+msgid ""
+"An error occurred in form submission, a link is not valid. Please retry."
+msgstr ""
+"Une erreur est survenue, un lien n'est pas valide. Merci de recommencer."
+
+msgid "An error occurred when saving user group."
+msgstr "Une erreur est survenue lors de la sauvegarde du groupe utilisateur."
+
+msgid "An error occurred while clearing the content of your history"
+msgstr "Une erreur est survenue lors de la suppression de votre historique"
+
+msgid "An error occurred while fetching the content of your history"
+msgstr "Une erreur est survenue lors de la récupération de votre historique"
+
+msgid "An error occurred while trying to add the label."
+msgstr "Une erreur est survenue lors de l'ajout du label."
+
+msgid "An error occurred while trying to add the widget to the dashboard"
+msgstr ""
+"Une erreur est survenue lors de l'ajout du widget sur le tableau de bord"
+
+msgid "An error occurred while trying to edit the label."
+msgstr "Une erreur est survenue lors de l'édition du label."
+
+msgid "An error occurred while trying to remove the label."
+msgstr "Une erreur est survenue lors de la suppression du label."
+
+msgid "An error occurred while trying to update permissions delegations."
+msgstr ""
+"Une erreur est survenue lors de la mise à jour des délégations de "
+"permissions."
+
+msgid "And more..."
+msgstr "Et plus ..."
+
+msgid "And one other users group you are not allowed to administrate."
+msgid_plural "And %d other users groups you are not allowed to administrate."
+msgstr[0] "Et un autre groupe que vous ne pouvez pas administrer."
+msgstr[1] "Et %d autres groupes que vous ne pouvez pas administrer."
+
+msgid "Awesome service to manage extra stuff"
+msgstr "Le service qui gère des trucs"
+
+msgid "Beyond 3 columns, each column<br>will have the same size."
+msgstr "Au-delà de 3 colonnes, chaque colonne<br>aura la même taille."
+
+msgid "CVS"
+msgstr "CVS"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+#, php-format
+msgid ""
+"Cannot create the label \"%s\" because another one already exists with same "
+"name."
+msgstr ""
+"Impossible de créer le label  \"%s\" car il existe un autre label avec le "
+"même nom."
+
+msgid "Cannot delete the requested dashboard."
+msgstr "Impossible de supprimer le tableau de bord demandé."
+
+msgid "Cannot delete the widget."
+msgstr "Impossible de supprimer le widget."
+
+msgid "Cannot maximize the widget."
+msgstr "Impossible d'agrandir le widget."
+
+msgid "Cannot minimize the widget."
+msgstr "Impossible de réduire le widget."
+
+msgid "Cannot update the requested dashboard."
+msgstr "Impossible d'éditer le tableau de bord demandé."
+
+msgid "Cannot update users group."
+msgstr "Impossible de mettre à jour le groupe utilisateur"
+
+msgid "Categories"
+msgstr "Catégories"
+
+msgid "Child projects"
+msgstr "Projets enfants"
+
+msgid "Clear history"
+msgstr "Effacer l'historique"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Color"
+msgstr "Couleur"
+
+msgid "Configure services"
+msgstr "Configurer les services"
+
+msgid "Could not commit repository initial layout"
+msgstr "Impossible de commiter la structure initiale du dépôt"
+
+msgid "Could not create/initialize SVN repository"
+msgstr "Impossible de créer/initialiser le dépôt SVN"
+
+msgid "Could not the access file of the SVN repository"
+msgstr "Impossible d'accèder au fichier de contrôle d'accès du dépôt SVN"
+
+msgid "Could not update hooks of the SVN repository"
+msgstr "Impossible de mettre à jour les hooks du dépôt SVN"
+
+msgid "Create a new service"
+msgstr "Créer un nouveau service"
+
+msgid "Create from"
+msgstr "Créer à partir de"
+
+msgid "Create label"
+msgstr "Créer le label"
+
+msgid "Create service"
+msgstr "Créer le service"
+
+msgid "Create user group"
+msgstr "Ajouter un groupe utilisateur"
+
+msgid "Custom groups"
+msgstr "Groupes personnalisés"
+
+msgid "Dashboard creation failed."
+msgstr "La création du tableau de bord a échouée."
+
+msgid "Dashboard has been successfully created."
+msgstr "Le tableau de bord a correctement été créé."
+
+msgid "Dashboard has been successfully deleted."
+msgstr "Le tableau de bord a correctement été supprimé."
+
+msgid "Dashboard has been successfully updated."
+msgstr "Le tableau de bord a correctement été modifié."
+
+msgid "Dashboard name"
+msgstr "Nom du tableau de bord"
+
+msgid "Dashboard of the project"
+msgstr "Dashboard du projet"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+#, php-format
+msgid "Delete %s"
+msgstr "Supprimer %s"
+
+msgid "Delete binding"
+msgstr "Supprimer le lien"
+
+msgid "Delete dashboard"
+msgstr "Supprimer le tableau de bord"
+
+msgid "Delete parent"
+msgstr "Supprimer le parent"
+
+msgid "Delete service"
+msgstr "Supprimer le service"
+
+msgid "Delete users group"
+msgstr "Supprimer un groupe utilisateurs"
+
+msgid "Delete widget"
+msgstr "Supprimer le widget"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Details"
+msgstr "Détails"
+
+msgid "Display in iframe"
+msgstr "Afficher dans une iframe"
+
+msgid "Displays the 30 last updated or created items in the project."
+msgstr "Affiche les 30 derniers éléments modifiés ou créés dans le projet."
+
+msgid "Documents"
+msgstr "Documents"
+
+msgid "Don't forget to use tab/shift+tab to navigate in dropdown"
+msgstr ""
+"N'oubliez pas d'utiliser tab/shift+tab pour naviguer dans les menus "
+"déroulants"
+
+msgid "Edit"
+msgstr "Éditer"
+
+#, php-format
+msgid "Edit %s"
+msgstr "Éditer %s"
+
+msgid "Edit dashboard"
+msgstr "Éditer le tableau de bord"
+
+msgid "Edit service"
+msgstr "Éditer le service"
+
+msgid "Edit settings"
+msgstr "Éditer les paramètres"
+
+msgid "Edit widget"
+msgstr "Éditer le widget"
+
+msgid "Emergency"
+msgstr "Urgent"
+
+msgid "Empty group"
+msgstr "Groupe vide"
+
+msgid "Enabled"
+msgstr "Actif"
+
+msgid "Enabled?"
+msgstr "Activé?"
+
+msgid "Escape from input/textarea, close dropdown or modal"
+msgstr "Sort d'un champ de texte, ferme les listes déroulantes et les modales"
+
+msgid "FRS"
+msgstr "FRS"
+
+msgid "Files"
+msgstr "Fichiers"
+
+msgid "Files service is disabled for this project."
+msgstr "Le service fichiers est désactivé pour ce projet."
+
+msgid "Filled"
+msgstr "Rempli"
+
+msgid "Filter by name"
+msgstr "Filtrer par nom"
+
+msgid "Forums"
+msgstr "Forums"
+
+msgid "Git"
+msgstr "Git"
+
+msgid "Global access"
+msgstr "Accès global"
+
+msgid "Global permissions"
+msgstr "Permissions globales"
+
+msgid "Go up"
+msgstr "Niveau supérieur"
+
+msgid "Granted groups"
+msgstr "Groupes autorisés"
+
+msgid "Group"
+msgstr "Groupes"
+
+msgid "Group binding"
+msgstr "Lien entre groupes"
+
+msgid "Group details"
+msgstr "Détails du groupe"
+
+msgid "Group members"
+msgstr "Membres du groupe"
+
+msgid "Heartbeat"
+msgstr "Activité"
+
+msgid "History"
+msgstr "Historique"
+
+msgid "Homepage"
+msgstr "Page d'accueil"
+
+msgid "Image"
+msgstr "Image"
+
+msgid "Import"
+msgstr "Importer"
+
+msgid "Import members"
+msgstr "Importer des membres"
+
+msgid "Inherited?"
+msgstr "Hérité?"
+
+msgid "Initial layout creation"
+msgstr "Création de la structure initiale"
+
+msgid "Instant messaging"
+msgstr "Messagerie Instantanée"
+
+msgid "Instantiated for new projects"
+msgstr "Instancié dans les nouveaux projets"
+
+#, php-format
+msgid "Invalid group name: %s. Please use only alphanumerical characters."
+msgstr ""
+"Le nom du groupe %s est invalide. Merci d'utiliser uniquement des caractères "
+"alphanumériques."
+
+msgid "Is used?"
+msgstr "Utilisé ?"
+
+msgid "Label"
+msgstr "Label"
+
+msgid "Label has been added."
+msgstr "Le label a été ajouté."
+
+msgid "Label has been deleted from the project."
+msgstr "Le label a été supprimé du projet."
+
+msgid "Label has been edited."
+msgstr "Le label a été édité."
+
+msgid "Label has not been edited."
+msgstr "Le label n'a pas été édité."
+
+msgid "Labels"
+msgstr "Labels"
+
+msgid "Link"
+msgstr "Lien"
+
+msgid "Links"
+msgstr "Liens"
+
+msgid "Lists"
+msgstr "Listes"
+
+msgid "Meaningful description of the group"
+msgstr "Description du groupe"
+
+msgid "Mediawiki"
+msgstr "Mediawiki"
+
+msgid "Member name"
+msgstr "Nom du membre"
+
+msgid "Member removal"
+msgstr "Suppression de membre"
+
+msgid "Members"
+msgstr "Membres"
+
+msgid "Members of user groups"
+msgstr "Membre des groupes"
+
+msgid "Membership management"
+msgstr "Gestion des membres"
+
+msgid "Missing Information. PLEASE fill in all required information."
+msgstr "Information manquante. Veuillez saisir les informations demandées."
+
+msgid "My personnal page"
+msgstr "Ma page personnelle"
+
+msgid "My service"
+msgstr "Mon service"
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Name or description"
+msgstr "Nom ou description"
+
+msgid "Name, type..."
+msgstr "Nom, type …"
+
+msgid "Navebar"
+msgstr "Barre de menu"
+
+msgid "Nb members"
+msgstr "Nb membres"
+
+msgid "News"
+msgstr "Annonces"
+
+msgid "News {{ user_group_name }} can see"
+msgstr "Annonces que {{ user_group_name }} peuvent voir"
+
+msgid "No children projects"
+msgstr "Aucun projet enfant"
+
+msgid "No items can use labels in this project."
+msgstr "Aucun éléments dans ce projet ne peux utiliser les labels."
+
+msgid "No labels defined in this project"
+msgstr "Il n'y a pas de label défini dans ce projet"
+
+msgid "No matching labels"
+msgstr "Il n'y a aucun label correspondant"
+
+msgid "No project trove categories"
+msgstr "Aucune catégorie de projet"
+
+msgid "Not categorized"
+msgstr "Non catégorisé"
+
+msgid "Open \"Help\" dropdown"
+msgstr "Affiche l'onglet \"Aide\""
+
+msgid "Open \"More\" dropdown"
+msgstr "Affiche l'onglet \"Plus\""
+
+msgid "Open \"Projects\" dropdown"
+msgstr "Affiche l'onglet \"Projets\""
+
+msgid "Open the account management dropdown (need to be connected)"
+msgstr "Affiche l'onglet de gestion du compte (si connecté)"
+
+msgid "Open/Close the shortcut window"
+msgstr "Ouvre/Ferme la fenêtre d'aide des raccourcis"
+
+msgid "Open/Collapse the sidebar"
+msgstr "Ouvre/Ferme la barre de service"
+
+msgid "Outline"
+msgstr "Contour"
+
+msgid "Owner"
+msgstr "Propriétaire"
+
+msgid "PHPWiki"
+msgstr "PHPWiki"
+
+msgid "Page permissions are not listed."
+msgstr "Les permissions par page ne sont pas listées."
+
+msgid "Parent project"
+msgstr "Projet parent"
+
+msgid "People in this group will be able to manage project members."
+msgstr ""
+"Les personnes dans ce groupe seront capables de gérer les membres du projet."
+
+msgid "Per group"
+msgstr "Par groupe"
+
+msgid "Permission"
+msgstr "Permission"
+
+msgid "Permission Request"
+msgstr "Demande de permission"
+
+msgid "Permissions delegation"
+msgstr "Délégation des permissions"
+
+msgid "Permissions delegations have been successfully updated."
+msgstr "Les délégations de permissions ont été mises à jour."
+
+msgid "Permissions for deprecated services"
+msgstr "Permissions pour les services dépréciés"
+
+msgid "Permissions per group"
+msgstr "Permissions par groupe"
+
+msgid "Platform administration"
+msgstr "Administration de la plateforme"
+
+msgid "Please accept term of service"
+msgstr "Merci d'accepter les conditions d'utilisation"
+
+msgid "Please avoid spaces and punctuation in users groups name."
+msgstr ""
+"Veuillez éviter les espaces et les signes de ponctuation dans les noms de "
+"groupe."
+
+msgid "Please choose a valid text file"
+msgstr "Veuillez choisir un fichier texte valide"
+
+msgid ""
+"Please make sure the users who will be imported are already registered and "
+"have an active account."
+msgstr ""
+"Veuillez vous assurer que les utilisateurs qui seront importés sont déjà "
+"enregistrés et possèdent un compte actif."
+
+msgid "Please select a file to upload"
+msgstr "Veuillez sélectionner un fichier à téléverser"
+
+msgid "Please, enter a http:// or https:// link"
+msgstr "Veuillez utiliser un lien http:// ou https://"
+
+msgid "Project"
+msgstr "Projet"
+
+msgid "Project Data Export"
+msgstr "Export des données"
+
+msgid "Project History"
+msgstr "Historique du projet"
+
+msgid "Project administration"
+msgstr "Administration du projet"
+
+msgid ""
+"Project admins can't be removed from project. You must remove them from "
+"Project administrators group first."
+msgstr ""
+"Les administrateurs ne peuvent pas être retirés du projet. Vous devez "
+"d'abord les retirer du groupe Administrateurs du projet."
+
+msgid "Project hierarchy"
+msgstr "Hierarchie de projets"
+
+msgid "Project name"
+msgstr "Nom du projet"
+
+msgid "Project name shouldn't exceed 40 characters."
+msgstr "Le nom du projet ne doit pas dépasser 40 caractères."
+
+msgid "Project name..."
+msgstr "Nom du projet..."
+
+msgid "Project registration is disabled"
+msgstr "L'enregistrement de project est désactivé"
+
+msgid "Project templates"
+msgstr "Patrons de projet"
+
+msgid "Project trove categories"
+msgstr "Catégories de projet"
+
+msgid "Project type"
+msgstr "Type du projet"
+
+msgid "Project visibility"
+msgstr "Visibilité du projet"
+
+msgid "Project web site"
+msgstr "Site web du projet"
+
+msgid "Projects created from this template"
+msgstr "Projets créés à partir de ce patron"
+
+msgid "Projects in category"
+msgstr "Projets dans la catégorie selectionnée"
+
+msgid "Public information"
+msgstr "Informations publiques"
+
+msgid "RSS"
+msgstr "RSS"
+
+msgid "Rank"
+msgstr "Rang"
+
+msgid "Recently"
+msgstr "Récemment"
+
+msgid "Remove"
+msgstr "Retirer"
+
+msgid "Remove from project"
+msgstr "Retirer du projet"
+
+msgid "Remove from users group"
+msgstr "Supprimer du groupe"
+
+msgid "Remove group member"
+msgstr "Supprimer un membre du groupe"
+
+msgid "SVN"
+msgstr "SVN"
+
+msgid "Save delegated permissions"
+msgstr "Sauvegarder les permissions déléguées"
+
+msgid "Save information"
+msgstr "Enregistrer les informations"
+
+msgid "Save modifications"
+msgstr "Enregistrer les modifications"
+
+msgid "Scope"
+msgstr "Portée"
+
+msgid "Search"
+msgstr "Rechercher"
+
+msgid "See permissions"
+msgstr "Voir les permissions"
+
+msgid "Service news is disabled for this project."
+msgstr "Le service annonces est désactivé pour ce projet."
+
+msgid "Service permissions"
+msgstr "Permissions des services"
+
+msgid "Services"
+msgstr "Services"
+
+msgid "Short description"
+msgstr "Description courte"
+
+msgid "Short description shouldn't exceed 255 characters."
+msgstr "La description courte ne doit pas dépasser 255 caractères."
+
+msgid "Short name"
+msgstr "Nom court"
+
+msgid "Shortcut list"
+msgstr "Liste des raccourcis"
+
+msgid "Sidebar (project)"
+msgstr "Barre de service (projet)"
+
+msgid "Start by choosing a widget"
+msgstr "Commencez par choisir un widget"
+
+msgid "Style"
+msgstr "Style"
+
+msgid "System"
+msgstr "Système"
+
+msgid "System groups"
+msgstr "Groupes système"
+
+msgid "Template used by project"
+msgstr "Patron utilisé par ce projet"
+
+#, php-format
+msgid "The dashboard \"%s\" already exists."
+msgstr "Le tableau de bord \"%s\" existe déjà."
+
+#, php-format
+msgid "The dashboard '%s' doesn't exist."
+msgstr "Le tableau de bord \"%s\" n’existe pas."
+
+#, php-format
+msgid "The directory %s is not valid"
+msgstr "Le répertoire %s n'est valide"
+
+#, php-format
+msgid "The entered value '%s' is invalid."
+msgstr "La valeur saisie '%s' est invalide."
+
+msgid ""
+"The given parent project does not exist or you are not its administrator."
+msgstr ""
+"Le projet parent n'existe pas ou alors vous n'en êtes pas administrateur."
+
+msgid "The group id is missing"
+msgstr "L'identifiant du groupe utilisateur est requis"
+
+msgid "The group name is missing"
+msgstr "Le nom du groupe utilisateur est requis"
+
+msgid "The last project administrator cannot be removed."
+msgstr ""
+"Il n'est pas possible de supprimer le dernier administrateur du projet."
+
+msgid "The name is missing for creating a dashboard."
+msgstr "Il manque le nom pour créer un tableau de bord."
+
+msgid "The name is missing for editing the dashboard."
+msgstr "Il manque le nom pour éditer le tableau de bord."
+
+msgid "The requested dashboard does not exist."
+msgstr "Le tableau de bord demandé n’existe pas."
+
+msgid "The user will automatically be added as project member."
+msgstr "L'utilisateur sera ajouté automatiquement aux membres du projet."
+
+msgid "The widget has been added successfully"
+msgstr "Le widget a correctement été ajouté"
+
+msgid "The widget is already used"
+msgstr "Le widget est déjà utilisé"
+
+msgid "There are no items <br> you can see"
+msgstr "Il n'y a aucun élément <br> visible"
+
+msgid "There are no projects in this category"
+msgstr "Aucun projet dans cette catégorie"
+
+msgid "There are no widgets here."
+msgstr "Il n’y a aucun widget."
+
+msgid "There is no users group bound to this one."
+msgstr "Il n'y a pas de groupe lié à celui-ci."
+
+msgid "There isn't <br> any activity yet"
+msgstr "Il n'y a pas <br> encore d'activité"
+
+msgid "There isn't any matching members"
+msgstr "Il n'y a aucun membre correspondant"
+
+msgid "There isn't any matching users groups"
+msgstr "Il n'y a aucun groupe correspondant"
+
+msgid "There isn't any matching widgets"
+msgstr "Il n'y a aucun widget correspondant"
+
+msgid "There isn't any users groups yet"
+msgstr "Aucun groupe n'est actuellement défini"
+
+msgid "These projects are already related."
+msgstr "Un lien de parenté existe déjà entre ces projets."
+
+msgid ""
+"This feature aims to provide a way to structure projects organizations from\n"
+"            permissions, user groups and control point of view. As of today, "
+"it's only used by Git/Gerrit for umbrella\n"
+"            projects (if relevant to your platform/project). However, "
+"setting a hierarchy between projects might have\n"
+"            future impacts (e.g. members of the parent project could "
+"possibly have access to all sub-projects even\n"
+"            without explicit permissions granted)."
+msgstr ""
+"Cette fonctionnalité permet d'organiser vos projets les uns par rapport aux "
+"autres en termes de permissions, groupes d'utilisateurs et de contrôle. "
+"Cependant, à l'heure actuelle, elle n'est exploitée que par Git/Gerrit pour "
+"les projets \"parapluies\" (si ces services sont activés/disponibles sur "
+"votre plate-forme). Veuillez noter que la définition d'une hiérarchie pourra "
+"avoir un impact futur sur l'organisation des enfants (ex. les "
+"administrateurs d'un projet parent pourraient avoir automatiquement accès à "
+"l'administration de tous les sous-projets)."
+
+msgid "This group does not have any members yet."
+msgstr "Ce groupe n'a pas encore de membres."
+
+msgid "This is a system group, you cannot delete it."
+msgstr "Ceci est un groupe système, vous ne pouvez pas le supprimer."
+
+msgid "This is a system service, you cannot delete it."
+msgstr "Ceci est un service système, vous ne pouvez pas le supprimer."
+
+msgid "This label is used in the project"
+msgstr "Ce label est utilisé dans le projet"
+
+msgid ""
+"This permission grants the right to manage platform administration users. "
+"Every single user added here will be a platform administrator."
+msgstr ""
+"Cette permission donne le droit de gérer les administrateurs de la "
+"plateforme. Chaque utilisateur ajouté sera un adminstrateur de la plateforme."
+
+msgid "This project doesn't use any services with permissions."
+msgstr "Ce project n'utilise pas de service avec des permissions."
+
+msgid "This project is not categorized yet."
+msgstr "Ce projet n'est pas encore catégorisé."
+
+msgid "This reference does not exist"
+msgstr "La référence demandée n'existe pas"
+
+msgid ""
+"This users group is bound to a group you are not allowed to administrate."
+msgstr "Ce groupe est lié à un groupe que vous ne pouvez pas administrer."
+
+msgid "This users group is bound to the following group:"
+msgstr "Ce groupe est lié aux groupe suivant :"
+
+msgid "This users group is not bound to any users group."
+msgstr "Ce groupe n'a pas lié à un autre groupe."
+
+msgid ""
+"This users group is the source of one other users group you are not allowed "
+"to administrate."
+msgid_plural ""
+"This users group is the source of %d other users groups you are not allowed "
+"to administrate."
+msgstr[0] ""
+"Ce groupe est la source d'un autre groupe que vous ne pouvez pas administrer."
+msgstr[1] ""
+"Ce groupe est la source de %d autres groupes que vous ne pouvez pas "
+"administrer."
+
+msgid "This will remove this service from all projects."
+msgstr "Ceci supprimera ce service de tous les projets."
+
+msgid "Title"
+msgstr "Titre"
+
+msgid "Today"
+msgstr "Aujourd'hui"
+
+msgid "Tracker"
+msgstr "Suivi"
+
+msgid "Trackers v3 import"
+msgstr "Import outils de suivi v3"
+
+msgid "Unable to fetch the latest activities of the project"
+msgstr "Impossible de récupérer les dernières activités du projet"
+
+msgid "Unix name"
+msgstr "Now unix"
+
+msgid "Update"
+msgstr "Mettre à jour"
+
+msgid "Update failed"
+msgstr "La mise à jour a échoué"
+
+msgid "Update label"
+msgstr "Mettre à jour le label"
+
+msgid "Update successful"
+msgstr "Mis à jour avec succès"
+
+msgid "Upload text file"
+msgstr "Téléverser un fichier texte"
+
+#, php-format
+msgid "User '%s' does not exist"
+msgstr "L'utilisateur '%s' n’existe pas"
+
+msgid "User avatar"
+msgstr "Avatar de l'utilisateur"
+
+msgid "User group"
+msgstr "Groupe d'utilisateurs"
+
+msgid "User group already exists in this project. Please choose another name."
+msgstr ""
+"Le groupe utilisateur existe déjà dans ce projet. Merci de choisir un autre "
+"nom."
+
+msgid "User group created but cannot get Id."
+msgstr "Groupe utilisateur crée, mais impossible de retrouver son Id"
+
+msgid "User name"
+msgstr "Nom d'utilisateur"
+
+msgid "Users group"
+msgstr "Groupe d'utilisateurs"
+
+msgid "Users groups"
+msgstr "Groupes d'utilisateurs"
+
+msgid "Users groups bound to this one"
+msgstr "Groupes liés à celui-ci"
+
+msgid "We cannot find any edition information for the requested widget."
+msgstr "Impossible de trouver comment éditer le widget requis."
+
+msgid "We cannot find any widgets."
+msgstr "Impossible de trouver des widgets."
+
+msgid "Welcome aboard"
+msgstr "Bienvenue à bord"
+
+msgid "Welcome message and information for users"
+msgstr "Message de bienvenue et informations générales pour les utilisateurs"
+
+msgid ""
+"Why don't you start by editing your dashboard <br> and adding some widgets?"
+msgstr ""
+"Pourquoi ne pas commencer par éditer votre tableau de bord <br> et ajouter "
+"des widgets?"
+
+msgid "Widget has been successfully deleted."
+msgstr "Le widget a correctement été supprimé."
+
+msgid "Widgets"
+msgstr "Widgets"
+
+msgid "Wiki"
+msgstr "Wiki"
+
+msgid ""
+"Wow, wait a minute. You are about to remove the parent. Please confirm your "
+"action."
+msgstr ""
+"Wow, attendez une minute. Vous êtes sur le point de supprimer le parent. "
+"Merci de confirmer votre action."
+
+#, php-format
+msgid ""
+"Wow, wait a minute. You're about to delete the label <b>%s</b>. Please "
+"confirm your action."
+msgstr ""
+"Wow, attendez une minute. Vous êtes sur le point de supprimer le label <b>"
+"%s</b>. Merci de confirmer votre action."
+
+msgid "Yesterday"
+msgstr "Hier"
+
+msgid "You are about to delete <b>%s</b> binding. Please, confirm your action."
+msgstr ""
+"Vous êtes sur le point de supprimer le lien <b>%s</b>. Merci de confirmer "
+"votre action."
+
+msgid ""
+"You are about to delete <b>%s</b> users group. Please, confirm your action."
+msgstr ""
+"Wow, attendez une minute. Vous êtes sur le point de supprimer le groupe "
+"utilisateurs <b>%s</b>. Merci de confirmer votre action."
+
+#, php-format
+msgid ""
+"You are about to delete the dashboard \"%s\".\n"
+"                This action is irreversible. Please confirm this deletion."
+msgstr ""
+"Vous êtes sur le point de supprimer le tableau de bord \"%s\". Cette action "
+"est irréversible. Merci de confirmez cette suppression."
+
+msgid ""
+"You are about to delete the service <b>%s</b>. Please, confirm your action."
+msgstr ""
+"Vous êtes sur le point de supprimer le service <b>%s</b>. Merci de confirmer "
+"votre action."
+
+#, php-format
+msgid ""
+"You are about to delete the widget \"%s\".\n"
+"                This action is irreversible. Please confirm this deletion."
+msgstr ""
+"Vous êtes sur le point de supprimer le widget \"%s\". Cette action est "
+"irréversible. Merci de confirmer cette suppression."
+
+msgid ""
+"You can delegate to this group several permissions. All the members of this\n"
+"                        group will take advantage of these permissions."
+msgstr ""
+"Vous pouvez déléguer à ce groupe des permissions. Tous les membres de ce "
+"groupe  bénéficieront alors de ces permissions."
+
+msgid "You can import users into your project by specifying a text file."
+msgstr ""
+"Vous pouvez importer des utilisateurs dans votre projet en spécifiant un "
+"fichier texte."
+
+msgid "You can include empty lines in the import file."
+msgstr "Vous pouvez inclure des lignes vides dans le fichier d'import."
+
+msgid "You can not delete system user groups"
+msgstr "Vous ne pouvez pas supprimer un groupe utilisateurs système"
+
+msgid "You can only edit your own widgets."
+msgstr "Vous ne pouvez éditer que vos propres widgets."
+
+msgid ""
+"You can't remove the last group containing site administrator permissions"
+msgstr ""
+"Vous ne pouvez pas supprimer le dernier groupe ayant les droits "
+"d'administration de la plateforme."
+
+msgid ""
+"You can't remove the last group containing site administrator permissions."
+msgstr ""
+"Vous ne pouvez pas supprimer le dernier groupe ayant les droits "
+"d'administration de la plateforme."
+
+msgid "You can't remove the last platform administration permission."
+msgstr ""
+"Vous ne pouvez pas supprimer la dernière permission d'administration de la "
+"plateforme."
+
+msgid "You don't have any dashboards."
+msgstr "Vous n'avez aucun tableau de bord."
+
+msgid "You don't have permissions to see user groups."
+msgstr "Vous n'avez pas la permission de voir les groupes d'utilisateurs."
+
+#, php-format
+msgid "You have not rights to update dashboards of the project \"%s\"."
+msgstr ""
+"Vous n’avez pas les droits pour mettre à jour des tableaux de bord du projet "
+"\"%s\"."
+
+msgid "You must be a project admin to edit this widget."
+msgstr ""
+"Vous devez être administrateur du projet pour pouvoir éditer ce widget."
+
+msgid ""
+"You need to provide a simple file, containing in each line the email address "
+"or the username of the user."
+msgstr ""
+"Vous devez fournir un fichier simple, contenant pour chaque ligne l'adresse "
+"email ou le nom de l'utilisateur à importer."
+
+msgid "You should provide a file in entry."
+msgstr "Vous devez fournir un fichier en entrée."
+
+msgid ""
+"You should remove user from news administrators before being able to remove "
+"him from writers."
+msgstr ""
+"Vous devez supprimer l'utilisateur des administrateurs d'annonces avant de "
+"pouvoir l'enlever des rédacteurs"
+
+msgid "Your history is empty"
+msgstr "Votre historique est vide"
+
+msgid "Your platform does not allow restricted users."
+msgstr "Votre plateforme n'authorise pas les utilisateurs restreints"
+
+msgid "categories"
+msgstr "catégories"
+
+msgid "data"
+msgstr "données"
+
+msgid "details"
+msgstr "détails"
+
+msgid "groups"
+msgstr "groupes"
+
+msgid "labels"
+msgstr "labels"
+
+msgid "my_service"
+msgstr "mon_service"
+
+msgid "permissions"
+msgstr "permissions"
+
+msgid "references"
+msgstr "références"
+
+msgid "services"
+msgstr "services"
+
+msgid "{{ user_group_name }} has no global permission"
+msgstr "{{ user_group_name }} n'a pas de permissions globales"

@@ -1,0 +1,13 @@
+diff --git a/rsvg-io.c b/rsvg-io.c
+index 7452b73..6e68b6f 100644
+--- a/rsvg-io.c
++++ b/rsvg-io.c
+@@ -130,7 +130,7 @@ _rsvg_io_get_file_path (const gchar * filename,
+ {
+     gchar *absolute_filename;
+ 
+-    if (g_file_test (filename, G_FILE_TEST_EXISTS) || g_path_is_absolute (filename)) {
++    if (g_path_is_absolute (filename)) {
+         absolute_filename = g_strdup (filename);
+     } else {
+         gchar *tmpcdir;

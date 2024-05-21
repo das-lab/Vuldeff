@@ -1,0 +1,31 @@
+diff --git a/actionpack/lib/action_controller/vendor/html-scanner/html/node.rb b/actionpack/lib/action_controller/vendor/html-scanner/html/node.rb
+index 22b3243104a21..4e1f01643196d 100644
+--- a/actionpack/lib/action_controller/vendor/html-scanner/html/node.rb
++++ b/actionpack/lib/action_controller/vendor/html-scanner/html/node.rb
+@@ -156,7 +156,7 @@ def parse(parent, line, pos, content, strict=true)
+           end
+ 
+           closing = ( scanner.scan(/\//) ? :close : nil )
+-          return Text.new(parent, line, pos, content) unless name = scanner.scan(/[\w:-]+/)
++          return Text.new(parent, line, pos, content) unless name = scanner.scan(/[^\s!>\/]+/)
+           name.downcase!
+ 
+           unless closing
+diff --git a/actionpack/test/template/html-scanner/sanitizer_test.rb b/actionpack/test/template/html-scanner/sanitizer_test.rb
+index 678cb9eeeb99c..62ad6be68028c 100644
+--- a/actionpack/test/template/html-scanner/sanitizer_test.rb
++++ b/actionpack/test/template/html-scanner/sanitizer_test.rb
+@@ -5,6 +5,13 @@ def setup
+     @sanitizer = nil # used by assert_sanitizer
+   end
+ 
++  def test_strip_tags_with_quote
++    sanitizer = HTML::FullSanitizer.new
++    string    = '<" <img src="trollface.gif" onload="alert(1)"> hi'
++
++    assert_equal ' hi', sanitizer.sanitize(string)
++  end
++
+   def test_strip_tags
+     sanitizer = HTML::FullSanitizer.new
+     assert_equal("<<<bad html", sanitizer.sanitize("<<<bad html"))

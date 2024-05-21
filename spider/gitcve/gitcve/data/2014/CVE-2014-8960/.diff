@@ -1,0 +1,25 @@
+diff --git a/ChangeLog b/ChangeLog
+index 41efceee0ca..f5b06e6370c 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -13,6 +13,7 @@ phpMyAdmin - ChangeLog
+ - bug #4599 Input field unnecessarily selected on focus
+ - bug #4602 Exporting selected rows exports all rows of the query
+ - bug #4444 No insert statement produced in SQL export for queries with alias
++- bug #4596 [security] XSS through exception stack
+ 
+ 4.2.11.0 (2014-10-31)
+ - bug       ReferenceError: Table_onover is not defined
+diff --git a/libraries/error_report.lib.php b/libraries/error_report.lib.php
+index 80a216eff8b..8843dfcd31a 100644
+--- a/libraries/error_report.lib.php
++++ b/libraries/error_report.lib.php
+@@ -279,7 +279,7 @@ function PMA_getErrorReportForm()
+             . __('You may examine the data in the error report:')
+             . '</p></label></div>'
+             . '<pre class="report-data">'
+-            . PMA_getReportData()
++            . htmlspecialchars(PMA_getReportData())
+             . '</pre>';
+ 
+     $html .= '<div class="label"><label><p>'

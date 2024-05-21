@@ -1,0 +1,13 @@
+diff --git a/classes/ezjscajaxcontent.php b/classes/ezjscajaxcontent.php
+index bab1cf92..97610b16 100644
+--- a/classes/ezjscajaxcontent.php
++++ b/classes/ezjscajaxcontent.php
+@@ -127,7 +127,7 @@ public static function textEncode( $mix )
+         if ( is_array( $mix ) )
+             return implode(',', array_map( array('ezjscAjaxContent', 'textEncode'), array_filter( $mix ) ) );
+ 
+-        return $mix;
++        return htmlspecialchars( $mix );
+     }
+ 
+     /**

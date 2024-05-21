@@ -1,0 +1,11 @@
+# wityCMS
+system/config/config.php
+system/config/database.php
+system/config/route.php
+system/wity.log
+cache/[^.]*/
+upload/[^.]*/
+/sitemap.xml
+
+# macOS
+.DS_Store

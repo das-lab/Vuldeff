@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+	      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	      xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+	      http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	      version="2.4">
+
+  <description>hawtio</description>
+  <display-name>hawtio Karaf terminal plugin</display-name>
+
+  <filter>
+    <filter-name>AuthenticationFilter</filter-name>
+    <filter-class>io.hawt.web.AuthenticationFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>AuthenticationFilter</filter-name>
+    <url-pattern>/term/*</url-pattern>
+  </filter-mapping>
+
+
+  <servlet>
+    <servlet-name>TerminalServlet</servlet-name>
+    <servlet-class>io.hawt.web.plugin.karaf.terminal.TerminalServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>TerminalServlet</servlet-name>
+    <url-pattern>/term/*</url-pattern>
+  </servlet-mapping>
+
+  <listener>
+    <listener-class>io.hawt.web.plugin.karaf.terminal.KarafTerminalContextListener</listener-class>
+  </listener>
+
+</web-app>
+

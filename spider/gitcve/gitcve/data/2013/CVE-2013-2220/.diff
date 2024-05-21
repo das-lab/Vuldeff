@@ -1,0 +1,80 @@
+diff --git a/radius.c b/radius.c
+index 210b935..45b31c2 100644
+--- a/radius.c
++++ b/radius.c
+@@ -541,24 +541,24 @@ PHP_FUNCTION(radius_get_attr)
+ /* {{{ proto string radius_get_vendor_attr(data) */
+ PHP_FUNCTION(radius_get_vendor_attr)
+ {
+-	int res;
+-	const void *data;
++	const void *data, *raw;
+ 	int len;
+ 	u_int32_t vendor;
++	unsigned char type;
++	size_t data_len;
+ 
+-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &data, &len) == FAILURE) {
++	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &raw, &len) == FAILURE) {
+ 		return;
+ 	}
+ 
+-	res = rad_get_vendor_attr(&vendor, &data, (size_t *) &len);
+-	if (res == -1) {
++	if (rad_get_vendor_attr(&vendor, &type, &data, &data_len, raw, len) == -1) {
+ 		RETURN_FALSE;
+ 	} else {
+ 
+ 		array_init(return_value);
+-		add_assoc_long(return_value, "attr", res);
++		add_assoc_long(return_value, "attr", type);
+ 		add_assoc_long(return_value, "vendor", vendor);
+-		add_assoc_stringl(return_value, "data", (char *) data, len, 1);
++		add_assoc_stringl(return_value, "data", (char *) data, data_len, 1);
+ 		return;
+ 	}
+ }
+diff --git a/radlib.c b/radlib.c
+index 3592cde..3e163d7 100644
+--- a/radlib.c
++++ b/radlib.c
+@@ -898,15 +898,24 @@ split(char *str, char *fields[], int maxfields, char *msg, size_t msglen)
+ }
+ 
+ int
+-rad_get_vendor_attr(u_int32_t *vendor, const void **data, size_t *len)
++rad_get_vendor_attr(u_int32_t *vendor, unsigned char *type, const void **data, size_t *len, const void *raw, size_t raw_len)
+ {
+ 	struct vendor_attribute *attr;
+ 
+-	attr = (struct vendor_attribute *)*data;
++	if (raw_len < sizeof(struct vendor_attribute)) {
++		return -1;
++	}
++
++	attr = (struct vendor_attribute *) raw;
+ 	*vendor = ntohl(attr->vendor_value);
++	*type = attr->attrib_type;
+ 	*data = attr->attrib_data;
+ 	*len = attr->attrib_len - 2;
+ 
++	if ((attr->attrib_len + 4) > raw_len) {
++		return -1;
++	}
++
+ 	return (attr->attrib_type);
+ }
+ 
+diff --git a/radlib_vs.h b/radlib_vs.h
+index 1c448a6..889a454 100644
+--- a/radlib_vs.h
++++ b/radlib_vs.h
+@@ -74,7 +74,7 @@
+ 
+ struct rad_handle;
+ 
+-int	rad_get_vendor_attr(u_int32_t *, const void **, size_t *);
++int	rad_get_vendor_attr(u_int32_t *, unsigned char *, const void **, size_t *, const void *, size_t);
+ int	rad_put_vendor_addr(struct rad_handle *, int, int, struct in_addr);
+ int	rad_put_vendor_attr(struct rad_handle *, int, int, const void *,
+ 	    size_t);

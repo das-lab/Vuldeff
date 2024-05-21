@@ -1,0 +1,44 @@
+diff --git a/js/rte/common.js b/js/rte/common.js
+index a1a553cdea7..b79987dda33 100644
+--- a/js/rte/common.js
++++ b/js/rte/common.js
+@@ -318,7 +318,7 @@ $(document).ready(function () {
+         /**
+          * @var question    String containing the question to be asked for confirmation
+          */
+-        var question = $('<div/>').text($curr_row.children('td').children('.drop_sql').html());
++        var question = $('<div/>').text($curr_row.children('td').children('.drop_sql').text());
+         // We ask for confirmation first here, before submitting the ajax request
+         $(this).PMA_confirm(question, $(this).attr('href'), function (url) {
+             /**
+diff --git a/libraries/rte/rte_list.lib.php b/libraries/rte/rte_list.lib.php
+index 34556b4d254..e0bf2e9d487 100644
+--- a/libraries/rte/rte_list.lib.php
++++ b/libraries/rte/rte_list.lib.php
+@@ -121,7 +121,7 @@ function PMA_RTN_getRowForList($routine, $rowclass = '')
+ 
+     $retval  = "        <tr class='noclick $rowclass'>\n";
+     $retval .= "            <td>\n";
+-    $retval .= "                <span class='drop_sql hide'>$sql_drop</span>\n";
++    $retval .= "                <span class='drop_sql hide'>" . htmlspecialchars($sql_drop) . "</span>\n";
+     $retval .= "                <strong>\n";
+     $retval .= "                    " . htmlspecialchars($routine['SPECIFIC_NAME']) . "\n";
+     $retval .= "                </strong>\n";
+@@ -223,7 +223,7 @@ function PMA_TRI_getRowForList($trigger, $rowclass = '')
+ 
+     $retval  = "        <tr class='noclick $rowclass'>\n";
+     $retval .= "            <td>\n";
+-    $retval .= "                <span class='drop_sql hide'>{$trigger['drop']}</span>\n";
++    $retval .= "                <span class='drop_sql hide'>" . htmlspecialchars($trigger['drop']) . "</span>\n";
+     $retval .= "                <strong>\n";
+     $retval .= "                    " . htmlspecialchars($trigger['name']) . "\n";
+     $retval .= "                </strong>\n";
+@@ -297,7 +297,7 @@ function PMA_EVN_getRowForList($event, $rowclass = '')
+ 
+     $retval  = "        <tr class='noclick $rowclass'>\n";
+     $retval .= "            <td>\n";
+-    $retval .= "                <span class='drop_sql hide'>$sql_drop</span>\n";
++    $retval .= "                <span class='drop_sql hide'>" . htmlspecialchars($sql_drop) . "</span>\n";
+     $retval .= "                <strong>\n";
+     $retval .= "                    " . htmlspecialchars($event['EVENT_NAME']) . "\n";
+     $retval .= "                </strong>\n";

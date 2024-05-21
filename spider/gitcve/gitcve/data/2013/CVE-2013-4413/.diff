@@ -1,0 +1,71 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index b12d20b..0d7e430 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,3 +1,7 @@
++## 1.0.1 (8/08/2013)
++
++* Fix security issue #94
++
+ ## 1.0.0 (8/03/2013)
+ 
+ * Rails 4 compatible tested version released
+diff --git a/VERSION b/VERSION
+index 3eefcb9..7dea76e 100644
+--- a/VERSION
++++ b/VERSION
+@@ -1 +1 @@
+-1.0.0
++1.0.1
+diff --git a/lib/wicked.rb b/lib/wicked.rb
+index 3438ec7..30934ef 100644
+--- a/lib/wicked.rb
++++ b/lib/wicked.rb
+@@ -1,3 +1,5 @@
++require 'erb'
++
+ module Wicked
+   FINISH_STEP = "wicked_finish"
+   FIRST_STEP  = "wicked_first"
+diff --git a/lib/wicked/controller/concerns/render_redirect.rb b/lib/wicked/controller/concerns/render_redirect.rb
+index f02534a..254ce5e 100644
+--- a/lib/wicked/controller/concerns/render_redirect.rb
++++ b/lib/wicked/controller/concerns/render_redirect.rb
+@@ -26,7 +26,7 @@ def render_step(the_step, options = {})
+     if the_step.nil? || the_step.to_s == Wicked::FINISH_STEP
+       redirect_to_finish_wizard options
+     else
+-      render the_step, options
++      render ERB::Util.url_encode(the_step), options
+     end
+   end
+ 
+diff --git a/test/integration/security_test.rb b/test/integration/security_test.rb
+new file mode 100644
+index 0000000..c144a2a
+--- /dev/null
++++ b/test/integration/security_test.rb
+@@ -0,0 +1,23 @@
++require 'test_helper'
++
++class SecurityTest < ActiveSupport::IntegrationCase
++
++  test 'does not show database.yml' do
++    step = "%2E%2F%2E%2E%2F%2E%2E%2Fconfig%2Fdatabase%2Eyml"
++    assert_raise ActionView::MissingTemplate do
++      visit(bar_path(step))
++    end
++    refute has_content?('sqlite3')
++  end
++
++  # only works on *nix systems
++  test 'does not show arbitrary system file' do
++    root = '%2E%2F%2E' * 100 # root of system
++    step = root + '%2Fusr%2Fshare%2Fdict%2Fwords'
++
++    assert_raise ActionView::MissingTemplate do
++      visit(bar_path(step))
++    end
++    refute has_content?('aardvark')
++  end
++end

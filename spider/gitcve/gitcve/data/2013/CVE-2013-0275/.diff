@@ -1,0 +1,407 @@
+diff --git a/actions.php b/actions.php
+index 461ae1a5..2a1a8fc4 100644
+--- a/actions.php
++++ b/actions.php
+@@ -14,13 +14,13 @@
+   <?php
+   if ( isset($_GET['aggregate']) ) {
+   ?>
+-     <tr><th>Host regular expression</th><td><?php print join (",", $_GET['hreg']); ?></td></tr>
+-     <tr><th>Metric regular expression</th><td><?php print join (",", $_GET['mreg']); ?></td></tr>
++     <tr><th>Host regular expression</th><td><?php print htmlspecialchars( join (",", $_GET['hreg']) ); ?></td></tr>
++     <tr><th>Metric regular expression</th><td><?php print htmlspecialchars( join (",", $_GET['mreg']) ); ?></td></tr>
+   <?php
+     } else {
+   ?>
+-     <tr><th>Hostname</th><td><?php print $_GET['host_name']; ?></td></tr>
+-     <tr><th>Metric/Report</th><td><?php print $_GET['metric_name']; ?></td></tr>
++     <tr><th>Hostname</th><td><?php print htmlspecialchars($_GET['host_name']); ?></td></tr>
++     <tr><th>Metric/Report</th><td><?php print htmlspecialchars($_GET['metric_name']); ?></td></tr>
+   <?php
+   }
+   ?>
+@@ -35,17 +35,17 @@
+ 	foreach ( $_GET as $key => $value ) {
+ 	  if ( is_array($value) ) {
+ 	    foreach ( $value as $index => $value2 ) {
+-	      print '<input type="hidden" name="' . $key .'[]" value="' . $value2 . '" />';
++	      print '<input type="hidden" name="' . htmlspecialchars($key) .'[]" value="' . htmlspecialchars($value2) . '" />';
+ 	    }
+ 	  } else {
+-	    print '<input type="hidden" name="' . $key .'" value="' . $value . '" />';
++	    print '<input type="hidden" name="' . htmlspecialchars($key) .'" value="' . htmlspecialchars($value) . '" />';
+ 	  }
+ 	}
+     } else {
+       // If hostname is not set we assume we are dealing with aggregate graphs
+-      print "<input type=\"hidden\" name=\"host_name\" value=\"{$_GET['host_name']}\" />";
++      print "<input type=\"hidden\" name=\"host_name\" value=\"".htmlspecialchars($_GET['host_name'])."\" />";
+       $metric_name=$_GET['metric_name'];
+-      print "<input type=\"hidden\" name=\"metric_name\" value=\"{$_GET['metric_name']}\" />";
++      print "<input type=\"hidden\" name=\"metric_name\" value=\"".htmlspecialchars($_GET['metric_name'])."\" />";
+       print "<input type=\"hidden\" name=\"type\" value=\"{$_GET['type']}\">";
+       if (isset($_GET['vl']) && ($_GET['vl'] !== ''))
+ 	  print "<input type=\"hidden\" name=\"vertical_label\" value=\"" . htmlentities(stripslashes($_GET['vl'])) . "\" />";
+diff --git a/autorotation.php b/autorotation.php
+index 267435ef..974af1ee 100644
+--- a/autorotation.php
++++ b/autorotation.php
+@@ -127,7 +127,7 @@
+     <div style="margin-top: 10px; font-size: 48px; text-align: center;"><?php echo date(DATE_RFC850); ?></div>
+     <p>
+     <center><form>
+-    <input type="hidden" name="view_name" value="<?php print $_GET['view_name'] ?>">
++    <input type="hidden" name="view_name" value="<?php print htmlspecialchars($_GET['view_name']) ?>">
+     <input type="hidden" name="id" value="<?php print $nextid ?>">
+     Rotate graphs every <select onChange="form.submit();" name="timeout">
+     <?php
+diff --git a/compare_hosts.php b/compare_hosts.php
+index a979a213..d8637cd9 100644
+--- a/compare_hosts.php
++++ b/compare_hosts.php
+@@ -56,12 +56,12 @@
+ $hreg = "";
+ if (array_key_exists('hreg', $_GET)) {
+   foreach ( $_GET['hreg'] as $index => $arg ) {
+-    $hreg .= "&hreg[]=" . $arg;
++    $hreg .= "&hreg[]=" . rawurlencode($arg);
+   }
+ }
+ 
+ if ( isset($_GET['hreg']) ) {
+-  $data->assign("hreg_arg", $_GET['hreg'][0]);
++  $data->assign("hreg_arg", htmlspecialchars($_GET['hreg'][0]) );
+ } else {
+   $data->assign("hreg_arg", "");
+ }
+diff --git a/decompose_graph.php b/decompose_graph.php
+index 60b7e216..da16515e 100644
+--- a/decompose_graph.php
++++ b/decompose_graph.php
+@@ -23,10 +23,10 @@
+ $graph_config = build_aggregate_graph_config ($graph_type, $line_width, $_GET['hreg'], $_GET['mreg']);
+ 
+ foreach ( $_GET['hreg'] as $index => $arg ) {
+-  print "<input type=hidden name=hreg[] value='" . $arg . "'>";
++  print "<input type=hidden name=hreg[] value='" . htmlspecialchars($arg) . "'>";
+ }
+ foreach ( $_GET['mreg'] as $index => $arg ) {
+-  print "<input type=hidden name=mreg[] value='" . $arg . "'>";
++  print "<input type=hidden name=mreg[] value='" . htmlspecialchars($arg) . "'>";
+ }
+ 
+ $size = isset($clustergraphsize) ? $clustergraphsize : 'default';
+diff --git a/graph_all_periods.php b/graph_all_periods.php
+index 5622850f..bbbc84d6 100644
+--- a/graph_all_periods.php
++++ b/graph_all_periods.php
+@@ -53,12 +53,12 @@ function openDecompose($url) {
+ 
+ foreach ($_GET as $key => $value) {
+   if ( ! in_array($key, $ignore_keys_list) && ! is_array($value))
+-    $query_string_array[] = "$key=" . urlencode($value);
++    $query_string_array[] = rawurlencode($key) . "=" . urlencode($value);
+ 
+   // $_GET argument is an array. Rebuild it to pass it on
+   if ( is_array($value) ) {
+     foreach ( $value as $index => $value2 )
+-      $query_string_array[] = $key . "[]=" . urlencode($value2);
++      $query_string_array[] = rawurlencode($key) . "[]=" . urlencode($value2);
+ 
+   }
+ }
+@@ -77,20 +77,20 @@ function openDecompose($url) {
+ 
+ // Descriptive host/aggregate graph
+ if (isset($_GET['h']) && ($_GET['h'] != ''))
+-  $description = $_GET['h'];
++  $description = htmlspecialchars($_GET['h']);
+ else if (isset($_GET['c']) && ($_GET['c'] != ''))
+-  $description = $_GET['c'];
++  $description = htmlspecialchars($_GET['c']);
+ else if (is_array($_GET['hreg']))
+-  $description = join(",", $_GET['hreg']);
++  $description = htmlspecialchars( join(",", $_GET['hreg']) );
+ else
+   $description = "Unknown";
+ 
+ if (isset($_GET['g'])) 
+-  $metric_description = $_GET['g'];
++  $metric_description = htmlspecialchars($_GET['g']);
+ else if ( isset($_GET['m'] ))
+-  $metric_description = $_GET['m'];
++  $metric_description = htmlspecialchars($_GET['m']);
+ else if (is_array($_GET['mreg']) )
+-  $metric_description = join(",", $_GET['mreg']);
++  $metric_description = htmlspecialchars( join(",", $_GET['mreg']) );
+ else
+   $metric_description = "Unknown";
+ 
+@@ -152,7 +152,7 @@ function openDecompose($url) {
+     <div data-role="page" class="ganglia-mobile" id="view-home">
+     <div data-role="header">
+       <a href="#" class="ui-btn-left" data-icon="arrow-l" onclick="history.back(); return false">Back</a>
+-      <h3><?php if (isset($_GET['g'])) echo $_GET['g']; else echo $_GET['m']; ?></h3>
++      <h3><?php if (isset($_GET['g'])) echo htmlspecialchars($_GET['g']); else echo htmlspecialchars($_GET['m']); ?></h3>
+       <a href="#mobile-home">Home</a>
+     </div>
+     <div data-role="content">
+diff --git a/header.php b/header.php
+index b3789e32..d0a30c29 100755
+--- a/header.php
++++ b/header.php
+@@ -529,7 +529,7 @@ function make_node_menu($self,
+ if ( $conf['overlay_events'] == true )
+   $data->assign('overlay_events', true);
+ 
+-$data->assign('selected_tab', $user['selected_tab']);
++$data->assign('selected_tab', htmlspecialchars($user['selected_tab']) );
+ $data->assign('view_name', $user['viewname']);
+ 
+ $additional_buttons = "";
+diff --git a/mobile_helper.php b/mobile_helper.php
+index 1e8765d6..2a0e51de 100644
+--- a/mobile_helper.php
++++ b/mobile_helper.php
+@@ -14,7 +14,7 @@
+   <div data-role="page" class="ganglia-mobile" id="view-home">
+     <div data-role="header">
+       <a href="#" class="ui-btn-left" data-icon="arrow-l" onclick="history.back(); return false">Back</a>
+-      <h1>View <?php print $_GET['view_name']; ?></h1>
++      <h1>View <?php print htmlspecialchars($_GET['view_name']); ?></h1>
+       <a href="#mobile-home">Home</a>
+       <div data-role="navbar">
+ 	<ul>
+@@ -39,7 +39,7 @@
+       $checked = "class=\"ui-btn-active\"";
+       $range_menu .= "<li><a $checked href='#' onclick='return false;'>$v</a></li>";
+     } else {
+-      $range_menu .= "<li><a href='mobile_helper.php?view_name=" . $_GET['view_name'] . "&r=" . $v . "&cs=&ce='>$v</a></li>";
++      $range_menu .= "<li><a href='mobile_helper.php?view_name=" . rawurlencode($_GET['view_name']) . "&r=" . $v . "&cs=&ce='>$v</a></li>";
+     }
+ 
+   }
+@@ -61,9 +61,9 @@
+ 
+       $range_args = "";
+       if ( isset($_GET['r']) && $_GET['r'] != "" ) 
+-	    $range_args .= "&r=" . $_GET['r'];
++	    $range_args .= "&r=" . rawurlencode($_GET['r']);
+       if ( isset($_GET['cs']) && isset($_GET['ce']) ) 
+-	    $range_args .= "&cs=" . $_GET['cs'] . "&ce=" . $_GET['ce'];
++	    $range_args .= "&cs=" . rawurlencode($_GET['cs']) . "&ce=" . rawurlencode($_GET['ce']);
+ 
+       if ( count($view_elements) != 0 ) {
+ 	foreach ( $view_elements as $id => $element ) {
+@@ -93,7 +93,7 @@
+   <div data-role="page" class="ganglia-mobile" id="viewhost-<?php print $hostname; ?>">
+     <div data-role="header" data-position="fixed">
+       <a href="#" class="ui-btn-left" data-icon="arrow-l" onclick="history.back(); return false">Back</a>
+-      <h3>Cluster <?php print $clustername; ?></h3>
++      <h3>Cluster <?php print htmlspecialchars($clustername); ?></h3>
+       <a href="#mobile-home">Home</a>
+         <div data-role="navbar">
+ 	<ul>
+@@ -114,7 +114,7 @@
+ 	     $checked = "class=\"ui-btn-active\"";
+       	     $range_menu .= "<li><a $checked href='#'>$v</a></li>";
+ 	  } else {
+-      	     $range_menu .= "<li><a href='mobile_helper.php?show_cluster_metrics=1&c=" . $clustername . "&r=" . $v . "&cs=&ce='>$v</a></li>";
++      	     $range_menu .= "<li><a href='mobile_helper.php?show_cluster_metrics=1&c=" . rawurlencode($clustername) . "&r=" . $v . "&cs=&ce='>$v</a></li>";
+ 	  }
+ 	}
+ 	  print $range_menu;
+@@ -125,7 +125,7 @@
+   
+     <div data-role="content">
+ <?php
+-    $graph_args = "c=$clustername&r=$range";
++    $graph_args = "c=".rawurlencode($clustername)."&r=".rawurlencode($range);
+     
+     ///////////////////////////////////////////////////////////////////////////
+     // Let's find out what optional reports are included
+@@ -137,7 +137,10 @@
+       $default_reports = array_merge($default_reports,json_decode(file_get_contents($conf['conf_dir'] . "/default.json"), TRUE));
+     }
+     
+-    $cluster_file = $conf['conf_dir'] . "/cluster_" . $clustername . ".json";
++    $cluster_file = $conf['conf_dir'] . "/cluster_" . preg_replace('/[^a-zA-Z0-9_-]/', '', $clustername) . ".json";
++    if ( pathinfo( $cluster_file, PATHINFO_DIRNAME ) != $conf['conf_dir'] ) {
++      die('Invalid path detected');
++    }
+     $override_reports = array("included_reports" => array(), "excluded_reports" => array());
+     if ( is_file($cluster_file) ) {
+       $override_reports = array_merge($override_reports, json_decode(file_get_contents($cluster_file), TRUE));
+@@ -154,8 +157,8 @@
+     foreach ( $reports["included_reports"] as $index => $report_name ) {
+       if ( ! in_array( $report_name, $reports["excluded_reports"] ) ) {
+ 	print "<a name=metric_" . $report_name . ">
+-	<A HREF=\"./graph_all_periods.php?mobile=1&$graph_args&amp;g=" . $report_name . "&amp;z=mobile&amp;c=$clustername\">
+-	<IMG BORDER=0 ALT=\"$clustername\" SRC=\"./graph.php?$graph_args&amp;g=" . $report_name ."&amp;z=mobile&amp;c=$clustername\"></A>
++	<A HREF=\"./graph_all_periods.php?mobile=1&$graph_args&amp;g=" . $report_name . "&amp;z=mobile&amp;c=".rawurlencode($clustername)."\">
++	<IMG BORDER=0 ALT=\"".rawurlencode($clustername)."\" SRC=\"./graph.php?$graph_args&amp;g=" . $report_name ."&amp;z=mobile&amp;c=".rawurlencode($clustername)."\"></A>
+ 	";
+       }
+ 
+@@ -173,10 +176,10 @@
+   $hostname = $_GET['h'];
+   $clustername = $_GET['c'];
+ ?>
+-  <div data-role="page" class="ganglia-mobile" id="viewhost-<?php print $hostname; ?>">
++  <div data-role="page" class="ganglia-mobile" id="viewhost-<?php print htmlspecialchars($hostname); ?>">
+     <div data-role="header" data-position="fixed">
+       <a href="#" class="ui-btn-left" data-icon="arrow-l" onclick="history.back(); return false">Back</a>
+-      <h3>Host <?php print $hostname; ?></h3>
++      <h3>Host <?php print htmlspecialchars($hostname); ?></h3>
+       <a href="#mobile-home">Home</a>
+         <div data-role="navbar">
+ 	<ul>
+@@ -197,7 +200,7 @@
+ 	     $checked = "class=\"ui-btn-active\"";
+       	     $range_menu .= "<li><a $checked href='#'>$v</a></li>";
+ 	  } else {
+-      	     $range_menu .= "<li><a href='mobile_helper.php?show_host_metrics=1&h=" . $hostname . "&c=" . $clustername . "&r=" . $v . "&cs=&ce='>$v</a></li>";
++      	     $range_menu .= "<li><a href='mobile_helper.php?show_host_metrics=1&h=" . rawurlencode($hostname) . "&c=" . rawurlencode($clustername) . "&r=" . $v . "&cs=&ce='>$v</a></li>";
+ 	  }
+ 	}
+ 	  print $range_menu;
+@@ -208,7 +211,7 @@
+   
+     <div data-role="content">
+ <?php
+-    $graph_args = "h=$hostname&c=$clustername&r=$range";
++    $graph_args = "h=".rawurlencode($hostname)."&c=".rawurlencode($clustername)."&r=".rawurlencode($range);
+     
+     ///////////////////////////////////////////////////////////////////////////
+     // Let's find out what optional reports are included
+@@ -220,7 +223,10 @@
+       $default_reports = array_merge($default_reports,json_decode(file_get_contents($conf['conf_dir'] . "/default.json"), TRUE));
+     }
+     
+-    $host_file = $conf['conf_dir'] . "/host_" . $hostname . ".json";
++    $host_file = $conf['conf_dir'] . "/host_" . preg_replace('/[^a-zA-Z0-9_-]/', '', $hostname) . ".json";
++    if ( pathinfo( $host_file, PATHINFO_DIRNAME ) != $conf['conf_dir'] ) {
++      die('Invalid path detected');
++    }
+     $override_reports = array("included_reports" => array(), "excluded_reports" => array());
+     if ( is_file($host_file) ) {
+       $override_reports = array_merge($override_reports, json_decode(file_get_contents($host_file), TRUE));
+@@ -239,7 +245,7 @@
+       if ( ! in_array( $report_name, $reports["excluded_reports"] ) ) {
+ 	print "
+ 	<A HREF=\"./graph_all_periods.php?mobile=1&$graph_args&amp;g=" . $report_name . "&amp;z=large\">
+-	<IMG BORDER=0 ALT=\"$clustername\" SRC=\"./graph.php?$graph_args&amp;g=" . $report_name ."&amp;z=mobile\"></A>";
++	<IMG BORDER=0 ALT=\"".rawurlencode($clustername)."\" SRC=\"./graph.php?$graph_args&amp;g=" . $report_name ."&amp;z=mobile\"></A>";
+       }
+     }
+     ?>  
+@@ -260,8 +266,8 @@
+   } else if (isset($reports[$metric_name]) and $reports[$metric])
+     continue;
+   else {
+-    $metric_graphargs = "c=$clustername&amp;h=$hostname&amp;v=$metric_attributes[VAL]"
+-      ."&amp;m=$metric_name&amp;r=$range&amp;z=$size&amp;jr=$jobrange"
++    $metric_graphargs = "c=".rawurlencode($clustername)."&amp;h=".rawurlencode($hostname)."&amp;v=".rawurlencode($metric_attributes[VAL])
++      ."&amp;m=$metric_name&amp;r=".rawurlencode($range)."&amp;z=$size&amp;jr=$jobrange"
+       ."&amp;js=$jobstart&amp;st=$cluster[LOCALTIME]";
+     if ($cs)
+        $metric_graphargs .= "&amp;cs=" . rawurlencode($cs);
+@@ -302,7 +308,7 @@
+       foreach ( $metric_group_members as $index => $metric_name ) {
+ 	print "
+ 	<A HREF=\"./graph_all_periods.php?mobile=1&" . $g_metrics[$metric_name]['graph'] .  "\">
+-	<IMG BORDER=0 ALT=\"$clustername\" SRC=\"./graph.php?" . $g_metrics[$metric_name]['graph'] . "\"></A>";
++	<IMG BORDER=0 ALT=\"".htmlspecialchars($clustername)."\" SRC=\"./graph.php?" . $g_metrics[$metric_name]['graph'] . "\"></A>";
+       }
+ ?>
+       </div> <!-- /collapsible -->
+diff --git a/trend_navigation.php b/trend_navigation.php
+index e71070bf..2d5f8a12 100644
+--- a/trend_navigation.php
++++ b/trend_navigation.php
+@@ -10,11 +10,11 @@
+ 
+ foreach ( $_REQUEST as $key => $value ) {
+   if ( ! in_array($key, $drop_args) )
+-    $graph_args[] = $key . "=" . str_replace("_/graph_php?", "", $value);
++    $graph_args[] = rawurlencode($key) . "=" . rawurlencode( str_replace("_/graph_php?", "", $value) );
+ }
+ 
+ $query_string = preg_replace("/(&trendrange=)(\d+)/", "", $_SERVER['QUERY_STRING'] );
+-$query_string = preg_replace("/(&trendhistory=)(\d+)/", "", $query_string);
++$query_string = preg_replace("/(&trendhistory=)(\d+)/", "", htmlspecialchars($query_string, ENT_QUOTES) );
+ 
+ 
+ ?>
+@@ -59,4 +59,4 @@
+   $(function () {
+     $("#trend_range_menu").buttonset();
+   });
+-</script>
+\ No newline at end of file
++</script>
+diff --git a/views.php b/views.php
+index 76391dc7..baa422bb 100644
+--- a/views.php
++++ b/views.php
+@@ -10,7 +10,7 @@
+ // Load the metric caching code we use if we need to display graphs
+ retrieve_metrics_cache();
+ 
+-$base = isset($_GET['base']) ? $_GET['base'] . "/" : "";
++$base = isset($_GET['base']) ? rawurlencode($_GET['base']) . "/" : "";
+ ?>
+ 
+ <html>
+@@ -33,14 +33,14 @@
+       $view_elements = get_view_graph_elements($view);
+       $range_args = "";
+       if (isset($_GET['r']) && $_GET['r'] != "") 
+-	$range_args .= "&amp;r=" . $_GET['r'];
++	$range_args .= "&amp;r=" . rawurlencode($_GET['r']);
+       if (isset($_GET['cs']) && isset($_GET['ce'])) 
+-	$range_args .= "&amp;cs=" . $_GET['cs'] . "&amp;ce=" . $_GET['ce'];
++	$range_args .= "&amp;cs=" . rawurlencode($_GET['cs']) . "&amp;ce=" . rawurlencode($_GET['ce']);
+ 
+       if (count($view_elements) != 0) {
+ 	foreach ($view_elements as $id => $element) {
+ 	  $legend = isset($element['hostname']) ? $element['hostname'] : "Aggregate graph";
+-          $base = isset($_GET['base']) ? $_GET['base'] : '.';
++          $base = isset($_GET['base']) ? rawurlencode($_GET['base']) : '.';
+ 	  print "<a href=\"" . $base . "/graph_all_periods.php?" . htmlentities($element['graph_args']) ."&amp;z=large\"><img title=\"" . $legend . " - " . $element['name'] . "\" border=0 src=\"" . $base . "/graph.php?" . htmlentities($element['graph_args']) . "&amp;z=small" . $range_args .  "\" style=\"padding:2px;\"></a>";
+ 	}
+       } else {
+diff --git a/views_view.php b/views_view.php
+index 53c61656..3ec6f5a2 100644
+--- a/views_view.php
++++ b/views_view.php
+@@ -32,12 +32,15 @@
+       $empty_view = array ("view_name" => $_GET['view_name'],
+                            "items" => array());
+       $view_suffix = str_replace(" ", "_", $_GET['view_name']);
+-      $view_filename = $conf['views_dir'] . "/view_" . $view_suffix . ".json";
++      $view_filename = $conf['views_dir'] . "/view_" . preg_replace('/[^a-zA-Z0-9_-]/', '', $view_suffix) . ".json";
++      if ( pathinfo( $view_filename, PATHINFO_DIRNAME ) != $conf['views_dir'] ) {
++        die('Invalid path detected');
++      }
+       $json = json_encode($empty_view);
+       if (file_put_contents($view_filename, 
+                             json_prettyprint($json)) === FALSE) {
+         $output = "<strong>Alert:</strong>" .
+-                  " Can't write to file $view_filename." .
++                  " Can't write to file " . htmlspecialchars($view_filename) .
+                   " Perhaps permissions are wrong.";
+       } else {
+         $output = "View has been created successfully.";
+@@ -79,7 +82,10 @@
+       " does not exist.";
+     } else {
+       $view_suffix = str_replace(" ", "_", $_GET['view_name']);
+-      $view_filename = $conf['views_dir'] . "/view_" . $view_suffix . ".json";
++      $view_filename = $conf['views_dir'] . "/view_" . preg_replace('/[^a-zA-Z0-9_-]/', '', $view_suffix) . ".json";
++      if ( pathinfo( $view_filename, PATHINFO_DIRNAME ) != $conf['views_dir'] ) {
++        die('Invalid path detected');
++      }
+       if (unlink($view_filename) === FALSE) {
+         $output = "<strong>Alert:</strong>" .
+                   " Can't remove file $view_filename." .

@@ -1,0 +1,73 @@
+diff --git a/arch/ia64/include/asm/processor.h b/arch/ia64/include/asm/processor.h
+index e0a899a1a8a665..5a84b3a5074158 100644
+--- a/arch/ia64/include/asm/processor.h
++++ b/arch/ia64/include/asm/processor.h
+@@ -319,7 +319,7 @@ struct thread_struct {
+ 	regs->loadrs = 0;									\
+ 	regs->r8 = get_dumpable(current->mm);	/* set "don't zap registers" flag */		\
+ 	regs->r12 = new_sp - 16;	/* allocate 16 byte scratch area */			\
+-	if (unlikely(!get_dumpable(current->mm))) {							\
++	if (unlikely(get_dumpable(current->mm) != SUID_DUMP_USER)) {	\
+ 		/*										\
+ 		 * Zap scratch regs to avoid leaking bits between processes with different	\
+ 		 * uid/privileges.								\
+diff --git a/fs/exec.c b/fs/exec.c
+index 2ea437e5acf4d9..12120620f04096 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1669,6 +1669,12 @@ int __get_dumpable(unsigned long mm_flags)
+ 	return (ret > SUID_DUMP_USER) ? SUID_DUMP_ROOT : ret;
+ }
+ 
++/*
++ * This returns the actual value of the suid_dumpable flag. For things
++ * that are using this for checking for privilege transitions, it must
++ * test against SUID_DUMP_USER rather than treating it as a boolean
++ * value.
++ */
+ int get_dumpable(struct mm_struct *mm)
+ {
+ 	return __get_dumpable(mm->flags);
+diff --git a/include/linux/binfmts.h b/include/linux/binfmts.h
+index e8112ae5053131..7554fd410bcc35 100644
+--- a/include/linux/binfmts.h
++++ b/include/linux/binfmts.h
+@@ -99,9 +99,6 @@ extern void setup_new_exec(struct linux_binprm * bprm);
+ extern void would_dump(struct linux_binprm *, struct file *);
+ 
+ extern int suid_dumpable;
+-#define SUID_DUMP_DISABLE	0	/* No setuid dumping */
+-#define SUID_DUMP_USER		1	/* Dump as user of process */
+-#define SUID_DUMP_ROOT		2	/* Dump as root */
+ 
+ /* Stack area protections */
+ #define EXSTACK_DEFAULT   0	/* Whatever the arch defaults to */
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 5e226fe3e512b7..f7efc86046522c 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -323,6 +323,10 @@ static inline void arch_pick_mmap_layout(struct mm_struct *mm) {}
+ extern void set_dumpable(struct mm_struct *mm, int value);
+ extern int get_dumpable(struct mm_struct *mm);
+ 
++#define SUID_DUMP_DISABLE	0	/* No setuid dumping */
++#define SUID_DUMP_USER		1	/* Dump as user of process */
++#define SUID_DUMP_ROOT		2	/* Dump as root */
++
+ /* mm flags */
+ /* dumpable bits */
+ #define MMF_DUMPABLE      0  /* core dump is permitted */
+diff --git a/kernel/ptrace.c b/kernel/ptrace.c
+index dd562e9aa2c841..1f4bcb3cc21cee 100644
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -257,7 +257,8 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
+ 	if (task->mm)
+ 		dumpable = get_dumpable(task->mm);
+ 	rcu_read_lock();
+-	if (!dumpable && !ptrace_has_cap(__task_cred(task)->user_ns, mode)) {
++	if (dumpable != SUID_DUMP_USER &&
++	    !ptrace_has_cap(__task_cred(task)->user_ns, mode)) {
+ 		rcu_read_unlock();
+ 		return -EPERM;
+ 	}

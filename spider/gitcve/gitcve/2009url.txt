@@ -1,0 +1,7 @@
+CVE-2009-1194 http://github.com/bratsche/pango/commit/4de30e5500eaeb49f4bf0b7a07f718e149a2ed5e
+CVE-2009-3111 http://github.com/alandekok/freeradius-server/commit/860cad9e02ba344edb0038419e415fe05a9a01f4
+CVE-2009-3287 http://github.com/macournoyer/thin/commit/7bd027914c5ffd36bb408ef47dc749de3b6e063a
+CVE-2009-3627 http://github.com/gisle/html-parser/commit/b9aae1e43eb2c8e989510187cff0ba3e996f9a4c
+CVE-2009-4214 http://github.com/rails/rails/commit/bfe032858077bb2946abe25e95e485ba6da86bd5
+CVE-2009-5145 https://github.com/zopefoundation/Zope/commit/2abdf14620f146857dc8e3ffd2b6a754884c331d
+CVE-2009-5147 https://github.com/ruby/ruby/commit/4600cf725a86ce31266153647ae5aa1197b1215b

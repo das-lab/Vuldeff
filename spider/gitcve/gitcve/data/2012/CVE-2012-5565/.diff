@@ -1,0 +1,44 @@
+diff --git a/imp/docs/CHANGES b/imp/docs/CHANGES
+index c83b8309bfe..a882d37c90f 100644
+--- a/imp/docs/CHANGES
++++ b/imp/docs/CHANGES
+@@ -207,8 +207,10 @@ v6.0.0alpha1
+ v5.0.24-git
+ -----------
+ 
+-[mms] Catch failure to add attachments because PHP's maximum allowed POST size
+-      was exceeded.
++[mms] SECURITY: Fix obscure XSS issue if uploading a file in dynamic view from
++      the browser's local filesystem that has a filename that contains HTML.
++[mms] Catch failure to add attachments in dynamic view because PHP's maximum
++      allowed POST size was exceeded.
+ [jan] Fix search link from portal if using dynamic view (Bug #11314).
+ [mms] Fix regression in using Virtual Trash (Bug #11478;
+       tonyb@go-concepts.com).
+diff --git a/imp/js/compose-dimp.js b/imp/js/compose-dimp.js
+index 0b03d2597e9..334d9914e18 100644
+--- a/imp/js/compose-dimp.js
++++ b/imp/js/compose-dimp.js
+@@ -800,7 +800,7 @@ var DimpCompose = {
+         var u = $('upload');
+         this.uniqueSubmit('addAttachment');
+         u.up().hide();
+-        $('upload_wait').update(DimpCore.text.uploading + ' (' + $F(u) + ')').show();
++        $('upload_wait').update(DimpCore.text.uploading + ' (' + $F(u).escapeHTML() + ')').show();
+     },
+ 
+     toggleCC: function(type)
+diff --git a/imp/package.xml b/imp/package.xml
+index 0f6a9b8d1a7..62c2e290b0d 100644
+--- a/imp/package.xml
++++ b/imp/package.xml
+@@ -2574,7 +2574,8 @@
+    <date>2012-07-20</date>
+    <license uri="http://www.horde.org/licenses/gpl">GPL-2.0</license>
+    <notes>
+-* [mms] Catch failure to add attachments because PHP&apos;s maximum allowed POST size was exceeded.
++* [mms] SECURITY: Fix obscure XSS issue if uploading a file in dynamic view from the browser&apos;s local filesystem that has a filename that contains HTML.
++* [mms] Catch failure to add attachments in dynamic view because PHP&apos;s maximum allowed POST size was exceeded.
+ * [jan] Fix search link from portal if using dynamic view (Bug #11314).
+ * [mms] Fix regression in using Virtual Trash (Bug #11478; tonyb@go-concepts.com).
+ * [mms] Fix sending MDN notifications in traditional view (Bug #11311).

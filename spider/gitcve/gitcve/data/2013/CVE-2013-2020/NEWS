@@ -1,0 +1,8 @@
+0.97.7
+------
+ClamAV 0.97.7 addresses several reported potential security bugs.  Thanks to
+Felix Groebert, Mateusz Jurczyk and Gynvael Coldwind of the Google Security
+Team for finding and reporting these issues.
+
+--
+The ClamAV team (http://www.clamav.net/team)

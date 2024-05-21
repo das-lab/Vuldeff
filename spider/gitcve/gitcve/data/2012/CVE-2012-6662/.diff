@@ -1,0 +1,53 @@
+diff --git a/demos/autocomplete/combobox.html b/demos/autocomplete/combobox.html
+index 8c6f59fc198..6229d47b216 100644
+--- a/demos/autocomplete/combobox.html
++++ b/demos/autocomplete/combobox.html
+@@ -61,7 +61,7 @@
+ 						// remove invalid value, as it didn't match anything
+ 						$( element )
+ 							.val( "" )
+-							.attr( "title", $( "<a>" ).text( value ).html() + " didn't match any item" )
++							.attr( "title", value + " didn't match any item" )
+ 							.tooltip( "open" );
+ 						select.val( "" );
+ 						setTimeout(function() {
+diff --git a/tests/unit/tooltip/tooltip_options.js b/tests/unit/tooltip/tooltip_options.js
+index f9da27fb743..01ac2504088 100644
+--- a/tests/unit/tooltip/tooltip_options.js
++++ b/tests/unit/tooltip/tooltip_options.js
+@@ -16,6 +16,20 @@ test( "content: default", function() {
+ 	deepEqual( $( "#" + element.data( "ui-tooltip-id" ) ).text(), "anchortitle" );
+ });
+ 
++test( "content: default; HTML escaping", function() {
++	expect( 2 );
++	var scriptText = "<script>$.ui.tooltip.hacked = true;</script>",
++		element = $( "#tooltipped1" );
++
++	$.ui.tooltip.hacked = false;
++	element.attr( "title", scriptText )
++		.tooltip()
++		.tooltip( "open" );
++	equal( $.ui.tooltip.hacked, false, "script did not execute" );
++	deepEqual( $( "#" + element.data( "ui-tooltip-id" ) ).text(), scriptText,
++		"correct tooltip text" );
++});
++
+ test( "content: return string", function() {
+ 	expect( 1 );
+ 	var element = $( "#tooltipped1" ).tooltip({
+diff --git a/ui/jquery.ui.tooltip.js b/ui/jquery.ui.tooltip.js
+index 2ccd61f46c1..ab8d5173c0f 100644
+--- a/ui/jquery.ui.tooltip.js
++++ b/ui/jquery.ui.tooltip.js
+@@ -46,7 +46,9 @@ $.widget( "ui.tooltip", {
+ 	version: "@VERSION",
+ 	options: {
+ 		content: function() {
+-			return $( this ).attr( "title" );
++			var title = $( this ).attr( "title" );
++			// Escape title, since we're going from an attribute to raw HTML
++			return $( "<a>" ).text( title ).html();
+ 		},
+ 		hide: true,
+ 		// Disabled elements have inconsistent behavior across browsers (#8661)

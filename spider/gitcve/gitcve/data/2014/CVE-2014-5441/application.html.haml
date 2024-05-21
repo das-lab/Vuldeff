@@ -1,0 +1,48 @@
+!!!5
+%html
+  %head
+    %meta{ "http-equiv" => "Content-Type", :content => "text/html; charset=utf-8" }
+    %title Fat Free CRM
+    == <!-- #{controller.controller_name} : #{controller.action_name} -->
+    = stylesheet_link_tag :application
+    = stylesheet_link_tag :print, :media => 'print'
+    = hook(:stylesheet_includes, self) do
+      #{yield :stylesheet_includes}
+    %style= yield :styles
+
+    = javascript_include_tag :application
+
+    - unless tabless_layout? || %w(en-US en-GB).include?(I18n.locale.to_s)
+      = javascript_include_tag "jquery_ui_datepicker/jquery.ui.datepicker-#{I18n.locale}"
+      = javascript_include_tag "jquery_ui_datepicker/jquery-ui-timepicker-#{I18n.locale}"
+
+    = csrf_meta_tag
+    = hook(:javascript_includes, self) {}
+
+    :javascript
+      crm.language = "#{I18n.locale}"
+      window.controller = "#{controller.controller_name}"
+
+    - if current_user.present?
+      :javascript
+        #{yield :javascript}
+        var _ffcrm_users = [
+        #{User.all.map{|u| "\"#{u.full_name} (@#{u.username})\"" }.join(",\n")}
+        ];
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+  %body
+    = render "layouts/header"
+    - if tabless_layout?
+      = render "layouts/tabless"
+    - else
+      = render "layouts/tabbed"
+      = render "layouts/footer"
+
+    %script{:type => "text/javascript"}
+      = "crm.base_url = '#{Setting.base_url}';" unless Setting.base_url.blank?
+      = get_browser_timezone_offset
+      = content_for :javascript_epilogue
+      = hook(:javascript_epilogue, self) {}

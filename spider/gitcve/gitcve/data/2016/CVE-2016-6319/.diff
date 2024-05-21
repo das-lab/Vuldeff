@@ -1,0 +1,13 @@
+diff --git a/app/helpers/form_helper.rb b/app/helpers/form_helper.rb
+index 0db9635a046..2e7d451fb2e 100644
+--- a/app/helpers/form_helper.rb
++++ b/app/helpers/form_helper.rb
+@@ -283,7 +283,7 @@ def add_label options, f, attr
+     label = options[:label] == :none ? '' : options.delete(:label)
+     label ||= ((clazz = f.object.class).respond_to?(:gettext_translation_for_attribute_name) &&
+         s_(clazz.gettext_translation_for_attribute_name attr)) if f
+-    label = label.present? ? label_tag(attr, "#{label}#{required_mark}".html_safe, :class => label_size + " control-label") : ''
++    label = label.present? ? label_tag(attr, "#{label}#{required_mark}", :class => label_size + " control-label") : ''
+     label
+   end
+ 

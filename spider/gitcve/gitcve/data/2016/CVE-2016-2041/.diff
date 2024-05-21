@@ -1,0 +1,30 @@
+diff --git a/libraries/common.inc.php b/libraries/common.inc.php
+index 97675849ccc..2675b8998d3 100644
+--- a/libraries/common.inc.php
++++ b/libraries/common.inc.php
+@@ -474,7 +474,7 @@
+ $token_provided = false;
+ if (PMA_isValid($_REQUEST['token'])) {
+     $token_provided = true;
+-    $token_mismatch = ($_SESSION[' PMA_token '] != $_REQUEST['token']);
++    $token_mismatch = ! hash_equals($_SESSION[' PMA_token '], $_REQUEST['token']);
+ }
+ 
+ if ($token_mismatch) {
+diff --git a/libraries/core.lib.php b/libraries/core.lib.php
+index 3877548c345..bb8b116b498 100644
+--- a/libraries/core.lib.php
++++ b/libraries/core.lib.php
+@@ -998,3 +998,12 @@ function PMA_setGlobalDbOrTable($param)
+         $GLOBALS['url_params'][$param] = $GLOBALS[$param];
+     }
+ }
++
++/* Compatibility with PHP < 5.6 */
++if(! function_exists('hash_equals')) {
++    function hash_equals($a, $b) {
++        $ret = strlen($a) ^ strlen($b);
++        $ret |= array_sum(unpack("C*", $a ^ $b));
++        return ! $ret;
++    }
++}

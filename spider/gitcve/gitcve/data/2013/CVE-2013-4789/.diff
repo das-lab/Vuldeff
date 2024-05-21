@@ -1,0 +1,13 @@
+diff --git a/modules/rss/rss.php b/modules/rss/rss.php
+index f4d56f937..f18dfc19d 100644
+--- a/modules/rss/rss.php
++++ b/modules/rss/rss.php
+@@ -199,7 +199,7 @@
+ {
+ 	require_once cot_incfile('page', 'module');
+ 
+-	if (!empty($c))
++	if (!empty($c) && isset($structure['page'][$c]))
+ 	{
+ 		$mtch = $structure['page'][$c]['path'].".";
+ 		$mtchlen = mb_strlen($mtch);

@@ -1,0 +1,13 @@
+diff --git a/includes/specials/SpecialDeletedContributions.php b/includes/specials/SpecialDeletedContributions.php
+index 8c7f0c89c1cd..44352a78b502 100644
+--- a/includes/specials/SpecialDeletedContributions.php
++++ b/includes/specials/SpecialDeletedContributions.php
+@@ -477,7 +477,7 @@ function getSubTitle( $userObj ) {
+ 			if ( ( $id !== null ) || ( $id === null && IP::isIPAddress( $nt->getText() ) ) ) {
+ 				# Block / Change block / Unblock links
+ 				if ( $this->getUser()->isAllowed( 'block' ) ) {
+-					if ( $userObj->isBlocked() ) {
++					if ( $userObj->isBlocked() && $userObj->getBlock()->getType() !== Block::TYPE_AUTO ) {
+ 						$tools[] = Linker::linkKnown( # Change block link
+ 							SpecialPage::getTitleFor( 'Block', $nt->getDBkey() ),
+ 							$this->msg( 'change-blocklink' )->escaped()

@@ -1,0 +1,13 @@
+diff --git a/includes/specials/SpecialContributions.php b/includes/specials/SpecialContributions.php
+index 7a3e7c80d11f..614bd3ec419f 100644
+--- a/includes/specials/SpecialContributions.php
++++ b/includes/specials/SpecialContributions.php
+@@ -298,7 +298,7 @@ public function getUserLinks( Title $userpage, Title $talkpage, User $target ) {
+ 
+ 		if ( ( $id !== null ) || ( $id === null && IP::isIPAddress( $username ) ) ) {
+ 			if ( $this->getUser()->isAllowed( 'block' ) ) { # Block / Change block / Unblock links
+-				if ( $target->isBlocked() ) {
++				if ( $target->isBlocked() && $target->getBlock()->getType() != Block::TYPE_AUTO ) {
+ 					$tools[] = Linker::linkKnown( # Change block link
+ 						SpecialPage::getTitleFor( 'Block', $username ),
+ 						$this->msg( 'change-blocklink' )->escaped()

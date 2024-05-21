@@ -1,0 +1,1416 @@
+2017-08-25  Jay Berkenbilt  <ejb@ql.org>
+
+	* Detect infinite loop while finding additional xref tables. Fixes
+	#149.
+
+2017-08-22  Jay Berkenbilt  <ejb@ql.org>
+
+	* 7.0.b1: release
+
+	* Convert all README files to markdown. Names changed as follows:
+	  - README --> README.md
+	  - README.hardening --> README-hardening.md
+	  - README.maintainer --> README-maintainer.md
+	  - README-what-to-download.txt --> README-what-to-download.md
+	  - README-windows.txt --> README-windows.md
+	  The file README-windows-install.txt remains a text file.
+
+2017-08-21  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add support for writing PCLm files. Most of the work was done by
+	Sahil Arora <sahilarora.535@gmail.com> as part of a Google Summer
+	of Code project in 2017. PCLm support is useful only for clients
+	that specifically know how to create PCLm files. Support in qpdf
+	is just for ensuring that objects are written in the correct order
+	and for including some additional material in the output that is
+	required by the PCLm standard.
+
+2017-08-19  Jay Berkenbilt  <ejb@ql.org>
+
+	* Remove --precheck-streams. This is enabled by default now
+	without any efficiency cost. This feature was never released.
+
+	* Update pdf-create example to illustrate use of additional image
+	compression filters.
+
+	* Add support for /RunLengthDecode and /DCTDecode:
+	  - New pipeline types Pl_RunLength and Pl_DCT
+	  - New command-line flags --compress-streams and --decode-level
+	    to replace/enhance --stream-data
+	  - New QPDFWriter::setCompressStreams and
+ 	    QPDFWriter::setDecodeLevel methods
+	  Please see documentation, header files, and help messages for
+	  details on these new features.
+
+2017-08-12  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add QPDFObjectHandle::rotatePage to apply rotation to a page
+	object. Add --rotate option to qpdf to specify page rotation from
+	the command line.
+
+	* Provide --verbose option that causes qpdf to print an indication
+	of what files it is writing.
+
+	* Change --single-pages to --split-pages and make it take an
+	optional argument specifying the number of pages per file.
+
+2017-08-11  Jay Berkenbilt  <ejb@ql.org>
+
+	* Fix --newline-before-endstream to always add a newline before
+	endstream even if the last character was already a newline. This
+	is actually what's required by PDF/A. Fixes #133.
+
+	* Handle encrypted files whose encryption parameters are too
+	short. Fixes #96.
+
+2017-08-10  Jay Berkenbilt  <ejb@ql.org>
+
+	* Remove dependency on libpcre.
+
+	* Be more forgiving of certain types of errors in the xref table
+	that don't interfere with interpreting the table.
+
+	* Remove unused "tracing" parameter from PointerHolder's
+	(T*, bool) constructor. This change breaks source code
+	compatibility, but since this argument to PointerHolder has not
+	used for a long time and the presence of a boolean parameter in
+	the primary constructor makes it too easy to use that by mistake
+	when trying to use PointerHolder for arrays, it seems like it's
+	finally time to take it out. If you have a compile error because
+	of this change, please check to see whether you intended to use
+	the (bool, T*) version of the constructor instead. If not, just
+	remove the second parameter.
+
+2017-08-09  Jay Berkenbilt  <ejb@ql.org>
+
+	* When recovering stream length, find endobj without endstream as
+	well as just looking for endstream. Be a little more lax about
+	where we allow it to be found.
+
+2017-08-05  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add --single-pages option to cause output to be written to a
+	separate file for each page rather than one big file.
+
+	* Process --pages options earlier so that certain inspection
+	options, like --show-pages, can show the state after the merging
+	operations.
+
+2017-08-02  Jay Berkenbilt  <ejb@ql.org>
+
+	* Fix off-by-one error in parsing pages options. Fixes #129.
+
+2017-07-29  Jay Berkenbilt  <ejb@ql.org>
+
+	* Support @filename and @- in the qpdf command-line tool to read
+	command-line arguments, one per line, from the named file. @-
+	reads from standard input. Fixes #16.
+
+	* Detect when input file and output file are the same and exit to
+	avoid overwriting and losing input file. Fixes #29.
+
+	* When passing multiple inspection arguments, run --check first,
+	and defer exit until after all the checks have been run. This
+	makes it possible to force operations such as --show-xref to be
+	delayed until after recovery attempts have been made. For example,
+	if you have a file with a syntactically valid xref table that has
+	some offsets that are incorrect, running qpdf --check --show-xref
+	on that file will first recover the xref and the dump the
+	recovered xref, while just running qpdf --show-xref will show the
+	xref table as present in the file. Fixes #42.
+
+	* When recovering stream length, indicate the recovered length.
+	Fixes #44.
+
+	* Add --newline-before-endstream command-line option and
+	setNewlineBeforeEndstream method to QPDFWriter. This forces qpdf
+	to always add a newline before the endstream keyword. It is a
+	necessary but not sufficient condition for PDF/A compliance. Fixes
+	#103.
+
+	* Handle zlib data errors when decoding streams. Fixes #106.
+
+	* Improve handling of files where the "stream" keyword is not
+	followed by proper line terminators. Fixes #104.
+
+	* Fix content stream parsing to handle cases of structures within
+	the stream split across stream boundaries. Fixes #73.
+
+2017-07-28  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add --preserve-unreferenced command-line option and
+	setPreserveUnreferencedObjects method to QPDFWriter. This option
+	causes QPDFWriter to write all objects from the input file to the
+	output file regardless of whether the objects are referenced.
+	Objects are written to the output file in numerical order from the
+	input file. This option has no effect for linearized files.
+
+2017-07-27  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add --precheck-streams command-line option and setStreamPrecheck
+	method to QPDFWriter to tell QPDFWriter to attempt decoding a
+	stream fully before deciding whether to filter it or not.
+
+	* Recover gracefully from streams that aren't filterable because
+	the filter parameters are invalid in the stream dictionary or the
+	dictionary itself is invalid.
+
+	* Significantly improve recoverability from invalid qpdf objects.
+	Most conditions in basic object parsing that used to cause qpdf to
+	exit are now warnings. There are still many more opportunities for
+	improvements of this sort beyond just object parsing.
+
+2017-07-26  Jay Berkenbilt  <ejb@ql.org>
+
+	* Fixes to infinite loops below also fix problems reported in
+	other issues and cover CVE-2017-11624, CVE-2017-11625,
+	CVE-2017-11626, and CVE-2017-11627.
+
+	* Don't attempt to interpret syntactic keywords (like R and
+	endobj) found while parsing content streams.
+
+	* Detect infinite loops while resolving objects. This could happen
+	if something inside an object that had to be resolved during
+	parsing, such as a stream length, recursively referenced the
+	object being resolved.
+
+	* CVE-2017-9208: Handle references to and appearance of object 0
+	as a special case. Object 0 is not allowed, and qpdf was using it
+	internally to represent direct objects.
+
+	* CVE-2017-9209: Fix infinite loop caused by attempting to
+	reconstruct the xref table while already in the process of
+	reconstructing the xref table.
+
+	* CVE-2017-9210: Fix infinite loop caused by attempting to unparse
+	an object for inclusion in the text of an exception.
+
+2015-11-10  Jay Berkenbilt  <ejb@ql.org>
+
+	* 6.0.0: release
+
+	* No changes from 5.2.0. The 5.2.0 release broke binary
+	compatibility and was withdrawn.
+
+2015-10-31  Jay Berkenbilt  <ejb@ql.org>
+
+	* 5.2.0: release
+
+	* libqpdf/QPDF.cc (read_xrefTable): Be tolerant of some malformed
+	xref tables that don't have the required trailing space after each
+	line.
+
+2015-10-29  Jay Berkenbilt  <ejb@ql.org>
+
+	* Implement QPDFWriter::setDeterministicID and --deterministic-id
+	commandline-flag to qpdf to request generation of a deterministic
+	/ID for non-encrypted files.
+
+2015-05-24  Jay Berkenbilt  <ejb@ql.org>
+
+	* 5.1.3: release
+
+	* Bug fix: fix-qdf was not handling object streams with more than
+	255 objects in them.
+
+	* Handle Microsoft crypt provider initialization properly for case
+	where no keys have been previously created, such as in a fresh
+	Windows installation.
+
+	* Include time.h in QUtil.hh for time_t
+
+2015-02-21  Jay Berkenbilt  <ejb@ql.org>
+
+	* Detect loops in Pages structure. Thanks to Gynvael Coldwind and
+	Mateusz Jurczyk of the Google Security Team for providing a sample
+	file with this problem.
+
+	* Prevent buffer overrun when converting a password to an
+	encryption key. Thanks to Gynvael Coldwind and Mateusz Jurczyk of
+	the Google Security Team for providing a sample file with this
+	problem.
+
+	* Ensure that arguments to "R" when parsing the file are direct
+	objects before trying to resolve them. This prevents specially
+	crafted files from causing qpdf to crash with a stack overflow.
+	Thanks to Gynvael Coldwind and Mateusz Jurczyk of the Google
+	Security Team for providing a sample file with this problem.
+
+2014-12-01  Jay Berkenbilt  <ejb@ql.org>
+
+	* Some broken PDF files lack the required /Type key for /Page and
+	/Pages nodes in the page dictionary. QPDF now uses other methods
+	to figure out what kind of node it is looking at so that it can
+	handle those files. Original reported at
+	https://bugs.launchpad.net/ubuntu/+source/qpdf/+bug/1397413
+
+2014-11-14  Jay Berkenbilt  <ejb@ql.org>
+
+	* Bug fix: QPDFObjectHandle::getPageContents() no longer throws an
+	exception when called on a page that has no /Contents key in its
+	dictionary. This is allowed by the spec, and some software
+	packages generate files like this for pages that are blank in the
+	original.
+
+2014-06-07  Jay Berkenbilt  <ejb@ql.org>
+
+	* 5.1.2: release
+
+	* MS Visual C++ build: explicitly target Windows 5.0.1 (XP)
+
+	* New example program: pdf-split-pages: efficiently split PDF
+	files into individual pages.
+
+	* Bug fix: don't fail on files that contain streams where /Filter
+	or /DecodeParms references a stream. Before, qpdf would try to
+	convert these to direct objects, which would fail because of the
+	stream.
+
+2014-02-22  Jay Berkenbilt  <ejb@ql.org>
+
+	* Bug fix: if the last object in the first part of a linearized
+	file had an offset that was below 65536 by less than the size of
+	the hint stream, the xref stream was invalid and the resulting file
+	is not usable.  This is now fixed.
+
+2014-01-14  Jay Berkenbilt  <ejb@ql.org>
+
+	* 5.1.1: release
+
+2013-12-26  Jay Berkenbilt  <ejb@ql.org>
+
+	* Bug fix: when copying foreign objects (which occurs during page
+	splitting among other cases), avoid traversing the same object
+	more than once if it appears more than once in the same direct
+	object.  This bug is performance-only and does not affect the
+	actual output.
+
+2013-12-17  Jay Berkenbilt  <ejb@ql.org>
+
+	* 5.1.0: release
+
+2013-12-16  Jay Berkenbilt  <ejb@ql.org>
+
+	* Document and make explicit that passing null to
+	QUtil::setRandomDataProvider() resets the random data provider.
+
+	* Provide QUtil::getRandomDataProvider().
+
+2013-12-14  Jay Berkenbilt  <ejb@ql.org>
+
+	* Allow anyspace rather than just newline to follow xref header.
+	This allows qpdf to read a wider range of damaged files.
+
+2013-11-30  Jay Berkenbilt  <ejb@ql.org>
+
+	* Allow user-supplied random data provider to be used in place of
+	OS-provided or insecure random number generation.  See
+	documentation for 5.1.0 for details.
+
+	* Add configure option --enable-os-secure-random (enabled by
+	default).  Pass --disable-os-secure-random or define
+	SKIP_OS_SECURE_RANDOM to avoid attempts to use the operating
+	system-provided secure random number generation.  This can be
+	especially useful on Windows if you wish to avoid any dependency
+	on Microsoft's cryptography system.
+
+2013-11-29  Jay Berkenbilt  <ejb@ql.org>
+
+	* If NO_GET_ENVIRONMENT is #defined, for Windows only,
+	QUtil::get_env will always return false.  This was added to
+	support a user who needs to avoid calling GetEnvironmentVariable
+	from the Windows API.  QUtil::get_env is not used for any
+	functionality in qpdf and exists only to support the test suite
+	including test coverage support with QTC (part of qtest).
+
+	* Add /FS to msvc builds to allow parallel builds to work with
+	Visual C++ 2013.
+
+	* Add missing #include <algorithm> in some files that use std::min
+	and std::max.
+
+2013-11-21  Jay Berkenbilt  <ejb@ql.org>
+
+	* Change image comparison tests, which are disabled by default, to
+	use tiff files with 8 bits per sample rather than 4.  This works
+	around a bug in tiffcmp but also increases time and disk space for
+	image comparison tests.
+
+2013-10-28  Jay Berkenbilt  <ejb@ql.org>
+
+	* Fix MacOS compilation errors by adding a missing #include
+	<string> in a header file.
+
+2013-10-18  Jay Berkenbilt  <ejb@ql.org>
+
+	* 5.0.1: release
+
+	* Warn when -accessibility=n is specified with a modern encryption
+	format (R > 3).  Also, accept this flag (and ignore with warning)
+	with 256-bit encryption.  qpdf has always ignored the
+	accessibility setting with R > 3, but it previously did so
+	silently.
+
+2013-10-05  Jay Berkenbilt  <ejb@ql.org>
+
+	* Replace operator[] in std::string and std::vector with "at" in
+	order to get bounds checking.  This reduces the chances that
+	incorrect code will result in data exposure or buffer overruns.
+	See README.hardening for additional notes.
+
+	* Use cryptographically secure random number generation when
+	available.  See additional notes in README.
+
+	* Replace some assert() calls with std::logic_error exceptions.
+	Ideally there shouldn't be assert() calls outside of testing.
+	This change may make a few more potential code errors in handling
+	invalid data recoverable.
+
+	* Security fix: In places where std::vector<T>(size_t) was used,
+	either validate that the size parameter is sane or refactor code
+	to avoid the need to pre-allocate the vector.  This reduces the
+	likelihood of allocating a lot of memory in response to invalid
+	data in linearization hint streams.
+
+	* Security fix: sanitize /W array in cross reference stream to
+	avoid a potential integer overflow in a multiplication.  It is
+	unlikely that any exploits were possible from this bug as
+	additional checks were also performed.
+
+	* Security fix: avoid buffer overrun that could be caused by bogus
+	data in linearization hint streams.  The incorrect code could only
+	be triggered when checking linearization data, which must be
+	invoked explicitly.  qpdf does not check linearization data when
+	reading or writing linearized files, but the qpdf --check command
+	does check linearization data.
+
+	* Security fix: properly handle empty strings in
+	QPDF_Name::normalizeName.  The empty string is not a valid name
+	and would never be parsed as a name, so there were no known
+	conditions where this method could be called with an empty string.
+
+	* Security fix: perform additional argument sanity checks when
+	reading bit streams.
+
+	* Security fix: in QUtil::toUTF8, change bounds checking to avoid
+	having a pointer point temporarily outside the bounds of an
+	array.  Some compiler optimizations could have made the original
+	code unsafe.
+
+2013-07-10  Jay Berkenbilt  <ejb@ql.org>
+
+	* 5.0.0: release
+
+	* 4.2.0 turned out to be binary incompatible on some platforms
+	even though there were no changes to the public API.  Therefore
+	the 4.2.0 release has been withdrawn, and is being replaced with a
+	5.0.0 release that acknowledges the ABI change and also removes
+	some problematic methods from the public API.
+
+	* Remove methods from public API that were only intended to be
+	used by QPDFWriter and really didn't make sense to call from
+	anywhere else as they required internal knowledge that only
+	QPDFWriter had:
+	   - QPDF::getLinearizedParts
+	   - QPDF::generateHintStream
+	   - QPDF::getObjectStreamData
+	   - QPDF::getCompressibleObjGens
+	   - QPDF::getCompressibleObjects
+
+2013-07-07  Jay Berkenbilt  <ejb@ql.org>
+
+	* 4.2.0: release [withdrawn]
+
+	* Ignore error case of a stream's decode parameters having invalid
+	length when there are no stream filters.
+
+	* qpdf: add --show-npages command-line option, which causes the
+	number of pages in the input file to be printed on a line by
+	itself.
+
+	* qpdf: allow omission of range in --pages.  If range is omitted
+	such that an argument that is supposed to be a range is an invalid
+	range and a valid file name, the range of 1-z is assumed.  This
+	makes it possible to merge a bunch of files with something like
+	qpdf --empty out.pdf --pages *.pdf --
+
+2013-06-15  Jay Berkenbilt  <ejb@ql.org>
+
+	* Handle some additional broken files with missing /ID in trailer
+	for encrypted files and with space rather than newline after xref.
+
+2013-06-14  Jay Berkenbilt  <ejb@ql.org>
+
+	* Detect and correct /Outlines dictionary being a direct object
+	when linearizing files.  This is not allowed by the spec but has
+	been seen in the wild.  Prior to this change, such a file would
+	cause an internal error in the linearization code, which assumed
+	/Outlines was indirect.
+
+	* Add /Length key to crypt filter dictionary for encrypted files.
+	This key is optional, but some version of MacOS reportedly fail to
+	open encrypted PDF files without this key.
+
+	* Bug fix: properly handle object stream generation when the
+	original file has some compressible objects with generation != 0.
+
+	* Add QPDF::getCompressibleObjGens() and deprecate
+	QPDF::getCompressibleObjects(), which had a flaw in its logic.
+
+	* Add new QPDFObjectHandle::getObjGen() method and indiciate in
+	comments that its use is favored over getObjectID() and
+	getGeneration() for most cases.
+
+	* Add new QPDFObjGen object to represent an object ID/generation
+	pair.
+
+2013-04-14  Jay Berkenbilt  <ejb@ql.org>
+
+	* 4.1.0: release
+
+2013-03-25  Jay Berkenbilt  <ejb@ql.org>
+
+	* manual/qpdf-manual.xml: Document the casting policy that is
+	followed in qpdf's implementation.
+
+2013-03-11  Jay Berkenbilt  <ejb@ql.org>
+
+	* When creating Windows binary distributions, make sure to only
+	copy DLLs of the correct type.  The ensures that the 32-bit
+	distributions contain 32-bit DLLs and the 64-bit distributions
+	contain 64-bit DLLs.
+
+2013-03-07  Jay Berkenbilt  <ejb@ql.org>
+
+	* Use ./install-sh (already present) instead of "install -c" to
+	install executables to fix portability problems against different
+	UNIX variants.
+
+2013-03-03  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add protected terminateParsing method to
+	QPDFObjectHandle::ParserCallbacks that implementor can call to
+	terminate parsing of a content stream.
+
+2013-02-28  Jay Berkenbilt  <ejb@ql.org>
+
+	* Favor fopen_s and strerror_s on MSVC to avoid CRT security
+	warnings.  This is useful for people who may want to use qpdf in
+	an application that is Windows 8 certified.
+
+	* New method QUtil::safe_fopen to wrap calls to fopen.  This is
+	less cumbersome than calling QUtil::fopen_wrapper.
+
+	* Remove all calls to sprintf
+
+	* New method QUtil::int_to_string_base to convert to octal or
+	hexademical (or decimal) strings without using sprintf
+
+2013-02-26  Jay Berkenbilt  <ejb@ql.org>
+
+	* Rewrite QUtil::int_to_string and QUtil::double_to_string to
+	remove internal length limits but to remain backward compatible
+	with the old versions for valid inputs.
+
+2013-02-23  Jay Berkenbilt  <ejb@ql.org>
+
+	* Bug fix: properly handle overridden compressed objects.  When
+	caching objects from an object stream, only cache objects that,
+	based on the xref table, would actually be resolved into this
+	stream.  Prior to this fix, if an object stream A contained an
+	object B that was overridden by an appended section of the file,
+	qpdf would cache the old value of B if any non-overridden member
+	of A was accessed before B.  This commit fixes that bug.
+
+2013-01-31  Jay Berkenbilt  <ejb@ql.org>
+
+	* Do not remove libtool's .la file during the make install step.
+	Note to packagers: if your distribution wants to you remove the
+	.la file, you will have to do that yourself now.
+
+2013-01-25  Jay Berkenbilt  <ejb@ql.org>
+
+	* New method QUtil::hex_encode to encode binary data as a
+	hexadecimal string
+
+	* qpdf --check was exiting with status 0 in some rare cases even
+	when errors were found.  It now always exits with one of the
+	document error codes (0 for success, 2 for errors, 3 or warnings).
+
+2013-01-24  Jay Berkenbilt  <ejb@ql.org>
+
+	* Make --enable-werror work for MSVC, and generally handle warning
+	options better for that compiler.  Warning flags for that compiler
+	were previous hard-coded into the build with /WX enabled
+	unconditionally.
+
+	* Split warning flags into WFLAGS in autoconf.mk to make them
+	easier to override.  Before they were repeated in CFLAGS and
+	CXXFLAGS and were commingled with other compiler flags.
+
+	* qpdf --check now does syntactic checks all pages' content
+	streams as well as checking overall document structure.  Semantic
+	errors are still not checked, and there are no plans to add
+	semantic checks.
+
+2013-01-22  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add QPDFObjectHandle::getTypeCode().  This method returns a
+	unique integer (enumerated type) value corresponding to the object
+	type of the QPDFObjectHandle.  It can be used as an alternative to
+	the QPDFObjectHandle::is* methods for type testing, particularly
+	where there is a desire to use a switch statement or optimize for
+	performance when testing object types.
+
+	* Add QPDFObjectHandle::getTypeName().  This method returns a
+	string literal describing the object type.  It is useful for
+	testing and debugging.
+
+2013-01-20  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add QPDFObjectHandle::parseContentStream, which parses the
+	objects in a content stream and calls handlers in a callback
+	class.  The example pdf-parse-content illustrates it use.
+
+	* Add QPDF_Operator and QPDF_InlineImage types along with
+	appropriate wrapper methods in QPDFObjectHandle.  These new object
+	types are to facilitate content stream parsing.
+
+2013-01-17  Jay Berkenbilt  <ejb@ql.org>
+
+	* 4.0.1: release
+
+	* Add clarifying comment in QPDF.hh for methods that return the
+	user password to state that it is no longer possible with newer
+	encryption formats to recover the user password knowing the owner
+	password.
+
+	* Fix detection of binary attachments in the test suite.  This
+	resolves false test failures on some platforms.  No changes to the
+	actual QPDF code were made.
+
+2012-12-31  Jay Berkenbilt  <ejb@ql.org>
+
+	* 4.0.0: release
+
+	* Add new methods qpdf_get_pdf_extension_level,
+	qpdf_set_r5_encryption_parameters,
+	qpdf_set_r6_encryption_parameters,
+	qpdf_set_minimum_pdf_version_and_extension, and
+	qpdf_force_pdf_version_and_extension to support new functionality
+	from the C API.
+
+2012-12-30  Jay Berkenbilt  <ejb@ql.org>
+
+	* Fix long-standing bug that could theoretically have resulted in
+	possible misinterpretation of decode parameters in streams.  As
+	far as I can tell, it is extremely unlikely that files with the
+	characteristics that would have triggered the bug actually exist
+	in cases that qpdf versions prior to 4.0.0 could have read.
+	Unencrypted files with encrypted attachments would have triggered
+	this bug, but qpdf versions prior to 4.0.0 already refused to open
+	such files.
+
+	* Fix long-standing bug in which a stream that used a crypt
+	filter and was otherwise not filterable by qpdf would be decrypted
+	properly but would retain the crypt filter indication in the
+	file.  There are no known ways to create files like this, so it is
+	unlikely that anyone ever hit this bug.
+
+2012-12-29  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add read/write support for both the deprecated Acrobat IX
+	encryption format and the Acrobat X/PDF 2.0 encryption format
+	using 256-bit AES keys.  Using the Acrobat IX format (R=5) forces
+	the version of the file to 1.7 with extension level 3.  Using the
+	PDF 2.0 format (R=6) forces it to 1.7 extension level 8.
+
+	* Add new method QPDF::getEncryptionKey to return the actual
+	encryption key used for encryption of data in the file.  The key
+	is returned as a std::string.
+
+	* Non-compatible API change: change signature of
+	QPDF::compute_data_key to take the R and V values from the
+	encryption dictionary.  There is no reason for any application
+	code to call this method since handling of encryption is done
+	automatically by the qpdf libary.  It is used internally by
+	QPDFWriter.
+
+	* Support reading and decryption of files whose main text is not
+	encrypted but whose attachments are.  More generally, support the
+	case of files and streams encrypted differently with some
+	limitations, described in the documentation.  This was not
+	previously supported due to lack of test files, but I created test
+	files using a trial version of Acrobat XI to fully implement this
+	case.
+
+	* Incorporate sha2 code from sphlib 3.0.  See README for
+	licensing.  Create private pipeline class for computing hashes
+	with sha256, sha384, and sha512.
+
+	* Allow specification of initialization vector when using AES
+	filtering.  This is required to compute the hash used in /R=6 (PDF
+	2.0) encryption.
+
+2012-12-28  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add random number generation functions to QUtil.
+
+	* Fix old bug that could cause an infinite loop if user password
+	recovery methods were called and a password contained the "("
+	character (which happens to be the first byte of padding used by
+	older PDF encryption formats).  This bug was noticed while reading
+	code and would not happen under ordinary usage patterns even if
+	the password contained that character.
+
+2012-12-27  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add awareness of extension level to PDF Version methods for both
+	reading and writing.  This includes adding method
+	QPDF::getExtensionLevel and new versions of
+	QPDFWriter::setMinimumPDFVersion and QPDFWriter::forcePDFVersion
+	that support extension levels.  The qpdf command-line tool
+	interprets version numbers of the form x.y.z as version x.y at
+	extension level z.
+
+	* Update AES classes to support use of 256-bit keys.
+
+	* Non-compatible API change: Removed public method
+	QPDF::flattenScalarReferences.  Instead, just flatten the scalar
+	references we actually need to flatten.  Flattening scalar
+	references was a wrong decision years ago and has occasionally
+	caused other problems, among which were that it caused qpdf to
+	visit otherwise unreferenced and possibly erroneous objects in the
+	file when it didn't have to.  There's no reason that any
+	non-internal code would have had to call this.
+
+	* Non-compatible API change: Removed public method
+	QPDF::decodeStreams which was previously used by qpdf --check but
+	is no longer used.  The decodeStreams method could generate false
+	positives since it would attempt to access all objects in the file
+	including those that were not referenced.  There's no reason that
+	any non-internal code would have had to call this.
+
+	* Non-compatible API change: Removed public method
+	QPDF::trimTrailerForWrite, which was only intended for use by
+	QPDFWriter and which is no longer used.
+
+2012-12-26  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add new fields to QPDF::EncryptionData to support newer
+	encryption formats (V=5, R=5 and R=6)
+
+	* Non-compatible API change: Change public nested class
+	QPDF::EncryptionData to make all member fields private and to add
+	method calls.  This is a non-compatible API change, but changing
+	EncryptionData is necessary to support newer encryption formats,
+	and making this change will prevent the need from making a
+	non-compatible change in the future if new fields are added.  A
+	public nested class should never have had public members to begin
+	with.
+
+2012-12-25  Jay Berkenbilt  <ejb@ql.org>
+
+	* Allow PDF header to appear anywhere in the first 1024 bytes of
+	the file as recommended in the implementation notes of the Adobe
+	version of the PDF spec.
+
+2012-11-20  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add zlib and libpcre to Requires.private in the pkg-config file
+	to support static linking.  Thanks Tobias Hoffmann for pointing
+	out the omission.
+
+	* Ignore (with warning) non-freed objects in the xref table whose
+	offset is 0.  Some PDF producers (incorrectly) do this.  See
+	https://bugs.linuxfoundation.org/show_bug.cgi?id=1081.
+
+2012-09-23  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add public methods QPDF::processInputSource and
+	QPDFWriter::setOutputPipeline to allow users to read from custom
+	input sources and to write to custom pipelines.  This allows the
+	maximum flexibility in sources for reading and writing PDF files.
+
+2012-09-06  Jay Berkenbilt  <ejb@ql.org>
+
+	* 3.0.2: release
+
+	* Add new method QPDFWriter::setExtraHeaderText to add extra text,
+	such as application-specific comments, to near the beginning of a
+	PDF file.  For linearized files, this appears after the
+	linearization parameter dictionary.  For non-linearized files, it
+	appears right after the PDF header and non-ASCII comment.
+
+	* Make it possible to write the same QPDF object with two
+	different QPDFWriter objects that have both called
+	setLinearization(true) by making private method
+	QPDF::calculateLinearizationData() properly initialize its state.
+
+	* Bug fix: Writing after calling QPDFWriter::setOutputMemory()
+	would cause a segmentation fault because of an internal field not
+	being initialized, rendering that method useless.  This has been
+	corrected.
+
+2012-08-11  Jay Berkenbilt  <ejb@ql.org>
+
+	* 3.0.1: release
+
+	* Bug fix: let EOF terminate a literal token as well as
+	whitespace or comments.
+
+2012-07-31  Jay Berkenbilt  <ejb@ql.org>
+
+	* 3.0.0: release
+
+2012-07-29  Jay Berkenbilt  <ejb@ql.org>
+
+	* 3.0.rc1: release
+
+2012-07-25  Jay Berkenbilt  <ejb@ql.org>
+
+	* From Tobias: add QPDFObjectHandle::replaceStreamData that takes
+	a std::string analogous to the QPDFObjectHandle::newStream that
+	takes a string that was added earlier.
+
+2012-07-21  Jay Berkenbilt  <ejb@ql.org>
+
+	* Change configure to have image comparison tests disabled by
+	default.  Update README and README.maintainer with information
+	about running them.
+
+	* Add --pages command-line option to qpdf to enable page-based
+	merging and splitting.
+
+	* Add new method QPDFObjectHandle::replaceDict to replace a
+	stream's dictionary.  Use with caution; see comments in
+	QPDFObjectHandle.hh.
+
+	* Add new method QPDFObjectHandle::parse for creation of
+	QPDFObjectHandle objects from string representations of the
+	objects.  Thanks to Tobias Hoffmann for the idea.
+
+2012-07-15  Jay Berkenbilt  <ejb@ql.org>
+
+	* add new QPDF::isEncrypted method that returns some additional
+	information beyond other versions.
+
+	* libqpdf/QPDFWriter.cc: fix copyEncryptionParameters to fix the
+	minimum PDF version based on other file's encryption needs.  This
+	is a fix to code added on 2012-07-14 and did not impact previously
+	released code.
+
+	* libqpdf/QPDFWriter.cc (copyEncryptionParameters): Bug fix: qpdf
+	was not preserving whether or not AES encryption was being used
+	when copying encryption parameters.  The file would still have
+	been properly encrypted, but a file that started off encrypted
+	with AES could have become encrypted with RC4.
+
+2012-07-14  Jay Berkenbilt  <ejb@ql.org>
+
+	* QPDFWriter: add public copyEncryptionParameters to allow copying
+	encryption parameters from another file.
+
+	* QPDFWriter: detect if the user has inserted an indirect object
+	from another QPDF object and throw an exception directing the user
+	to copyForeignObject.
+
+2012-07-11  Jay Berkenbilt  <ejb@ql.org>
+
+	* Added new APIs to copy objects from one QPDF to another.  This
+	includes letting QPDF::addPage() (and QPDF::addPageAt()) accept a
+	page object from another QPDF and adding
+	QPDF::copyForeignObject().  See QPDF.hh for details.
+
+	* Add method QPDFObjectHandle::getOwningQPDF() to return the QPDF
+	object associated with an indirect QPDFObjectHandle.
+
+	* Add convenience methods to QPDFObjectHandle: assertIndirect(),
+	isPageObject(), isPagesObject()
+
+	* Cache when QPDF::pushInheritedAttributesToPage() has been called
+	to avoid traversing the pages trees multiple times.  This state is
+	cleared by QPDF::updateAllPagesCache() and ignored by
+	QPDF::flattenPagesTree().
+
+2012-07-08  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add QPDFObjectHandle::newReserved to create a reserved object
+	and QPDF::replaceReserved to replace it with a real object.
+	QPDFObjectHandle::newReserved reserves an object ID in a QPDF
+	object and ensures that any references to it remain unresolved.
+	When QPDF::replaceReserved is later called, previous references to
+	the reserved object will properly resolve to the replaced object.
+
+2012-07-07  Jay Berkenbilt  <ejb@ql.org>
+
+	* NOTE: BREAKING API CHANGE.  Remove previously required length
+	parameter from the version QPDFObjectHandle::replaceStreamData
+	that uses a stream data provider.  Prior to qpdf 3.0.0, you had to
+	compute the stream length in advance so that qpdf could internally
+	verify that the stream data had the same length every time the
+	provider was invoked.  Now this requirement is enforced a
+	different way, and the length parameter is no longer required.
+	Note that I take API-breaking changes very seriously and only did
+	it in this case since the lack of need to know length in advance
+	could significantly simplify people's code.  If you were
+	previously going to a lot of trouble to compute the length of the
+	new stream data in advance, you now no longer have to do that.
+	You can just drop the length parameter and remove any code that
+	was previously computing the length.  Thanks to Tobias Hoffmann
+	for pointing out how annoying the original interface was.
+
+2012-07-05  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add QPDFWriter methods to write to an already open stdio FILE*.
+	Implementation and idea area based on contributions from Tobias
+	Hoffmann.
+
+2012-07-04  Jay Berkenbilt  <ejb@ql.org>
+
+	* Accept changes from Tobias Hoffmann: add public method
+	QPDF::pushInheritedAttributesToPage including warnings for
+	non-inherited keys that may be discarded from /Pages by
+	non-conformant PDF files when the /Pages tree is flattened.
+
+2012-06-27  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add Pl_Concatenate pipeline for stream concatenation also
+	implemented by Tobias Hoffmann.  Also added test code
+	(libtests/concatenate.cc).
+
+	* Add new methods implemented by Tobias Hoffmann:
+	QPDFObjectHandle::newReal(double) and
+	QPDFObjectHandle::newStream(QPDF*, std::string const&).
+
+2012-06-26  Jay Berkenbilt  <ejb@ql.org>
+
+	* Minor changes so that support for PDF files larger than 4GB
+	works well with 32-bit and 64-bit Linux and also with 32-bit and
+	64-bit Windows with both MSVC and mingw.
+
+	* Rework internal methods for doing recovery of the cross
+	reference tables for much greater efficiency both in terms of time
+	and memory usage.
+
+2012-06-24  Jay Berkenbilt  <ejb@ql.org>
+
+	* Support PDF files larger than 4 GB.  This involved many changes
+	to the ABI to increase the size of integer types used in various
+	places as well as increasing the amount of padding used when
+	creating linearized files.  Automated tests for large files are
+	disabled by default.  Run ./configure --help for information on
+	enabling them.  Running the tests requires 11 GB of free disk
+	space and takes several minutes.
+
+2012-06-22  Jay Berkenbilt  <ejb@ql.org>
+
+	* examples/pdf-create.cc: Provide an example of creating a PDF
+	from scratch.  This simple PDF has a single page with some text
+	and an image.
+
+	* Add empty QPDFObjectHandle factories for array and dictionary.
+	With PDF-from-scratch capability, it is useful to be able to
+	create empty arrays and dictionaries and add keys to them.
+	Updated pdf_from_scratch.cc to use these interfaces.
+
+2012-06-21  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add QPDF::emptyPDF() to create an empty QPDF object suitable for
+	adding pages and other objects to.  pdf_from_scratch.cc is test
+	code that exercises it.
+
+	* make/libtool.mk: Place user-specified CPPFLAGS and LDFLAGS later
+	in the compilation so that if a user installs things in a
+	non-standard place that they have to tell the build about, earlier
+	versions of qpdf installed there won't break the build.  Thanks to
+	Macports for reporting this.  (Fixes bug 3468860.)
+
+	* Instead of using off_t in the public APIs, use qpdf_offset_t
+	instead.  This is defined as long long in qpdf/Types.h.  If your
+	system doesn't support long long, you can redefine it.
+
+	* Add pkg-config files
+
+	* QPDFObjectHandle: add shallowCopy() method
+
+	* QPDF: add new APIs for adding and removing pages.  This includes
+	addPage(), addPageAt(), and removePage().  Also a method
+	updateAllPagesCache() is now available to force update of the
+	internal pages cache if you should modify the pages structure
+	manually.
+
+	* QPDF: new processFile method that takes an open FILE*
+	instead of a filename.
+
+2012-06-20  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add new array mutation routines to QPDFObjectHandle.
+	Implemented by Tobias Hoffmann.
+
+	* Rework APIs that use size_t, off_t, and primative integer types
+	so that size_t is used for sizes of memory and off_t is used for
+	file offsets.  Also set _FILE_OFFSET_BITS so that large files can
+	be supported on 32-bit UNIX/Linux platforms.  The code assumes in
+	places that sizeof(off_t) >= sizeof(size_t).  This resulted in
+	non-compatible ABI changes and hopefully clears the way for QPDF
+	to work with files that are larger than 4 GiB in size.
+
+	* Add support for versioned symbols on ELF platforms.
+
+	* Various fixes for gcc 4.7
+
+2011-04-06  Jay Berkenbilt  <ejb@ql.org>
+
+        * Fix PCRE to stop using deprecated (and now dropped) interfaces.
+
+2011-12-28  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.3.1: release
+
+	* include <stdint.h> if available to support MSVC 2010
+
+	* Since PCRE is not necessarily thread safe, don't declare any
+	PCRE objects to be static.
+
+	* Disregard stderr output from ghostscript when using it to
+	compare images in the test suite; see comments in qpdf.test for
+	details.
+
+	* Fixed a few documentation errors.
+
+2011-08-11  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.3.0: release
+
+	* include/qpdf/qpdf-c.h ("C"): add new methods
+	qpdf_init_write_memory, qpdf_get_buffer_length, and
+	qpdf_get_buffer to support writing to memory from the C API.
+
+	* include/qpdf/qpdf-c.h ("C"): add new methods qpdf_get_info_key
+	and qpdf_set_info_key for manipulating text fields of the /Info
+	dictionary.
+
+2011-08-10  Jay Berkenbilt  <ejb@ql.org>
+
+	* libqpdf/QPDFWriter.cc (copyEncryptionParameters): preserve
+	whether metadata is encryption.  This fixes part of bug 3173659:
+	the password becomes invalid if qpdf copies an encrypted file with
+	cleartext-metadata.
+
+	* include/qpdf/QPDFWriter.hh: add a new constructor that takes
+	only a QPDF reference and leaves specification of output for
+	later.  Add methods setOutputFilename() to set the output to a
+	filename or stdout, and setOutputMemory() to indicate that output
+	should go to a memory buffer.  Add method getBuffer() to retrieve
+	the buffer used if output was saved to a memory buffer.
+
+	* include/qpdf/QPDF.hh: add methods replaceObject() and
+	swapObjects() to allow replacement of an object and swapping of
+	two objects by object ID.
+
+	* include/qpdf/QPDFObjectHandle.hh: add new methods getDictAsMap()
+	and getArrayAsVector() for returning the elements of a dictionary
+	or an array as a map or vector.
+
+2011-06-25  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.2.4: release
+
+2011-06-23  Jay Berkenbilt  <ejb@ql.org>
+
+	* make/libtool.mk (install): Do not strip executables and shared
+	libraries during installation.  Leave that up to the packager.
+
+	* configure.ac: disable -Werror by default.
+
+2011-05-07  Jay Berkenbilt  <ejb@ql.org>
+
+	* libqpdf/QPDF_linearization.cc (isLinearized): remove unused
+	offset variable, found by a gcc 4.6 warning.
+
+2011-04-30  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.2.3: release
+
+	* libqpdf/QPDF.cc (readObjectInternal): Accept the case of the
+	stream keyword being followed by carriage return by itself.  While
+	this is not permitted by the specification, there are PDF files
+	that do this, and other readers can read them.
+
+	* libqpdf/Pl_QPDFTokenizer.cc (processChar): When an inline image
+	is detected, suspend normalization only up to the end of the
+	inline image rather than for the remainder of the content stream.
+	(Fixes qpdf-Bugs 3152169.)
+
+2011-01-31  Jay Berkenbilt  <ejb@ql.org>
+
+	* libqpdf/QPDF.cc (readObjectAtOffset): use -1 rather than 0 when
+	reading an object at a given to indicate that no object number is
+	expected.  This allows xref recovery to proceed even if a file
+	uses the invalid object number 0 as a regular object.
+
+	* libqpdf/QPDF_linearization.cc (isLinearized): use -1 rather than
+	0 as a sentintel for not having found the first object in the
+	file.  Since -1 can never match the regular expression, this
+	prevents an infinite loop when checking a file that starts with
+	(erroneous) 0 0 obj.  (Fixes qpdf-Bugs-3159950.)
+
+2010-10-04  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.2.2: release
+
+	* include/qpdf/qpdf-c.h: Add qpdf_read_memory to C API to call
+	QPDF::processMemoryFile.
+
+2010-10-01  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.2.1: release
+
+	* include/qpdf/QPDF.hh: Add setOutputStreams method to allow
+	redirection of library-generated output/error to alternative
+	streams.
+
+	* include/qpdf/QPDF.hh: Add processMemoryFile method for
+	processing a PDF file from a memory buffer instead of a file.
+
+2010-09-24  Jay Berkenbilt  <ejb@ql.org>
+
+	* libqpdf/QPDF.cc: change private "file" method to be a
+	PointerHolder<InputSource> to prepare qpdf for being able to work
+	with PDF files loaded into memory in addition to working with
+	files on disk.
+
+	* include/qpdf/PointerHolder.hh: add operator* and operator->
+	methods so that PointerHolder objects can be used like pointers.
+	This is consistent with the smart pointer objects in the next
+	revision of C++.
+
+2010-09-05  Jay Berkenbilt  <ejb@ql.org>
+
+	* libqpdf/QPDF.cc (readObjectInternal): Recognize empty objects
+	and treat them as null.
+
+	* libqpdf/QPDF_Stream.cc (filterable): Handle inline image filter
+	abbreviations as stream filter abbreviations.  Although this is
+	not technically allowed by the PDF specification, table H.1 in the
+	pre-ISO spec indicates that Adobe's readers accept them.  Thanks
+	to Jian Ma <stronghorse@tom.com> for bringing this to my
+	attention.
+
+2010-08-14  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.2.0: release
+
+	* Rename README.windows to README-windows.txt and convert its line
+	endings to Windows-style line endings.  Also mention Jian Ma's VC6
+	port in the manual and README-windows.txt.
+
+2010-08-09  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add QPDFObjectHandle::getRawStreamData to return raw
+	(unfiltered) stream data.
+
+2010-08-08  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.2.rc1: release
+
+2010-08-05  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add QPDFObjectHandle::addPageContents, a convenience routine for
+	appending or prepending new streams to a page's content streams.
+	The "pdf-double-page-size" example illustrates its use.
+
+	* Add new methods to QPDFObjectHandle: replaceStreamData and
+	newStream.  These methods allow users of the qpdf library to add
+	new streams and to replace data of existing streams.  The
+	"pdf-double-page-size" and "pdf-invert-images" examples illustrate
+	their use.
+
+2010-06-06  Jay Berkenbilt  <ejb@ql.org>
+
+	* Fix memory leak for QPDF objects whose underlying PDF objects
+	contain circular references.  Thanks to Jian Ma
+	<stronghorse@tom.com> for calling my attention to the memory leak.
+
+2010-04-25  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.1.5: release
+
+	* libqpdf/QPDF_encryption.cc (compute_encryption_key): remove
+	restrictions on length of file identifier string.  (Fixes
+	qpdf-Bugs-2991412.)
+
+2010-04-18  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.1.4: release
+
+	* libqpdf/QPDFWriter.cc (writeLinearized): the padding calculation
+	fix in 2.1.2 was applied in only one place but it was needed in
+	two places since there are actually two cross reference streams in
+	a linearized file.  The new padding calculation is now used for
+	both streams.  Hopefully this should put an end to linearization
+	padding problems.  (Fixes qpdf-Bugs-2979219.)
+
+2010-04-10  Jay Berkenbilt  <ejb@ql.org>
+
+	* qpdf/qpdf.cc (main): Since qpdf --check only checks syntax and
+	stream encoding without doing any semantic checks, make the output
+	clearer when no errors around found.  This is inspired by
+	qpdf-Bugs-2983225.
+
+2010-03-27  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.1.3: release
+
+	* libqpdf/QPDF_optimization.cc (flattenScalarReferences): Flatten
+	scalar references for unreferenced objects as well as those seen
+	during traversal of the file.  This matters when preserving object
+	streams that contain unreferenced objects with indirect scalars.
+	(Fixes qpdf-Bugs-2974522.)  Updated TODO with a description of a
+	possibly better fix involving removal of flattenScalarReferences.
+
+	* libqpdf/Pl_AES_PDF.cc (finish): Don't complain if an AES input
+	buffer is not a multiple of 16 bytes.  Instead, just pad with
+	nulls and hope for the best.  PDF files have been encountered "in
+	the wild" that contain AES buffers that aren't a multiple of 16
+	bytes.
+
+2010-01-24  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.1.2: release
+
+	* libqpdf/QPDFWriter.cc: fix logic error in padding calculation.
+	When writing linearized files with cross reference streams, the
+	padding calculation failed to take differences in sizes of
+	compressed data between pass 1 and pass 2 into consideration.
+
+2009-12-14  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.1.1: release
+
+	* qpdf/qtest/qpdf.test: improve test for acroread to make sure it
+	actually works and is not just present in the path.
+
+2009-12-13  Jay Berkenbilt  <ejb@ql.org>
+
+	* libqpdf/qpdf/Pl_AES_PDF.hh: include <stdint.h>, if available, so
+	we have valid definitions of uint32_t.
+
+2009-10-30  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.1: release
+
+	* libqpdf/QPDF.cc: be more forgiving of extraneous whitespace in
+	the xref table and while recovering from error conditions.
+
+2009-10-26  Jay Berkenbilt  <ejb@ql.org>
+
+	* Work around failure of PCRE test case; this test case exercises
+	an aspect of PCRE that qpdf does not use, and the test fails with
+	the version of PCRE on Red Hat Enterprise Linux 5, so we ignore
+	failure on this particular test case.
+
+	* Fix RPM .spec file to include "C" examples
+
+2009-10-24  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.1.rc1: release
+
+	* Provide interfaces for getting qpdf's own version number
+
+2009-10-19  Jay Berkenbilt  <ejb@ql.org>
+
+	* include/qpdf/QPDF.hh (QPDF): getWarnings now returns a list of
+	QPDFExc rather than a list of strings.  This way, warnings may be
+	inspected in more detail.
+
+	* Include information about the last object read in most error
+	messages.  Most of the time, this will provide a good hint as to
+	which object contains the error, but it's possible that the last
+	object read may not necessarily be the one that has the error if
+	the erroneous object was previously read and cached.
+
+2009-10-18  Jay Berkenbilt  <ejb@ql.org>
+
+	* If forcing version, disable object stream creation and/or
+	encryption if previous specifications are incompatible with new
+	version.  It is still possible that PDF content, compression
+	schemes, etc., may be incompatible with the new version, but at
+	least this way, older viewers will at least have a chance.
+
+	* libqpdf/QPDFWriter.cc (unparseObject): avoid compressing
+	Metadata streams if possible.
+
+2009-10-13  Jay Berkenbilt  <ejb@ql.org>
+
+	* Upgrade embedded qtest to version 1.4, which allows the test
+	suite to be run in Windows with MSYS and ActiveState Perl rather
+	than requiring Cygwin perl.
+
+2009-10-04  Jay Berkenbilt  <ejb@ql.org>
+
+	* Implement support AES encrypt and crypt filters.  Implementation
+	is not fully tested due to lack of test data but has been tested
+	for several cases.
+
+2009-10-04  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add methods to QPDFWriter and corresponding command line
+	arguments to qpdf to set the minimum output PDF version and also
+	to force the version to a particular value.
+
+	* libqpdf/QPDF.cc (processXRefStream): warn and ignore extra xref
+	stream entries when stream is larger than reported size.  This
+	used to be a fatal error.  (Fixes qpdf-Bugs-2872265.)
+
+2009-09-27  Jay Berkenbilt  <ejb@ql.org>
+
+	* Add several methods to query permissions controlled by the
+	encryption dictionary.  Note that qpdf does not enforce these
+	permissions even though it allows the user to query them.
+
+	* The function QPDF::getUserPassword returned the user password
+	with the required padding as specified by the PDF specification.
+	This is seldom useful to users.  This function has been replaced
+	by QPDF::getPaddedUserPassword.  Call the new
+	QPDF::getTrimmedUserPassword to retreive the user password in a
+	human-readable format.
+
+	* qpdf/qpdf.cc (main): qpdf --check now prints the PDF version
+	number in addition to its other output.
+
+2009-09-26  Jay Berkenbilt  <ejb@ql.org>
+
+	* Removed all references to QEXC; now using std::runtime_error and
+	std::logic_error and their subclasses for all exceptions.
+
+2009-05-03  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.0.6: release
+
+	* libqpdf/QPDF_Stream.cc (filterable): ignore /DecodeParms if it's
+	not a type we recognize.  (Fixes qpdf-Bugs-2779746.)
+
+2009-03-10  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.0.5: release
+
+2009-03-09  Jay Berkenbilt  <ejb@ql.org>
+
+	* libqpdf/Pl_LZWDecoder.cc: adjust LZWDecoder full table
+	detection, now having been able to adequately test boundary
+	conditions both and with and without early code change.  Also
+	compared implementation with other LZW decoders.
+
+2009-03-08  Jay Berkenbilt  <ejb@ql.org>
+
+	* qpdf/fix-qdf (write_ostream): Adjust offsets while writing
+	object streams to account for changes in the length of the
+	dictionary and offset tables.
+
+	* qpdf/qpdf.cc (main): In check mode, in addition to checking
+	structure of file, attempt to decode all stream data.
+
+	* libqpdf/QPDFWriter.cc (QPDFWriter::writeObject): In QDF mode,
+	write a comment to the QDF file before each object that indicates
+	the object ID of the corresponding object from the original file.
+	Add --no-original-object-ids flag to qpdf and
+	setSuppressOriginalObjectIDs() method to QPDFWriter to turn this
+	behavior off.
+
+	* libqpdf/QPDF.cc (QPDF::pipeStreamData): Issue a warning instead
+	of failing if there is a problem found while decoding stream.
+
+	* qpdf/qpdf.cc: Exit with a status of 3 if warnings were found
+	regardless of what mode we're in.
+
+2009-02-21  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.0.4: release
+
+2009-02-20  Jay Berkenbilt  <ejb@ql.org>
+
+	* Fix many typos in comments and strings.
+
+	* qpdf/qpdf.cc: in --check mode, if there are warnings but no
+	errors, exit with a status of 3.
+
+	* libqpdf/QPDF.cc (QPDF::insertXrefEntry): when recovering the
+	cross-reference table, have objects we encounter later in the file
+	supersede those we found earlier.  This improves the chances of
+	being able to recover appended files with damaged cross-reference
+	tables.
+
+2009-02-19  Jay Berkenbilt  <ejb@ql.org>
+
+	* libqpdf/Pl_LZWDecoder.cc: correct logic error for previously
+	untested case of running the LZW decoder without the "early code
+	change" flag.  Thanks to a bug report from "Atom Smasher", I
+	finally was able to obtain an input stream compressed in this way.
+
+2009-02-15  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.0.3: release
+
+2008-12-11  Jay Berkenbilt  <ejb@ql.org>
+
+	* qpdf/qpdf.cc (main): Accept -help and -version as well as --help
+	and --version
+
+2008-11-23  Jay Berkenbilt  <ejb@ql.org>
+
+	* Include stdio.h in a few files for proper compilation with (yet
+	to be released) gcc 4.4
+
+	* updated embedded qtest to version 1.3
+
+	* libqpdf/QPDF_String.cc (QPDF_String::getUTF8Val): handle
+	UTF-16BE properly rather than just treating the string as a string
+	of 16-bit characters.
+
+2008-06-30  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.0.2: release
+
+	* updated embedded qtest to version 1.2 (includes previous
+	changes)
+
+2008-06-07  Jay Berkenbilt  <ejb@ql.org>
+
+	* qpdf/qtest/qpdf/diff-encrypted: change == to = so that the test
+	suite passes when /bin/sh is not bash
+
+2008-05-07  Jay Berkenbilt  <ejb@ql.org>
+
+	* qtest/bin/qtest-driver (run_test): increase timeout for qtest to
+	be more tolerant of slow machines
+
+2008-05-06  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.0.1: release
+
+	* make/rules.mk: fix logic with .dep generation for .lo files so
+	that dependencies work properly with libtool
+
+2008-05-05  Jay Berkenbilt  <ejb@ql.org>
+
+	* libqpdf/qpdf/MD5.hh: fix header to be 64-bit clean
+
+	* configure.ac: add tests for sized integer types
+
+2008-05-04  Jay Berkenbilt  <ejb@ql.org>
+
+	* libqpdf/QPDF_encryption.cc: do not assume size_t is unsigned int
+
+	* qpdf/qtest/qpdf.test: removed locale-specific tests.  These were
+	really to check bugs in perl 5.8.0 and are obsolete now.  They
+	also make the test suite fail in some environments that don't have
+	all the locales fully configured.
+
+	* various: updated several files for gcc 4.3 by adding missing
+	includes (string.h, stdlib.h)
+
+2008-04-26  Jay Berkenbilt  <ejb@ql.org>
+
+	* 2.0: initial public release

@@ -1,0 +1,34 @@
+diff --git a/app/controllers/application_controller.rb b/app/controllers/application_controller.rb
+index 43257b2bfaa..1e251c2a4a4 100644
+--- a/app/controllers/application_controller.rb
++++ b/app/controllers/application_controller.rb
+@@ -379,7 +379,7 @@ def redirect_back_or_default(default, options={})
+       begin
+         uri = URI.parse(back_url)
+         # do not redirect user to another host or to the login or register page
+-        if (uri.relative? || (uri.host == request.host)) && !uri.path.match(%r{/(login|account/register)})
++        if ((uri.relative? && back_url.match(%r{\A/\w})) || (uri.host == request.host)) && !uri.path.match(%r{/(login|account/register)})
+           redirect_to(back_url)
+           return
+         end
+diff --git a/test/functional/account_controller_test.rb b/test/functional/account_controller_test.rb
+index 35074bd4ed2..e9156957c80 100644
+--- a/test/functional/account_controller_test.rb
++++ b/test/functional/account_controller_test.rb
+@@ -66,8 +66,14 @@ def test_login_should_redirect_to_back_url_param
+   end
+ 
+   def test_login_should_not_redirect_to_another_host
+-    post :login, :username => 'jsmith', :password => 'jsmith', :back_url => 'http://test.foo/fake'
+-    assert_redirected_to '/my/page'
++    back_urls = [
++      'http://test.foo/fake',
++      '//test.foo/fake'
++    ]
++    back_urls.each do |back_url|
++      post :login, :username => 'jsmith', :password => 'jsmith', :back_url => back_url
++      assert_redirected_to '/my/page'
++    end
+   end
+ 
+   def test_login_with_wrong_password

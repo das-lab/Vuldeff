@@ -1,0 +1,45 @@
+diff --git a/docs/NEWS b/docs/NEWS
+index 238b229a2..b6afc4887 100644
+--- a/docs/NEWS
++++ b/docs/NEWS
+@@ -1,5 +1,11 @@
+ #
+ 
++Version 2.0-rc2 (December 23rd, 2014)
++------------------------------------------------------------------------
++
++    * Fixes escaping of comments in the new backend pane to prevent
++      XSS. Thanks to Steffen Röemann for reporting!
++
+ Version 2.0-rc1 (includes beta4/5/6) (December 19th, 2014)
+ ------------------------------------------------------------------------
+ 
+diff --git a/serendipity_config.inc.php b/serendipity_config.inc.php
+index 1c11adb6b..dc5ac55f8 100644
+--- a/serendipity_config.inc.php
++++ b/serendipity_config.inc.php
+@@ -44,7 +44,7 @@
+ }
+ 
+ // The version string
+-$serendipity['version'] = '2.0-rc1';
++$serendipity['version'] = '2.0-rc2';
+ 
+ 
+ // Setting this to 'false' will enable debugging output. All alpha/beta/cvs snapshot versions will emit debug information by default. To increase the debug level (to enable Smarty debugging), set this flag to 'debug'.
+diff --git a/templates/2k11/admin/overview.inc.tpl b/templates/2k11/admin/overview.inc.tpl
+index 5cbe43278..9d021b33a 100644
+--- a/templates/2k11/admin/overview.inc.tpl
++++ b/templates/2k11/admin/overview.inc.tpl
+@@ -39,9 +39,9 @@
+             {if is_array($comments)}
+                 {foreach $comments as $comment}
+                 <li class="clearfix"><b>{$comment.author|escape|truncate:30:"&hellip;"} {$CONST.IN} <a href="{$comment.entrylink}" title="Comment to {$comment.title}">#{$comment.id}</a></b>
+-                    <div class="comment_summary">{$comment.body|truncate:100:"&hellip;"}</div>
++                    <div class="comment_summary">{$comment.body|escape|truncate:100:"&hellip;"}</div>
+ 
+-                    <div id="c{$comment.id}_full" class="comment_full additional_info">{$comment.fullBody}</div>
++                    <div id="c{$comment.id}_full" class="comment_full additional_info">{$comment.fullBody|escape}</div>
+                     
+                     <ul class="plainList actions">
+                         <li><a class="button_link" href="?serendipity[action]=admin&amp;serendipity[adminModule]=comments&amp;serendipity[adminAction]=edit&amp;serendipity[id]={$comment.id}&amp;serendipity[entry_id]={$comment.entry_id}&amp;{$urltoken}" title="{$CONST.EDIT}"><span class="icon-edit"></span><span class="visuallyhidden"> {$CONST.EDIT}</span></a></li>

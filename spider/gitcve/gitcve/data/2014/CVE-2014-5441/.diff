@@ -1,0 +1,13 @@
+diff --git a/app/views/layouts/application.html.haml b/app/views/layouts/application.html.haml
+index 2625a92c54..1b8d8c0384 100755
+--- a/app/views/layouts/application.html.haml
++++ b/app/views/layouts/application.html.haml
+@@ -27,7 +27,7 @@
+       :javascript
+         #{yield :javascript}
+         var _ffcrm_users = [
+-        #{User.all.map{|u| "\"#{u.full_name} (@#{u.username})\"" }.join(",\n")}
++        #{User.all.map{|u| "\"#{j u.full_name} (@#{j u.username})\"" }.join(",\n")}
+         ];
+ 
+     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">

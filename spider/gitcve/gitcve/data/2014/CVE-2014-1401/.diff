@@ -1,0 +1,33 @@
+diff --git a/images/header/1378798712-ban1.png b/images/header/1378798712-ban1.png
+deleted file mode 100644
+index d1fb2c0..0000000
+Binary files a/images/header/1378798712-ban1.png and /dev/null differ
+diff --git a/images/header/1378799316-ban2.png b/images/header/1378799316-ban2.png
+deleted file mode 100644
+index 53a05e7..0000000
+Binary files a/images/header/1378799316-ban2.png and /dev/null differ
+diff --git a/images/header/1378799702-ban3.png b/images/header/1378799702-ban3.png
+deleted file mode 100644
+index 3f4e035..0000000
+Binary files a/images/header/1378799702-ban3.png and /dev/null differ
+diff --git a/images/header/1378799866-ban5.png b/images/header/1378799866-ban5.png
+deleted file mode 100644
+index 4d378e3..0000000
+Binary files a/images/header/1378799866-ban5.png and /dev/null differ
+diff --git a/images/header/1378801253-ban6.png b/images/header/1378801253-ban6.png
+deleted file mode 100644
+index b38ea66..0000000
+Binary files a/images/header/1378801253-ban6.png and /dev/null differ
+diff --git a/mod/content/content.php b/mod/content/content.php
+index 50a62e1..28cfbf9 100644
+--- a/mod/content/content.php
++++ b/mod/content/content.php
+@@ -88,7 +88,7 @@
+ 		<h2>Pencarian Berita</h2>
+ 		<div class="border" style="text-align:center;"><img src="mod/content/images/banner_searching_data.gif" alt="Searching Data" /></div>';
+ 		
+-		$search	= !isset($_GET['search']) ? cleanText($_POST['search']) : cleanText($_GET['search']);
++		$search	= !isset($_GET['search']) ? mysqli_real_escape_string(cleanText($_POST['search'])) : mysqli_real_escape_string(cleanText($_GET['search']));
+ 		
+ 		if(!$search){
+ 			$tengah .= '<div class="error">Maaf Anda Belum Memasukkan Kata Pencarian</div>';

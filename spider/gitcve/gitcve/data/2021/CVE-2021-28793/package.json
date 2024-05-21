@@ -1,0 +1,551 @@
+{
+  "name": "restructuredtext",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "146.0.0",
+  "publisher": "lextudio",
+  "engines": {
+    "vscode": "^1.43.0"
+  },
+  "dependencies": {
+    "linux-os-info": "^2.0.0",
+    "lodash.throttle": "^4.1.1",
+    "meaw": "^4.1.0",
+    "mime": "^2.4.6",
+    "open": "^7.3.0",
+    "vscode-languageclient": "^6.1.3",
+    "vscode-nls": "^4.0.0"
+  },
+  "devDependencies": {
+    "@studio/changes": "^1.7.0",
+    "@types/lodash.throttle": "^4.1.4",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.9.2",
+    "@types/vscode": "^1.43.0",
+    "mocha": "^7.1.1",
+    "ts-loader": "^5.2.1",
+    "ts-node": "^8.8.1",
+    "tslib": "^1.9.3",
+    "typescript": "^3.8.3",
+    "vscode-test": "^1.1.33",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.11"
+  },
+  "featureFlags": {
+    "usingNewInterpreterStorage": true
+  },
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "homepage": "https://www.restructuredtext.net",
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Linters"
+  ],
+  "icon": "images/Document_icon.png",
+  "galleryBanner": {
+    "color": "#ACD1EC",
+    "theme": "light"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vscode-restructuredtext/vscode-restructuredtext.git"
+  },
+  "bugs": "https://github.com/vscode-restructuredtext/vscode-restructuredtext/issues",
+  "main": "./out/extension",
+  "activationEvents": [
+    "workspaceContains:**/*.rst",
+    "onLanguage:restructuredtext",
+    "onCommand:restructuredtext.preview.toggleLock",
+    "onCommand:restructuredtext.preview.refresh",
+    "onCommand:restructuredtext.showPreview",
+    "onCommand:restructuredtext.showPreviewToSide",
+    "onCommand:restructuredtext.showLockedPreviewToSide",
+    "onCommand:restructuredtext.showSource",
+    "onCommand:restructuredtext.showPreviewSecuritySelector",
+    "onWebviewPanel:restructuredtext.preview",
+    "onCommand:restructuredtext.features.underline.underline"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "restructuredtext",
+        "aliases": [
+          "reStructuredText",
+          "restructuredtext",
+          "ReStructured Text",
+          "reStructured Text",
+          "RST",
+          "ReST",
+          "reST"
+        ],
+        "extensions": [
+          ".rst",
+          ".rest"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "restructuredtext",
+        "scopeName": "text.restructuredtext",
+        "path": "./syntaxes/restructuredtext.tmLanguage"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "restructuredtext",
+        "path": "./snippets/snippets.json"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "restructuredtext.showPreview",
+        "key": "shift+ctrl+r",
+        "mac": "shift+cmd+r",
+        "when": "editorLangId == restructuredtext"
+      },
+      {
+        "command": "restructuredtext.showPreviewToSide",
+        "key": "ctrl+k ctrl+r",
+        "mac": "cmd+k cmd+r",
+        "when": "editorLangId == restructuredtext"
+      },
+      {
+        "command": "restructuredtext.features.underline.underline",
+        "key": "ctrl+k ctrl+=",
+        "mac": "cmd+k cmd+=",
+        "when": "editorLangId == restructuredtext"
+      },
+      {
+        "command": "restructuredtext.features.underline.underlineReverse",
+        "key": "ctrl+k ctrl+-",
+        "mac": "cmd+k cmd+-",
+        "when": "editorLangId == restructuredtext"
+      },
+      {
+        "command": "restructuredtext.extension.onEnterKey",
+        "key": "enter",
+        "when": "editorTextFocus && !editorReadonly && editorLangId == restructuredtext && !suggestWidgetVisible && vim.mode != 'Normal' && vim.mode != 'Visual' && vim.mode != 'VisualBlock' && vim.mode != 'VisualLine' && vim.mode != 'SearchInProgressMode' && vim.mode != 'CommandlineInProgress' && vim.mode != 'Replace' && vim.mode != 'EasyMotionMode' && vim.mode != 'EasyMotionInputMode' && vim.mode != 'SurroundInputMode'"
+      },
+      {
+        "command": "restructuredtext.extension.onCtrlEnterKey",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorTextFocus && !editorReadonly && editorLangId == restructuredtext && !suggestWidgetVisible"
+      },
+      {
+        "command": "restructuredtext.extension.onShiftEnterKey",
+        "key": "shift+enter",
+        "when": "editorTextFocus && !editorReadonly && editorLangId == restructuredtext && !suggestWidgetVisible"
+      },
+      {
+        "command": "restructuredtext.extension.onTabKey",
+        "key": "tab",
+        "when": "editorTextFocus && !editorReadonly && editorLangId == restructuredtext && !suggestWidgetVisible && !editorTabMovesFocus && !inSnippetMode && !hasSnippetCompletions && !hasOtherSuggestions"
+      },
+      {
+        "command": "restructuredtext.extension.onShiftTabKey",
+        "key": "shift+tab",
+        "when": "editorTextFocus && !editorReadonly && editorLangId == restructuredtext && !suggestWidgetVisible && !editorTabMovesFocus && !inSnippetMode && !hasSnippetCompletions && !hasOtherSuggestions"
+      },
+      {
+        "command": "restructuredtext.extension.onBackspaceKey",
+        "key": "backspace",
+        "when": "editorTextFocus && !editorReadonly && editorLangId == restructuredtext && !suggestWidgetVisible && vim.mode != 'Normal' && vim.mode != 'Visual' && vim.mode != 'VisualBlock' && vim.mode != 'VisualLine' && vim.mode != 'SearchInProgressMode' && vim.mode != 'CommandlineInProgress' && vim.mode != 'Replace' && vim.mode != 'EasyMotionMode' && vim.mode != 'EasyMotionInputMode' && vim.mode != 'SurroundInputMode'"
+      },
+      {
+        "command": "restructuredtext.extension.onMoveLineUp",
+        "key": "alt+up",
+        "when": "editorTextFocus && !editorReadonly && editorLangId == restructuredtext && !suggestWidgetVisible"
+      },
+      {
+        "command": "restructuredtext.extension.onMoveLineDown",
+        "key": "alt+down",
+        "when": "editorTextFocus && !editorReadonly && editorLangId == restructuredtext && !suggestWidgetVisible"
+      },
+      {
+        "command": "restructuredtext.extension.onCopyLineUp",
+        "win": "shift+alt+up",
+        "mac": "shift+alt+up",
+        "when": "editorTextFocus && !editorReadonly && editorLangId == restructuredtext && !suggestWidgetVisible"
+      },
+      {
+        "command": "restructuredtext.extension.onCopyLineDown",
+        "win": "shift+alt+down",
+        "mac": "shift+alt+down",
+        "when": "editorTextFocus && !editorReadonly && editorLangId == restructuredtext && !suggestWidgetVisible"
+      },
+      {
+        "command": "restructuredtext.extension.onIndentLines",
+        "key": "ctrl+]",
+        "mac": "cmd+]",
+        "when": "editorTextFocus && editorLangId == restructuredtext && !suggestWidgetVisible"
+      },
+      {
+        "command": "restructuredtext.extension.onOutdentLines",
+        "key": "ctrl+[",
+        "mac": "cmd+[",
+        "when": "editorTextFocus && editorLangId == restructuredtext && !suggestWidgetVisible"
+      }
+    ],
+    "commands": [
+      {
+        "command": "restructuredtext.showPreview",
+        "title": "%restructuredtext.preview.title%",
+        "category": "reStructuredText",
+        "icon": {
+          "light": "./media/Preview.svg",
+          "dark": "./media/Preview_inverse.svg"
+        }
+      },
+      {
+        "command": "restructuredtext.showPreviewToSide",
+        "title": "%restructuredtext.previewSide.title%",
+        "category": "reStructuredText",
+        "icon": {
+          "light": "./media/PreviewOnRightPane_16x.svg",
+          "dark": "./media/PreviewOnRightPane_16x_dark.svg"
+        }
+      },
+      {
+        "command": "restructuredtext.showLockedPreviewToSide",
+        "title": "%restructuredtext.showLockedPreviewToSide.title%",
+        "category": "reStructuredText",
+        "icon": {
+          "light": "./media/PreviewOnRightPane_16x.svg",
+          "dark": "./media/PreviewOnRightPane_16x_dark.svg"
+        }
+      },
+      {
+        "command": "restructuredtext.showSource",
+        "title": "%restructuredtext.showSource.title%",
+        "category": "reStructuredText",
+        "icon": {
+          "light": "./media/ViewSource.svg",
+          "dark": "./media/ViewSource_inverse.svg"
+        }
+      },
+      {
+        "command": "restructuredtext.showPreviewSecuritySelector",
+        "title": "%restructuredtext.showPreviewSecuritySelector.title%",
+        "category": "reStructuredText"
+      },
+      {
+        "command": "restructuredtext.preview.refresh",
+        "title": "%restructuredtext.preview.refresh.title%",
+        "category": "reStructuredText"
+      },
+      {
+        "command": "restructuredtext.preview.toggleLock",
+        "title": "%restructuredtext.preview.toggleLock.title%",
+        "category": "reStructuredText"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "when": "resourceLangId == restructuredtext",
+          "command": "restructuredtext.showPreviewToSide",
+          "alt": "restructuredtext.showPreview",
+          "group": "navigation"
+        },
+        {
+          "when": "restructuredtextPreviewFocus",
+          "command": "restructuredtext.showSource",
+          "group": "navigation"
+        },
+        {
+          "command": "restructuredtext.preview.refresh",
+          "when": "restructuredtextPreviewFocus",
+          "group": "restructuredtext"
+        },
+        {
+          "command": "restructuredtext.preview.toggleLock",
+          "when": "restructuredtextPreviewFocus",
+          "group": "restructuredtext"
+        },
+        {
+          "command": "restructuredtext.showPreviewSecuritySelector",
+          "when": "restructuredtextPreviewFocus",
+          "group": "restructuredtext"
+        }
+      ],
+      "explorer/context": [
+        {
+          "when": "resourceLangId == restructuredtext",
+          "command": "restructuredtext.showPreview",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "restructuredtext.showPreview",
+          "when": "editorLangId == restructuredtext",
+          "group": "navigation"
+        },
+        {
+          "command": "restructuredtext.showPreviewToSide",
+          "when": "editorLangId == restructuredtext",
+          "group": "navigation"
+        },
+        {
+          "command": "restructuredtext.showLockedPreviewToSide",
+          "when": "editorLangId == restructuredtext",
+          "group": "navigation"
+        },
+        {
+          "command": "restructuredtext.showSource",
+          "when": "restructuredtextPreviewFocus",
+          "group": "navigation"
+        },
+        {
+          "command": "restructuredtext.showPreviewSecuritySelector",
+          "when": "editorLangId == restructuredtext"
+        },
+        {
+          "command": "restructuredtext.showPreviewSecuritySelector",
+          "when": "restructuredtextPreviewFocus"
+        },
+        {
+          "command": "restructuredtext.preview.toggleLock",
+          "when": "restructuredtextPreviewFocus"
+        }
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "reStructuredText",
+      "properties": {
+        "snooty.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "verbose",
+          "description": "Traces the communication between VS Code and the language server."
+        },
+        "snooty.sourceFolder": {
+          "scope": "resource",
+          "type": "string",
+          "default": null,
+          "description": "Local source folder of snooty. Used for debugging local language server."
+        },
+        "snooty.debugLaunch": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to debug from launch."
+        },
+        "restructuredtext.conflictingExtensions": {
+          "type": "array",
+          "default": [
+            "tht13.rst-vscode"
+          ],
+          "description": "Extensions that might lead to conflicts.",
+          "scope": "application"
+        },
+        "restructuredtext.styles": {
+          "type": "array",
+          "default": [],
+          "description": "%restructuredtext.styles.dec%",
+          "scope": "resource"
+        },
+        "restructuredtext.preview.name": {
+          "type": "string",
+          "enum": [
+            "sphinx",
+            "docutil"
+          ],
+          "default": "sphinx"
+        },
+        "restructuredtext.preview.sphinx.disabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Flag to disable sphinx based preview if critical issues happen.",
+          "scope": "resource"
+        },
+        "restructuredtext.preview.docutil.disabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Flag to disable docutil based preview if critical issues happen.",
+          "scope": "resource"
+        },
+        "restructuredtext.preview.fontFamily": {
+          "type": "string",
+          "default": "-apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'HelveticaNeue-Light', 'Ubuntu', 'Droid Sans', sans-serif",
+          "description": "%restructuredtext.preview.fontFamily.desc%",
+          "scope": "resource"
+        },
+        "restructuredtext.preview.fontSize": {
+          "type": "number",
+          "default": 14,
+          "description": "%restructuredtext.preview.fontSize.desc%",
+          "scope": "resource"
+        },
+        "restructuredtext.preview.lineHeight": {
+          "type": "number",
+          "default": 1.6,
+          "description": "%restructuredtext.preview.lineHeight.desc%",
+          "scope": "resource"
+        },
+        "restructuredtext.preview.scrollPreviewWithEditor": {
+          "type": "boolean",
+          "default": true,
+          "description": "%restructuredtext.preview.scrollPreviewWithEditor.desc%",
+          "scope": "resource"
+        },
+        "restructuredtext.preview.markEditorSelection": {
+          "type": "boolean",
+          "default": true,
+          "description": "%restructuredtext.preview.markEditorSelection.desc%",
+          "scope": "resource"
+        },
+        "restructuredtext.preview.scrollEditorWithPreview": {
+          "type": "boolean",
+          "default": true,
+          "description": "%restructuredtext.preview.scrollEditorWithPreview.desc%",
+          "scope": "resource"
+        },
+        "restructuredtext.preview.doubleClickToSwitchToEditor": {
+          "type": "boolean",
+          "default": true,
+          "description": "%restructuredtext.preview.doubleClickToSwitchToEditor.desc%",
+          "scope": "resource"
+        },
+        "restructuredtext.trace": {
+          "type": "string",
+          "enum": [
+            "off",
+            "verbose"
+          ],
+          "default": "verbose",
+          "description": "%restructuredtext.trace.desc%",
+          "scope": "window"
+        },
+        "restructuredtext.builtDocumentationPath": {
+          "type": "string",
+          "default": null,
+          "description": "Sphinx's HTML output folder. Defaults to 'restructuredtext.confPath'/_build/html This is an absolute path, and you can use ${workspaceFolder} to represent the workspace root folder.",
+          "scope": "resource"
+        },
+        "restructuredtext.confPath": {
+          "type": "string",
+          "default": null,
+          "description": "Sphinx's configuration folder containing conf.py. Set this option if the path is not found automatically. This is an absolute path, and you can use ${workspaceFolder} to represent the workspace root folder.",
+          "scope": "resource"
+        },
+        "restructuredtext.updateOnTextChanged": {
+          "type": "string",
+          "default": "true",
+          "description": "Flag to control whether text changed event triggers preview update.",
+          "scope": "resource"
+        },
+        "restructuredtext.updateDelay": {
+          "type": "number",
+          "default": "3000",
+          "description": "Flag to control after how long a changed event triggers preview update.",
+          "scope": "resource"
+        },
+        "restructuredtext.sphinxBuildPath": {
+          "type": "string",
+          "default": null,
+          "description": "The full path of the sphinx-build executable. This is an absolute path, and you can use ${workspaceFolder} to represent the workspace root folder.",
+          "scope": "resource"
+        },
+        "restructuredtext.docutilsWriter": {
+          "type": "string",
+          "default": "html",
+          "description": "The docutils writer that will generate the output.",
+          "scope": "resource"
+        },
+        "restructuredtext.docutilsWriterPart": {
+          "type": "string",
+          "default": "html_body",
+          "description": "The output part of the docutils writer.",
+          "scope": "resource"
+        },
+        "restructuredtext.linter.disabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Flag to disable linter if critical issues happen.",
+          "scope": "resource"
+        },
+        "restructuredtext.linter.name": {
+          "type": "string",
+          "enum": [
+            "doc8",
+            "rstcheck"
+          ],
+          "default": "rstcheck"
+        },
+        "restructuredtext.linter.executablePath": {
+          "type": "string",
+          "default": null,
+          "description": "Points to the doc8 or rstcheck executable.",
+          "scope": "resource"
+        },
+        "restructuredtext.linter.run": {
+          "type": "string",
+          "enum": [
+            "onSave",
+            "onType",
+            "off"
+          ],
+          "default": "onType",
+          "description": "Whether the linter is run on save or on type or disabled.",
+          "scope": "resource"
+        },
+        "restructuredtext.linter.extraArgs": {
+          "type": "array",
+          "default": [],
+          "description": "Extra arguments to doc8 or rst check.",
+          "scope": "resource"
+        },
+        "restructuredtext.languageServer.disabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Flag to disable language server based IntelliSense if critical issues happen.",
+          "scope": "resource"
+        },
+        "restructuredtext.languageServer.maxNumberOfProblems": {
+          "type": "number",
+          "default": 100,
+          "description": "Controls the maximum number of problems produced by the server.",
+          "scope": "resource"
+        },
+        "restructuredtext.languageServer.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VSCode and the server.",
+          "scope": "resource"
+        },
+        "restructuredtext.experimental": {
+          "type": "boolean",
+          "default": false,
+          "description": "Flag to enable experimental features.",
+          "scope": "resource"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm run build-ext && npm run build-preview",
+    "build-ext": "npx tsc -p ./tsconfig.json",
+    "build-preview": "./node_modules/.bin/webpack-cli",
+    "watch": "npx tsc -watch -p ./tsconfig.json",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "reinstall": "npm install && npm audit fix",
+    "package": "npm run reinstall && vsce package"
+  }
+}

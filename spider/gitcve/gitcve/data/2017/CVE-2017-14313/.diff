@@ -1,0 +1,13 @@
+diff --git a/shibboleth.php b/shibboleth.php
+index 4ecddc9..f03b5ef 100644
+--- a/shibboleth.php
++++ b/shibboleth.php
+@@ -460,7 +460,7 @@ function shibboleth_update_user_data($user_id, $force_update = false) {
+ function shibboleth_login_form() {
+ 	$login_url = add_query_arg('action', 'shibboleth');
+ 	$login_url = remove_query_arg('reauth', $login_url);
+-	echo '<p id="shibboleth_login"><a href="' . $login_url . '">' . __('Login with Shibboleth', 'shibboleth') . '</a></p>';
++	echo '<p id="shibboleth_login"><a href="' . esc_url($login_url) . '">' . __('Login with Shibboleth', 'shibboleth') . '</a></p>';
+ }
+ add_action('login_form', 'shibboleth_login_form');
+ 

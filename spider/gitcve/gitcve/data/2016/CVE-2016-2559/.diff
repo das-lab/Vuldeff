@@ -1,0 +1,13 @@
+diff --git a/libraries/sql-parser/src/Utils/Error.php b/libraries/sql-parser/src/Utils/Error.php
+index a9c0814fcfc..f0ad5afbb29 100644
+--- a/libraries/sql-parser/src/Utils/Error.php
++++ b/libraries/sql-parser/src/Utils/Error.php
+@@ -90,7 +90,7 @@ public static function format(
+                 ++$i,
+                 $err[0],
+                 $err[1],
+-                $err[2],
++                htmlspecialchars($err[2]),
+                 $err[3]
+             );
+         }

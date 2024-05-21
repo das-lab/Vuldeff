@@ -1,0 +1,13 @@
+diff --git a/framework/Image/lib/Horde/Image/Im.php b/framework/Image/lib/Horde/Image/Im.php
+index f5b51f28877..e2c2eb95645 100644
+--- a/framework/Image/lib/Horde/Image/Im.php
++++ b/framework/Image/lib/Horde/Image/Im.php
+@@ -198,7 +198,7 @@ private function _raw($convert = false, $options = array())
+         $tmpin = $this->toFile($this->_data);
+         $tmpout = Horde_Util::getTempFile('img', false, $this->_tmpdir);
+         $command = $this->_convert . ' ' . implode(' ', $this->_operations)
+-            . ' "' . $tmpin . '"\'[' . $options['index'] . ']\' '
++            . ' "' . $tmpin . '"\'[' . (integer)$options['index'] . ']\' '
+             . implode(' ', $this->_postSrcOperations)
+             . ' -strip ' . $this->_type . ':"' . $tmpout . '" 2>&1';
+         $this->_logDebug(sprintf("convert command executed by Horde_Image_im::raw(): %s", $command));

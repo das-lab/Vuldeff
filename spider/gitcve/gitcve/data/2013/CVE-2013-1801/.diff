@@ -1,0 +1,114 @@
+diff --git a/History b/History
+index 09c20491..b896fcca 100644
+--- a/History
++++ b/History
+@@ -1,3 +1,7 @@
++== 0.10.0 2013-01-10
++* changes
++  * removed yaml support because of security risk (see rails yaml issues)
++
+ == 0.9.0 2012-09-07
+ * new
+   * [support for connection adapters](https://github.com/jnunemaker/httparty/pull/157)
+diff --git a/examples/custom_parsers.rb b/examples/custom_parsers.rb
+index 3a91813f..f6131a3f 100644
+--- a/examples/custom_parsers.rb
++++ b/examples/custom_parsers.rb
+@@ -1,7 +1,7 @@
+ class ParseAtom
+   include HTTParty
+ 
+-  # Support Atom along with the default parsers: xml, json, yaml, etc.
++  # Support Atom along with the default parsers: xml, json, etc.
+   class Parser::Atom < HTTParty::Parser
+     SupportedFormats.merge!({"application/atom+xml" => :atom})
+ 
+diff --git a/lib/httparty/parser.rb b/lib/httparty/parser.rb
+index 3b9e67ee..42c218ed 100644
+--- a/lib/httparty/parser.rb
++++ b/lib/httparty/parser.rb
+@@ -1,5 +1,5 @@
+ module HTTParty
+-  # The default parser used by HTTParty, supports xml, json, html, yaml, and
++  # The default parser used by HTTParty, supports xml, json, html, and
+   # plain text.
+   #
+   # == Custom Parsers
+@@ -45,8 +45,6 @@ class Parser
+       'application/javascript' => :json,
+       'text/javascript'        => :json,
+       'text/html'              => :html,
+-      'application/x-yaml'     => :yaml,
+-      'text/yaml'              => :yaml,
+       'text/plain'             => :plain
+     }
+ 
+@@ -120,10 +118,6 @@ def json
+       end
+     end
+ 
+-    def yaml
+-      YAML.load(body)
+-    end
+-
+     def html
+       body
+     end
+diff --git a/spec/httparty/parser_spec.rb b/spec/httparty/parser_spec.rb
+index a72bbfd4..4d6813d4 100644
+--- a/spec/httparty/parser_spec.rb
++++ b/spec/httparty/parser_spec.rb
+@@ -155,11 +155,6 @@ def self.name; 'AtomParser'; end
+       subject.send(:json)
+     end
+ 
+-    it "parses yaml" do
+-      YAML.should_receive(:load).with('body')
+-      subject.send(:yaml)
+-    end
+-
+     it "parses html by simply returning the body" do
+       subject.send(:html).should == 'body'
+     end
+diff --git a/spec/httparty/request_spec.rb b/spec/httparty/request_spec.rb
+index 9db7b72d..f06a71f2 100644
+--- a/spec/httparty/request_spec.rb
++++ b/spec/httparty/request_spec.rb
+@@ -225,12 +225,6 @@
+       @request.send(:parse_response, json).should == {'books' => {'book' => {'id' => '1234', 'name' => 'Foo Bar!'}}}
+     end
+ 
+-    it 'should handle yaml automatically' do
+-      yaml = "books: \n  book: \n    name: Foo Bar!\n    id: \"1234\"\n"
+-      @request.options[:format] = :yaml
+-      @request.send(:parse_response, yaml).should == {'books' => {'book' => {'id' => '1234', 'name' => 'Foo Bar!'}}}
+-    end
+-
+     it "should include any HTTP headers in the returned response" do
+       @request.options[:format] = :html
+       response = stub_response "Content"
+diff --git a/spec/httparty_spec.rb b/spec/httparty_spec.rb
+index 484f4bc2..130fb107 100644
+--- a/spec/httparty_spec.rb
++++ b/spec/httparty_spec.rb
+@@ -384,11 +384,6 @@ class MyParser < HTTParty::Parser
+       @klass.default_options[:format].should == :json
+     end
+ 
+-    it "should allow yaml" do
+-      @klass.format :yaml
+-      @klass.default_options[:format].should == :yaml
+-    end
+-
+     it "should allow plain" do
+       @klass.format :plain
+       @klass.default_options[:format].should == :plain
+@@ -403,7 +398,7 @@ class MyParser < HTTParty::Parser
+     it 'should only print each format once with an exception' do
+       lambda do
+         @klass.format :foobar
+-      end.should raise_error(HTTParty::UnsupportedFormat, "':foobar' Must be one of: html, json, plain, xml, yaml")
++      end.should raise_error(HTTParty::UnsupportedFormat, "':foobar' Must be one of: html, json, plain, xml")
+     end
+ 
+     it 'sets the default parser' do

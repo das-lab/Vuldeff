@@ -1,0 +1,341 @@
+diff --git a/src/_include/fun_down.php b/src/_include/fun_down.php
+index 813eddd..443151d 100644
+--- a/src/_include/fun_down.php
++++ b/src/_include/fun_down.php
+@@ -1,43 +1,7 @@
+ <?php
+-/*------------------------------------------------------------------------------
+-     The contents of this file are subject to the Mozilla Public License
+-     Version 1.1 (the "License"); you may not use this file except in
+-     compliance with the License. You may obtain a copy of the License at
+-     http://www.mozilla.org/MPL/
+ 
+-     Software distributed under the License is distributed on an "AS IS"
+-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+-     License for the specific language governing rights and limitations
+-     under the License.
+-
+-     The Original Code is fun_down.php, released on 2003-01-25.
+-
+-     The Initial Developer of the Original Code is The QuiX project.
+-
+-     Alternatively, the contents of this file may be used under the terms
+-     of the GNU General Public License Version 2 or later (the "GPL"), in
+-     which case the provisions of the GPL are applicable instead of
+-     those above. If you wish to allow use of your version of this file only
+-     under the terms of the GPL and not to allow others to use
+-     your version of this file under the MPL, indicate your decision by
+-     deleting  the provisions above and replace  them with the notice and
+-     other provisions required by the GPL.  If you do not delete
+-     the provisions above, a recipient may use your version of this file
+-     under either the MPL or the GPL."
+-------------------------------------------------------------------------------*/
+-/*------------------------------------------------------------------------------
+-Author: The QuiX project
+-	quix@free.fr
+-	http://www.quix.tk
+-	http://quixplorer.sourceforge.net
+-
+-Comment:
+-	QuiXplorer Version 2.3
+-	File-Download Functions
+-
+-	Have Fun...
+-------------------------------------------------------------------------------*/
+-require_once("./_include/permissions.php");
++require_once("_include/fun_archive.php");
++require_once("_include/permissions.php");
+ require_once("qxpage.php");
+ 
+ /**
+@@ -46,52 +10,42 @@
+  **/
+ function download_selected($dir)
+ {
+-    $dir = get_abs_dir($dir);
+-    global $site_name;
+     require_once("_include/fun_archive.php");
+     $items = qxpage_selected_items();
+-
+-    // check if user selected any items to download
+-    switch (count($items))
+-    {
+-        case 0:
+-            show_error($GLOBALS["error_msg"]["miscselitems"]);
+-        case 1:
+-            if (is_file($items[0]))
+-            {
+-                download_item( $dir, $items[0] );
+-                break;
+-            }
+-            // nobreak, downloading a directory is done
+-            // with the zip file
+-        default:
+-            zip_download( $dir, $items );
+-    }
++    _download_items($dir, $items);
+ }
+ 
+ // download file
+ function download_item($dir, $item)
+ {
+-	// Security Fix:
+-	$item=basename($item);
++    _download_items($dir, array($item));
++}
++
++function _download_items($dir, $items)
++{
++    // check if user selected any items to download
++    _debug("count items: '$items[0]'");
++    if (count($items) == 0)
++        show_error($GLOBALS["error_msg"]["miscselitems"]);
+ 
+-	if (!permissions_grant($dir, $item, "read"))
+-		show_error($GLOBALS["error_msg"]["accessfunc"]);
++    // check if user has permissions to download
++    // this file
++    if ( ! _is_download_allowed($dir, $items) )
++		show_error( $GLOBALS["error_msg"]["accessitem"] );
+ 
+-	if (!get_is_file($dir,$item))
++    // if we have exactly one file and this is a real
++    // file we directly download it
++    if ( count($items) == 1 && get_is_file( $dir, $items[0] ) )
+     {
+-        _debug("error download");
+-        show_error($item.": ".$GLOBALS["error_msg"]["fileexist"]);
++        $abs_item = get_abs_item($dir, $items[0]);
++        _download($abs_item, $items[0]);
+     }
+-	if (!get_show_item($dir, $item))
+-        show_error($item.": ".$GLOBALS["error_msg"]["accessfile"]);
+ 
+-	$abs_item = get_abs_item($dir,$item);
+-    _download($abs_item, $item);
++    // otherwise we do the zip download
++    zip_download( get_abs_dir($dir), $items );
+ }
+ 
+-function _download_header($filename, $filesize = 0)
+-{
++function _download_header($filename, $filesize = 0) {
+ 	$browser=id_browser();
+ 	header('Content-Type: '.(($browser=='IE' || $browser=='OPERA')?
+ 		'application/octetstream':'application/octet-stream'));
+@@ -118,4 +72,17 @@ function _download($file, $localname)
+ 	exit;
+ }
+ 
++function _is_download_allowed( $dir, $items )
++{
++    foreach ($items as $file)
++    {
++        if (!permissions_grant($dir, $file, "read"))
++            return false;
++
++        if (!get_show_item($dir, $file))
++            return false;
++    }
++
++    return true;
++}
+ ?>
+diff --git a/src/_include/fun_extra.php b/src/_include/fun_extra.php
+index 21deeea..15c6015 100755
+--- a/src/_include/fun_extra.php
++++ b/src/_include/fun_extra.php
+@@ -1,6 +1,8 @@
+ <?php
+ 
+ require_once "_include/session.php";
++require_once "_include/qxpath.php";
++require_once "_include/str.php";
+ 
+ //------------------------------------------------------------------------------
+ // THESE ARE NUMEROUS HELPER FUNCTIONS FOR THE OTHER INCLUDE FILES
+@@ -30,7 +32,7 @@ function get_abs_dir($path)
+ }
+ 
+ function get_abs_item($dir, $item) {		// get absolute file+path
+-	return get_abs_dir($dir).DIRECTORY_SEPARATOR.$item;
++	return realpath(get_abs_dir($dir).DIRECTORY_SEPARATOR.$item);
+ }
+ /**
+   get file relative from home
+@@ -40,9 +42,15 @@ function get_rel_item($dir, $item)
+     return $dir == "" ? $item : "$dir/$item";
+ }
+ 
+-function get_is_file($dir, $item) {		// can this file be edited?
+-	return @is_file(get_abs_item($dir,$item));
++/**
++  can this file be edited?
++  */
++function get_is_file($dir, $item)
++{
++    $filename = get_abs_item($dir, $item);
++	return @is_file($filename);
+ }
++
+ //------------------------------------------------------------------------------
+ function get_is_dir($dir, $item) {		// is this a directory?
+ 	return @is_dir(get_abs_item($dir,$item));
+@@ -182,32 +190,46 @@ function get_mime_type ($dir, $item, $query)
+  */
+ function get_show_item ($directory, $file)
+ {
++    // no relative paths are allowed in directories
+     if ( preg_match( "/\.\./", $directory ) )
+         return false;
+ 
+-    if ( isset($file) && preg_match( "/\.\./", $file ) )
+-        return false;
+-
+-    // dont display own directory
+-    if ( $file == "." )
+-        return false;
++    if ( isset($file) )
++    {
++        // file name must not contain any path separators
++        if ( preg_match( "/[\/\\\\]/", $file ) )
++            return false;
++
++        // dont display own and parent directory
++        if ( $file == "." || $file == ".." )
++            return false;
++
++        // determine full path to the file
++        $full_path = get_abs_item( $directory, $file );
++        _debug("full_path: $full_path");
++        if ( ! str_startswith( $full_path, path_f() ) )
++            return false;
++    }
+ 
+-    if ( substr( $file, 0, 1) == "." && $GLOBALS["show_hidden"] == false )
+-        return false;
++    // check if user is allowed to acces shidden files
++    global $show_hidden;
++    if ( ! $show_hidden )
++    {
++        if ( $file[0] == '.' )
++            return false;
++
++        // no part of the path may be hidden
++        $directory_parts = explode( "/", $directory );
++        foreach ( $directory_parts as $directory_part )
++        {
++            if ( $directory_part[0] == '.' )
++                return false;
++        }
++    }
+ 
+     if (matches_noaccess_pattern($file))
+         return false;
+ 
+-    if ( $GLOBALS["show_hidden"] == false )
+-    {
+-      $directory_parts = explode( "/", $directory );
+-      foreach ($directory_parts as $directory_part )
+-      {
+-        if ( substr ( $directory_part, 0, 1) == "." )
+-          return false;
+-      }
+-    }
+-
+     return true;
+ }
+ 
+diff --git a/src/_include/init.php b/src/_include/init.php
+index 1788129..dd0eaaf 100755
+--- a/src/_include/init.php
++++ b/src/_include/init.php
+@@ -17,15 +17,23 @@
+ 	die("<B>ERROR: Your PHP version is too old</B><BR>".
+ 	"You need at least PHP 4.0.0 to run QuiXplorer; preferably PHP 4.3.1 or higher.");
+ }
+-//------------------------------------------------------------------------------
+-// Get Action
+-if(isset($GLOBALS['__GET']["action"])) $GLOBALS["action"]=$GLOBALS['__GET']["action"];
+-else $GLOBALS["action"]="list";
++
++_debug("xxx3 action: " . $GLOBALS['__GET']["action"] . "/" . $GLOBALS["__GET"]["do_action"] . "/" . (isset($GLOBALS['__GET']['action']) ? "true" : "false"));
++if (isset($GLOBALS['__GET']["action"]))
++{
++    $GLOBALS["action"]=$GLOBALS['__GET']["action"];
++}
++else
++{
++    $GLOBALS["action"]="list";
++}
+ if($GLOBALS["action"]=="post" && isset($GLOBALS['__POST']["do_action"])) {
+ 	$GLOBALS["action"]=$GLOBALS['__POST']["do_action"];
+ }
+ if($GLOBALS["action"]=="") $GLOBALS["action"]="list";
+ $GLOBALS["action"]=stripslashes($GLOBALS["action"]);
++_debug("xxx3 action: " . $GLOBALS['__GET']["action"] . "/" . $GLOBALS["__GET"]["do_action"] . "/" . (isset($GLOBALS['__GET']['action']) ? "true" : "false"));
++
+ 
+ // Get Item
+ if(isset($GLOBALS['__GET']["item"])) $GLOBALS["item"]=stripslashes($GLOBALS['__GET']["item"]);
+diff --git a/src/_include/permissions.php b/src/_include/permissions.php
+index 69be517..17035c2 100644
+--- a/src/_include/permissions.php
++++ b/src/_include/permissions.php
+@@ -29,10 +29,10 @@ function permissions_get ()
+   depending the rights of the current user.
+ 
+   @param $dir	Directory in which  the action should happen. If this parameter is
+-  		NULL the engine relys on the global permissions of the user.
++  		NULL the engine checks the global permissions of the user.
+   		
+   @param $file	File on which the action should happen, if this parameter is NULL
+-  		the permission engine relys on the permission of the directory.
++  		the permission engine checks the user permissions on the directory.
+ 
+   @param $action
+   		One ore more action of the action set (see permissions_get) which sould
+diff --git a/src/_include/qxpath.php b/src/_include/qxpath.php
+index 3df07b0..cc8e925 100644
+--- a/src/_include/qxpath.php
++++ b/src/_include/qxpath.php
+@@ -14,7 +14,7 @@
+   user, since he should only see relative pathes.
+  
+  */
+-function path_f ($path)
++function path_f ($path = '')
+ {
+     global $home_dir;
+     $abs_dir = $home_dir;
+diff --git a/src/_include/str.php b/src/_include/str.php
+new file mode 100644
+index 0000000..8a6a7fb
+--- /dev/null
++++ b/src/_include/str.php
+@@ -0,0 +1,8 @@
++<?php
++
++function str_startswith ( $candidate, $search_str )
++{
++    return substr( $candidate, 0, strlen( $search_str) ) == $search_str;
++}
++
++?>
+diff --git a/src/index.php b/src/index.php
+index 6508f9a..b021d50 100755
+--- a/src/index.php
++++ b/src/index.php
+@@ -73,7 +73,11 @@
+ 	ob_start(); // prevent unwanted output
+ 	require "./_include/fun_down.php";
+ 	ob_end_clean(); // get rid of cached unwanted output
+-	download_item($current_dir, $GLOBALS["item"]);
++    global $item;
++    _debug("download item: $current_dir/$item");
++    if ($item == '' )
++        show_error($GLOBALS["error_msg"]["miscselitems"]);
++	download_item($current_dir, $item);
+ 	ob_start(false); // prevent unwanted output
+ 	exit;
+ break;

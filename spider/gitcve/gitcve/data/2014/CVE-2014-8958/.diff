@@ -1,0 +1,25 @@
+diff --git a/ChangeLog b/ChangeLog
+index 29831777c06..a5e3033e391 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -15,6 +15,7 @@ phpMyAdmin - ChangeLog
+ - bug #4444 No insert statement produced in SQL export for queries with alias
+ - bug #4596 [security] XSS through exception stack
+ - bug #4595 [security] Path traversal can lead to leakage of line count
++- bug #4578 [security] XSS vulnerability in table print view
+ 
+ 4.2.11.0 (2014-10-31)
+ - bug       ReferenceError: Table_onover is not defined
+diff --git a/libraries/tbl_printview.lib.php b/libraries/tbl_printview.lib.php
+index a4a81ebbb1e..0176f404880 100644
+--- a/libraries/tbl_printview.lib.php
++++ b/libraries/tbl_printview.lib.php
+@@ -107,7 +107,7 @@ function PMA_getHtmlForPrintViewColumns(
+             $html .= '    ' . $field_name . "\n";
+         }
+         $html .= '</td>';
+-        $html .= '<td>' . $type . '<bdo dir="ltr"></bdo></td>';
++        $html .= '<td>' . htmlspecialchars($type) . '<bdo dir="ltr"></bdo></td>';
+         $html .= '<td>';
+         $html .= (($row['Null'] == '' || $row['Null'] == 'NO')
+             ? __('No')

@@ -1,0 +1,13 @@
+diff --git a/inc/html.php b/inc/html.php
+index b233e1d926..022cd792a8 100644
+--- a/inc/html.php
++++ b/inc/html.php
+@@ -1436,7 +1436,7 @@ function html_edit_form($param) {
+     global $TEXT;
+ 
+     if ($param['target'] !== 'section') {
+-        msg('No editor for edit target ' . $param['target'] . ' found.', -1);
++        msg('No editor for edit target ' . hsc($param['target']) . ' found.', -1);
+     }
+ 
+     $attr = array('tabindex'=>'1');

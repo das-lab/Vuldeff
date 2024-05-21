@@ -1,0 +1,13 @@
+diff --git a/mods/_standard/rss_feeds/edit_feed.php b/mods/_standard/rss_feeds/edit_feed.php
+index 550a4ea7e..4abac11ed 100644
+--- a/mods/_standard/rss_feeds/edit_feed.php
++++ b/mods/_standard/rss_feeds/edit_feed.php
+@@ -38,7 +38,7 @@
+ 	}
+ 
+ 	if (!$msg->containsErrors()) {
+-		$_GET['url'] = $addslashes($_GET['url']);
++        $_GET['url'] = htmlspecialchars(strip_tags($_GET['url']), ENT_QUOTES);
+ 
+ 		$sql	= "REPLACE INTO %sfeeds VALUES(%d, '%s')";
+ 		$result = queryDB($sql, array(TABLE_PREFIX, $feed_id, $_GET['url']));

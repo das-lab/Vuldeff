@@ -1,0 +1,92 @@
+diff --git a/modules/apache/manifests/certs.pp b/modules/apache/manifests/certs.pp
+index f94169a7..d4d609e3 100644
+--- a/modules/apache/manifests/certs.pp
++++ b/modules/apache/manifests/certs.pp
+@@ -34,6 +34,11 @@
+     privkey { $apache_ssl_key:
+       ensure => present,
+       cert => Cert["${::certs::node_fqdn}-ssl"]
++    } ->
++    file { $apache_ssl_key:
++      owner => $apache::params::user,
++      group => $apache::params::group,
++      mode  => '0400';
+     }
+ 
+     file { "${apache::params::configdir}/ssl.conf":
+diff --git a/modules/certs/lib/puppet/provider/katello_ssl_tool.rb b/modules/certs/lib/puppet/provider/katello_ssl_tool.rb
+index 4ee1b9cc..cb77212e 100644
+--- a/modules/certs/lib/puppet/provider/katello_ssl_tool.rb
++++ b/modules/certs/lib/puppet/provider/katello_ssl_tool.rb
+@@ -175,7 +175,7 @@ def exists?
+     end
+ 
+     def create
+-      File.open(resource[:path], "w") { |f| f << expected_content }
++      File.open(resource[:path], "w", mode) { |f| f << expected_content }
+     end
+ 
+     protected
+@@ -198,6 +198,10 @@ def source_path
+       raise NotImplementedError
+     end
+ 
++    def mode
++      0644
++    end
++
+     def cert_details
+       return @cert_details if defined? @cert_details
+       if cert_resource = @resource[:cert]
+diff --git a/modules/certs/lib/puppet/provider/privkey/katello_ssl_tool.rb b/modules/certs/lib/puppet/provider/privkey/katello_ssl_tool.rb
+index e9442569..a73e4bf9 100644
+--- a/modules/certs/lib/puppet/provider/privkey/katello_ssl_tool.rb
++++ b/modules/certs/lib/puppet/provider/privkey/katello_ssl_tool.rb
+@@ -8,4 +8,8 @@ def source_path
+     cert_details[:privkey]
+   end
+ 
++  def mode
++    0400
++  end
++
+ end
+diff --git a/modules/kafo/manifests/foreman_certs.pp b/modules/kafo/manifests/foreman_certs.pp
+index 130adfc8..121cc6b9 100644
+--- a/modules/kafo/manifests/foreman_certs.pp
++++ b/modules/kafo/manifests/foreman_certs.pp
+@@ -36,7 +36,7 @@
+ 
+     file { $client_key:
+       owner => "foreman",
+-      mode => "400"
++      mode => "0400"
+     }
+ 
+     pubkey { $client_ca:
+diff --git a/modules/kafo/manifests/foreman_proxy_certs.pp b/modules/kafo/manifests/foreman_proxy_certs.pp
+index 49f01d20..f12ed0ff 100644
+--- a/modules/kafo/manifests/foreman_proxy_certs.pp
++++ b/modules/kafo/manifests/foreman_proxy_certs.pp
+@@ -36,7 +36,7 @@
+ 
+     file { $proxy_key:
+       owner => "foreman-proxy",
+-      mode  => "400"
++      mode  => "0400"
+     }
+ 
+     pubkey { $proxy_ca:
+diff --git a/modules/kafo/manifests/puppet_certs.pp b/modules/kafo/manifests/puppet_certs.pp
+index 6dadf46a..a39a92c1 100644
+--- a/modules/kafo/manifests/puppet_certs.pp
++++ b/modules/kafo/manifests/puppet_certs.pp
+@@ -36,7 +36,7 @@
+ 
+     file { $client_key:
+       owner => "puppet",
+-      mode => "400"
++      mode => "0400"
+     }
+ 
+     pubkey { $client_ca:

@@ -1,0 +1,13 @@
+diff --git a/core/src/main/java/hudson/util/RemotingDiagnostics.java b/core/src/main/java/hudson/util/RemotingDiagnostics.java
+index 408c9931f4d9..8f014bbcf830 100644
+--- a/core/src/main/java/hudson/util/RemotingDiagnostics.java
++++ b/core/src/main/java/hudson/util/RemotingDiagnostics.java
+@@ -202,7 +202,7 @@ public void doIndex(StaplerResponse rsp) throws IOException {
+ 
+         @WebMethod(name="heapdump.hprof")
+         public void doHeapDump(StaplerRequest req, StaplerResponse rsp) throws IOException, InterruptedException {
+-            owner.checkPermission(Jenkins.ADMINISTER);
++            owner.checkPermission(Jenkins.RUN_SCRIPTS);
+             rsp.setContentType("application/octet-stream");
+ 
+             FilePath dump = obtain();

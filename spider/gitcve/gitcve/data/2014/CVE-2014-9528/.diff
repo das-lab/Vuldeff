@@ -1,0 +1,98 @@
+diff --git a/protected/extensions/CmsInput.php b/protected/extensions/CmsInput.php
+index a17ac7d40b..f9b795dd39 100644
+--- a/protected/extensions/CmsInput.php
++++ b/protected/extensions/CmsInput.php
+@@ -164,7 +164,7 @@ public function cleanEncode($str)
+      */
+     public function stripClean($str)
+     {
+-        return $this->xssClean($this->stripTags($str));
++        return $this->stripTags($this->xssClean($str));
+     }
+     
+     /**
+diff --git a/protected/modules_core/admin/controllers/LoggingController.php b/protected/modules_core/admin/controllers/LoggingController.php
+index bb2790ad9c..1942e4c288 100644
+--- a/protected/modules_core/admin/controllers/LoggingController.php
++++ b/protected/modules_core/admin/controllers/LoggingController.php
+@@ -82,4 +82,11 @@ public function actionIndex()
+         ));
+     }
+ 
++    public function actionFlush()
++    {
++        $this->forcePostRequest();
++        Logging::model()->deleteAll();
++        $this->redirect($this->createUrl('index'));
++    }
++
+ }
+diff --git a/protected/modules_core/admin/views/logging/index.php b/protected/modules_core/admin/views/logging/index.php
+index 8583a2491f..9584a63d44 100644
+--- a/protected/modules_core/admin/views/logging/index.php
++++ b/protected/modules_core/admin/views/logging/index.php
+@@ -2,13 +2,16 @@
+     <div class="panel-heading"><?php echo Yii::t('AdminModule.views_logging_index', '<strong>Error</strong> logging'); ?></div>
+     <div class="panel-body">
+ 
++        
+         <div>
+             <?php echo Yii::t('AdminModule.views_logging_index', 'Total {count} entries found.', array("{count}" => $itemCount)); ?>
+-            <span
+-                class="pull-right"><?php echo Yii::t('AdminModule.views_logging_index', 'Displaying {count} entries per page.', array("{count}" => $pageSize)); ?></span>
++            
++            <span class="pull-right"><?php echo Yii::t('AdminModule.views_logging_index', 'Displaying {count} entries per page.', array("{count}" => $pageSize)); ?></span>
+         </div>
+ 
+         <hr>
++        
++        
+ 
+         <ul class="media-list">
+             <?php foreach ($entries as $entry) : ?>
+@@ -28,17 +31,21 @@ class="pull-right"><?php echo Yii::t('AdminModule.views_logging_index', 'Display
+                         ?>
+ 
+                         <h4 class="media-heading">
+-                            <span class="label <?php echo $labelClass; ?>"><?php echo $entry->level; ?></span>&nbsp;
++                            <span class="label <?php echo $labelClass; ?>"><?php echo CHtml::encode($entry->level); ?></span>&nbsp;
+                             <?php echo date('r', $entry->logtime); ?>&nbsp;
+-                            <span class="pull-right"><?php echo $entry->category; ?></span>
++                            <span class="pull-right"><?php echo CHtml::encode($entry->category); ?></span>
+                         </h4>
+-                        <?php echo $entry->message; ?>
++                        <?php echo CHtml::encode($entry->message); ?>
+                     </div>
+                 </li>
+ 
+             <?php endforeach; ?>
+         </ul>
+ 
++        <?php if ($itemCount != 0): ?>
++            <div class="pull-right"><?php echo HHtml::postLink('Flush entries', array('flush'), array('class'=>'btn btn-danger')); ?></div>
++        <?php endif; ?>
++    
+ 
+         <center>
+             <?php
+diff --git a/protected/modules_core/notification/controllers/ListController.php b/protected/modules_core/notification/controllers/ListController.php
+index 8c9ab64eaf..64f494f2bc 100644
+--- a/protected/modules_core/notification/controllers/ListController.php
++++ b/protected/modules_core/notification/controllers/ListController.php
+@@ -43,13 +43,14 @@ public function actionIndex()
+     {
+ 
+         // the id from the last entry loaded
+-        $lastEntryId = Yii::app()->request->getParam('from');
++        $lastEntryId = (int) Yii::app()->request->getParam('from');
+ 
+         // create database query
+         $criteria = new CDbCriteria();
+         if ($lastEntryId > 0) {
+             // start from last entry id loaded
+-            $criteria->condition = 'id<' . $lastEntryId;
++            $criteria->condition = 'id<:lastEntryId';
++            $criteria->params = array(':lastEntryId' => $lastEntryId);
+         }
+         $criteria->order = 'seen ASC, created_at DESC';
+         $criteria->limit = 6;

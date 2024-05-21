@@ -1,0 +1,94 @@
+diff --git a/src/gitolite-shell b/src/gitolite-shell
+index 5d48cc98b..4bbae489d 100755
+--- a/src/gitolite-shell
++++ b/src/gitolite-shell
+@@ -168,7 +168,7 @@ sub sanity {
+     my $repo = shift;
+     _die "'$repo' contains bad characters" if $repo !~ $REPONAME_PATT;
+     _die "'$repo' ends with a '/'"         if $repo =~ m(/$);
+-    _die "'$repo' contains '..'"           if $repo =~ m(\.\.$);
++    _die "'$repo' contains '..'"           if $repo =~ m(\.\.);
+ }
+ 
+ # ----------------------------------------------------------------------
+diff --git a/src/lib/Gitolite/Conf/Load.pm b/src/lib/Gitolite/Conf/Load.pm
+index 4abfa9003..0f7690877 100644
+--- a/src/lib/Gitolite/Conf/Load.pm
++++ b/src/lib/Gitolite/Conf/Load.pm
+@@ -67,8 +67,9 @@ my $last_repo = '';
+ 
+ sub access {
+     my ( $repo, $user, $aa, $ref ) = @_;
+-    _die "invalid repo '$repo'" if not( $repo and $repo =~ $REPOPATT_PATT );
+     _die "invalid user '$user'" if not( $user and $user =~ $USERNAME_PATT );
++    sanity($repo);
++
+     my $deny_rules = option( $repo, 'deny-rules' );
+     load($repo);
+ 
+@@ -175,8 +176,18 @@ sub option {
+     return $ret->{$option};
+ }
+ 
++sub sanity {
++    my $repo = shift;
++
++    _die "invalid repo '$repo'" if not( $repo and $repo =~ $REPOPATT_PATT );
++    _die "'$repo' ends with a '/'" if $repo =~ m(/$);
++    _die "'$repo' contains '..'" if $repo =~ $REPONAME_PATT and $repo =~ m(\.\.);
++}
++
+ sub repo_missing {
+     my $repo = shift;
++    sanity($repo);
++
+     return not -d "$rc{GL_REPO_BASE}/$repo.git";
+ }
+ 
+@@ -400,6 +411,8 @@ sub generic_name {
+ 
+ sub creator {
+     my $repo = shift;
++    sanity($repo);
++
+     return ( $ENV{GL_USER} || '' ) if repo_missing($repo);
+     my $f       = "$rc{GL_REPO_BASE}/$repo.git/gl-creator";
+     my $creator = '';
+diff --git a/t/0-me-first.t b/t/0-me-first.t
+index dc8916bb4..22102ef88 100755
+--- a/t/0-me-first.t
++++ b/t/0-me-first.t
+@@ -6,10 +6,12 @@ use warnings;
+ use lib "src/lib";
+ use Gitolite::Test;
+ 
++my $rb = `gitolite query-rc -n GL_REPO_BASE`;
++
+ # initial smoke tests
+ # ----------------------------------------------------------------------
+ 
+-try "plan 65";
++try "plan 73";
+ 
+ # basic push admin repo
+ confreset;confadd '
+@@ -75,4 +77,19 @@ try "
+     glt ls-remote u5 file:///cc/1;  ok;     perl s/TRACE.*//g; !/\\S/
+     glt ls-remote u5 file:///cc/2;  !ok;    /DENIED by fallthru/
+     glt ls-remote u6 file:///cc/2;  !ok;    /DENIED by fallthru/
++
++    # command
++    glt perms u4 -c cc/bar/baz/frob + READERS u2;
++                                    ok;     /Initialized empty .*cc/bar/baz/frob.git/
++
++    # path traversal
++    glt ls-remote u4 file:///cc/dd/../ee
++                                    !ok;    /FATAL: 'cc/dd/\\.\\./ee' contains '\\.\\.'/
++    glt ls-remote u5 file:///cc/../../../../../..$rb/gitolite-admin
++                                    !ok;    /FATAL: 'cc/../../../../../..$rb/gitolite-admin' contains '\\.\\.'/
++
++    glt perms u4 -c cc/bar/baz/../frob + READERS u2
++                                    !ok;    /FATAL: 'cc/bar/baz/\\.\\./frob' contains '\\.\\.'/
++
++
+ ";

@@ -1,0 +1,90 @@
+diff --git a/Changes b/Changes
+index fe32a07f29..bd74b020a3 100644
+--- a/Changes
++++ b/Changes
+@@ -1,6 +1,6 @@
+ This file documents the revision history for Perl extension Mojolicious.
+ 
+-1.16 2011-03-19 00:00:00
++1.17 2011-04-15 00:00:00
+         - Deprecated Mojolicious process method in favor of the on_process
+           attribute.
+         - Added Failraptor.
+@@ -29,6 +29,10 @@ This file documents the revision history for Perl extension Mojolicious.
+         - Fixed small perldoc browser bug. (kberov)
+         - Fixed cookbook recipe. (moritz)
+ 
++1.16 2011-04-15 00:00:00
++        - Emergency release for a critical security issue that can expose
++          files on your system, everybody should update!
++
+ 1.15 2011-03-18 00:00:00
+         - Changed default log level in "production" mode from "error" to
+           "info".
+diff --git a/lib/Mojo/Path.pm b/lib/Mojo/Path.pm
+index 31a474f4ca..d0b99af826 100644
+--- a/lib/Mojo/Path.pm
++++ b/lib/Mojo/Path.pm
+@@ -80,6 +80,9 @@ sub parse {
+   $path =~ /^\// ? $self->leading_slash(1)  : $self->leading_slash(0);
+   $path =~ /\/$/ ? $self->trailing_slash(1) : $self->trailing_slash(0);
+ 
++  # Unescape
++  url_unescape $path;
++
+   # Parse
+   my @parts;
+   for my $part (split '/', $path) {
+@@ -91,7 +94,6 @@ sub parse {
+     $part = '' unless defined $part;
+ 
+     # Store
+-    url_unescape $part;
+     push @parts, $part;
+   }
+ 
+diff --git a/lib/Mojolicious.pm b/lib/Mojolicious.pm
+index 104996f725..15cb0b7062 100644
+--- a/lib/Mojolicious.pm
++++ b/lib/Mojolicious.pm
+@@ -42,7 +42,7 @@ has static   => sub { Mojolicious::Static->new };
+ has types    => sub { Mojolicious::Types->new };
+ 
+ our $CODENAME = 'Smiling Cat Face With Heart-Shaped Eyes';
+-our $VERSION  = '1.16';
++our $VERSION  = '1.17';
+ 
+ # "These old doomsday devices are dangerously unstable.
+ #  I'll rest easier not knowing where they are."
+diff --git a/t/mojo/path.t b/t/mojo/path.t
+index ca7913b3b9..fdfea5c0af 100644
+--- a/t/mojo/path.t
++++ b/t/mojo/path.t
+@@ -3,7 +3,7 @@
+ use strict;
+ use warnings;
+ 
+-use Test::More tests => 3;
++use Test::More tests => 11;
+ 
+ # "This is the greatest case of false advertising I’ve seen since I sued the
+ #  movie 'The Never Ending Story.'"
+@@ -12,3 +12,18 @@ use_ok 'Mojo::Path';
+ my $path = Mojo::Path->new;
+ is $path->parse('/path')->to_string,   '/path',   'right path';
+ is $path->parse('/path/0')->to_string, '/path/0', 'right path';
++
++# Canonicalizing
++$path = Mojo::Path->new(
++  '/%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd');
++is "$path", '/../../../../../../../../../../etc/passwd', 'rigth result';
++is $path->parts->[0], '..', 'right part';
++is $path->canonicalize, '/../../../../../../../../../../etc/passwd',
++  'rigth result';
++is $path->parts->[0], '..', 'right part';
++$path = Mojo::Path->new(
++  '/%2ftest%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd');
++is "$path", '/test/../../../../../../../../../etc/passwd', 'rigth result';
++is $path->parts->[0], 'test', 'right part';
++is $path->canonicalize, '/../../../../../../../../etc/passwd', 'rigth result';
++is $path->parts->[0], '..', 'right part';

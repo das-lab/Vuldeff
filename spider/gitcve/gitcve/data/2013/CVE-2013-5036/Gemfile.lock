@@ -1,0 +1,272 @@
+GIT
+  remote: git://github.com/RISCfuture/composite_primary_keys.git
+  revision: 5c549017daf48a4e5c2b73f15fd10b86e71ded8c
+  specs:
+    composite_primary_keys (5.0.12)
+      activerecord (~> 3.2.0, >= 3.2.9)
+
+GIT
+  remote: git://github.com/RISCfuture/has_metadata_column.git
+  revision: b0ab7837884d78ec6da492d822d31f2da6682dc7
+  specs:
+    has_metadata_column (1.0.3)
+      boolean
+      rails (>= 3.0)
+
+GIT
+  remote: git://github.com/RISCfuture/ruby-git.git
+  revision: 2da2ed301fc5d2f9cb3125bd78db0522b322ed84
+  specs:
+    git (1.2.6)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    actionmailer (3.2.13)
+      actionpack (= 3.2.13)
+      mail (~> 2.5.3)
+    actionpack (3.2.13)
+      activemodel (= 3.2.13)
+      activesupport (= 3.2.13)
+      builder (~> 3.0.0)
+      erubis (~> 2.7.0)
+      journey (~> 1.0.4)
+      rack (~> 1.4.5)
+      rack-cache (~> 1.2)
+      rack-test (~> 0.6.1)
+      sprockets (~> 2.2.1)
+    activemodel (3.2.13)
+      activesupport (= 3.2.13)
+      builder (~> 3.0.0)
+    activerecord (3.2.13)
+      activemodel (= 3.2.13)
+      activesupport (= 3.2.13)
+      arel (~> 3.0.2)
+      tzinfo (~> 0.3.29)
+    activerecord-jdbc-adapter (1.2.5)
+    activerecord-jdbcpostgresql-adapter (1.2.5)
+      activerecord-jdbc-adapter (~> 1.2.5)
+      jdbc-postgres (>= 9.1, < 9.3)
+    activeresource (3.2.13)
+      activemodel (= 3.2.13)
+      activesupport (= 3.2.13)
+    activesupport (3.2.13)
+      i18n (= 0.6.1)
+      multi_json (~> 1.0)
+    addressable (2.3.4)
+    arel (3.0.2)
+    boolean (1.0.1)
+    builder (3.0.4)
+    coffee-rails (3.2.2)
+      coffee-script (>= 2.2.0)
+      railties (~> 3.2.0)
+    coffee-script (2.2.0)
+      coffee-script-source
+      execjs
+    coffee-script-source (1.6.2)
+    commonjs (0.2.6)
+    configoro (1.2.4)
+      activesupport
+    diff-lcs (1.2.4)
+    email_validation (1.1.1)
+      localized_each_validator (>= 1.0.1)
+    erector (0.9.0)
+      treetop (>= 1.2.3)
+    erubis (2.7.0)
+    execjs (1.4.0)
+      multi_json (~> 1.0)
+    factory_girl (4.2.0)
+      activesupport (>= 3.0.0)
+    factory_girl_rails (4.2.1)
+      factory_girl (~> 4.2.0)
+      railties (>= 3.0.0)
+    fakeweb (1.3.0)
+    fdoc (0.3.0)
+      json
+      json-schema (>= 1.0.1)
+      kramdown
+      thor
+    find_or_create_on_scopes (1.3.0)
+      activerecord (>= 3.1)
+    font-awesome-rails (3.1.1.2)
+      railties (>= 3.2, < 5.0)
+    hike (1.2.2)
+    httpi (2.0.2)
+      rack
+    i18n (0.6.1)
+    jdbc-postgres (9.2.1002.1)
+    journey (1.0.4)
+    jquery-rails (3.0.0)
+      railties (>= 3.0, < 5.0)
+      thor (>= 0.14, < 2.0)
+    json (1.8.0)
+    json (1.8.0-java)
+    json-schema (1.1.1)
+    json_serialize (2.2.2)
+      activerecord (>= 3.0)
+      activesupport (>= 3.0)
+    kramdown (1.0.2)
+    less (2.3.2)
+      commonjs (~> 0.2.6)
+    less-rails (2.3.3)
+      actionpack (>= 3.1)
+      less (~> 2.3.1)
+    libv8 (3.11.8.17)
+    localized_each_validator (1.0.1)
+      activerecord (>= 3.0)
+      activesupport (>= 3.0)
+    mail (2.5.4)
+      mime-types (~> 1.16)
+      treetop (~> 1.4.8)
+    mime-types (1.23)
+    multi_json (1.7.5)
+    pg (0.15.1)
+    plist (3.1.0)
+    polyglot (0.3.3)
+    rack (1.4.5)
+    rack-cache (1.2)
+      rack (>= 0.4)
+    rack-cors (0.2.8)
+      rack
+    rack-ssl (1.3.3)
+      rack
+    rack-test (0.6.2)
+      rack (>= 1.0)
+    rails (3.2.13)
+      actionmailer (= 3.2.13)
+      actionpack (= 3.2.13)
+      activerecord (= 3.2.13)
+      activeresource (= 3.2.13)
+      activesupport (= 3.2.13)
+      bundler (~> 1.0)
+      railties (= 3.2.13)
+    railties (3.2.13)
+      actionpack (= 3.2.13)
+      activesupport (= 3.2.13)
+      rack-ssl (~> 1.3.2)
+      rake (>= 0.8.7)
+      rdoc (~> 3.4)
+      thor (>= 0.14.6, < 2.0)
+    rake (10.0.4)
+    rdoc (3.12.2)
+      json (~> 1.4)
+    redcarpet (2.3.0)
+    ref (1.0.5)
+    rspec-core (2.13.1)
+    rspec-expectations (2.13.0)
+      diff-lcs (>= 1.1.3, < 2.0)
+    rspec-mocks (2.13.1)
+    rspec-rails (2.13.2)
+      actionpack (>= 3.0)
+      activesupport (>= 3.0)
+      railties (>= 3.0)
+      rspec-core (~> 2.13.0)
+      rspec-expectations (~> 2.13.0)
+      rspec-mocks (~> 2.13.0)
+    sass (3.2.9)
+    sass-rails (3.2.6)
+      railties (~> 3.2.0)
+      sass (>= 3.1.10)
+      tilt (~> 1.3)
+    serialbox (1.0.0)
+      activesupport
+      json
+    slugalicious (2.0.0)
+      rails (>= 3.1)
+      stringex
+    sprockets (2.2.2)
+      hike (~> 1.2)
+      multi_json (~> 1.0)
+      rack (~> 1.0)
+      tilt (~> 1.1, != 1.3.0)
+    sql_origin (1.0.2)
+      rails (~> 3.2)
+    squash_ios_symbolicator (1.1.1)
+      plist
+      serialbox
+      squash_uploader (>= 1.0.1)
+    squash_java (1.0.3)
+      json
+      squash_uploader (>= 1.0.1)
+    squash_javascript (1.0.2)
+      json
+      railties (>= 3.1)
+      squash_uploader
+    squash_rails (1.1.2)
+      squash_ruby
+    squash_ruby (1.2.0)
+      json
+    squash_uploader (1.0.1)
+      json
+    stringex (2.0.2)
+    therubyracer (0.11.4)
+      libv8 (~> 3.11.8.12)
+      ref
+    therubyrhino (2.0.2)
+      therubyrhino_jar (>= 1.7.3)
+    therubyrhino_jar (1.7.4)
+    thor (0.18.1)
+    tilt (1.4.1)
+    timeliness (0.3.7)
+    treetop (1.4.12)
+      polyglot
+      polyglot (>= 0.3.1)
+    tzinfo (0.3.37)
+    uglifier (2.1.1)
+      execjs (>= 0.3.0)
+      multi_json (~> 1.0, >= 1.0.2)
+    url_validation (1.0.0)
+      activerecord
+      activesupport
+      addressable
+      httpi
+    user-agent (1.0.0)
+    validates_timeliness (3.0.14)
+      timeliness (~> 0.3.6)
+    yard (0.8.6.1)
+
+PLATFORMS
+  java
+  ruby
+
+DEPENDENCIES
+  activerecord-jdbc-adapter (= 1.2.5)
+  activerecord-jdbcpostgresql-adapter
+  coffee-rails
+  composite_primary_keys!
+  configoro (>= 1.2.4)
+  email_validation
+  erector
+  factory_girl_rails
+  fakeweb
+  fdoc
+  find_or_create_on_scopes (>= 1.2.1)
+  font-awesome-rails
+  git!
+  has_metadata_column!
+  jquery-rails
+  json
+  json_serialize
+  kramdown
+  less-rails
+  libv8 (~> 3.11.8)
+  pg
+  rack-cors
+  rails (>= 3.2.0)
+  redcarpet
+  rspec-rails
+  sass-rails
+  slugalicious
+  sql_origin
+  squash_ios_symbolicator
+  squash_java
+  squash_javascript
+  squash_rails
+  squash_ruby
+  therubyracer (>= 0.11.1)
+  therubyrhino
+  uglifier
+  url_validation
+  user-agent
+  validates_timeliness
+  yard

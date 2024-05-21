@@ -1,0 +1,13 @@
+diff --git a/user/profile.php b/user/profile.php
+index 3ac9b7a24314e..291fc131f6fd5 100644
+--- a/user/profile.php
++++ b/user/profile.php
+@@ -334,7 +334,7 @@
+ 
+ if ($user->skype && !isset($hiddenfields['skypeid'])) {
+     $imurl = 'skype:'.urlencode($user->skype).'?call';
+-    $iconurl = new moodle_url('http://mystatus.skype.com/smallicon/'.$user->skype);
++    $iconurl = new moodle_url('http://mystatus.skype.com/smallicon/'.urlencode($user->skype));
+     if (strpos($CFG->httpswwwroot, 'https:') === 0) {
+         // Bad luck, skype devs are lazy to set up SSL on their servers - see MDL-37233.
+         $statusicon = '';

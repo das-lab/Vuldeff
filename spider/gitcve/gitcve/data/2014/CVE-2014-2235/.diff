@@ -1,0 +1,423 @@
+diff --git a/askbot/doc/source/changelog.rst b/askbot/doc/source/changelog.rst
+index f59138c553..7b65ee07fb 100644
+--- a/askbot/doc/source/changelog.rst
++++ b/askbot/doc/source/changelog.rst
+@@ -3,6 +3,7 @@ Changes in Askbot
+ 
+ Development version
+ -------------------
++* Added instant search to the tags page
+ * Added a placeholder template for the custom javascript on the question page
+ * Allowed to disable the big "ask" button.
+ * Some support for the media compression (Tyler Mandry)
+diff --git a/askbot/media/js/live_search.js b/askbot/media/js/live_search.js
+index dfae83213a..1518026028 100644
+--- a/askbot/media/js/live_search.js
++++ b/askbot/media/js/live_search.js
+@@ -267,6 +267,7 @@ TagWarningBox.prototype.showWarning = function(){
+  */
+ var InputToolTip = function() {
+     WrappedElement.call(this);
++    this._promptText = gettext('search or ask your question');
+ };
+ inherits(InputToolTip, WrappedElement);
+ 
+@@ -284,6 +285,10 @@ InputToolTip.prototype.dim = function() {
+     this._element.addClass('dimmed');
+ };
+ 
++InputToolTip.prototype.setPromptText = function(text) {
++    this._promptText = text;
++};
++
+ InputToolTip.prototype.setClickHandler = function(handler) {
+     this._clickHandler = handler;
+ };
+@@ -292,7 +297,7 @@ InputToolTip.prototype.createDom = function() {
+     var element = this.makeElement('div');
+     this._element = element;
+     element.addClass('input-tool-tip');
+-    element.html(gettext('search or ask your question'));
++    element.html(this._promptText);
+     this.decorate(element);
+ };
+ 
+@@ -882,3 +887,139 @@ FullTextSearch.prototype.decorate = function(element) {
+ 
+     $("form#searchForm").submit(me.makeFormSubmitHandler());
+ };
++
++/**
++ * @constructor
++ */
++var TagSearch = function() {
++    WrappedElement.call(this);
++    this._isRunning = false;
++};
++inherits(TagSearch, WrappedElement);
++
++TagSearch.prototype.getQuery = function() {
++    return $.trim(this._element.val());
++};
++
++TagSearch.prototype.setQuery = function(val) {
++    this._element.val(val);
++};
++
++TagSearch.prototype.getSort = function() {
++    //todo: read it off the page
++    var link = $('.tabBar a.on');
++    if (link.length === 1) {
++        var sort = link.attr('id').replace('sort_', '');
++        if (sort === 'name' || sort === 'used') {
++            return sort;
++        }
++    }
++    return 'name';
++};
++
++TagSearch.prototype.getIsRunning = function() {
++    return this._isRunning;
++};
++
++TagSearch.prototype.setIsRunning = function(val) {
++    this._isRunning = val;
++};
++
++TagSearch.prototype.renderResult = function(html) {
++    this._contentBox.html(html);
++};
++
++TagSearch.prototype.runSearch = function() {
++    var data = {
++        'query': this.getQuery(),
++        'sort': this.getSort(),
++        'page': '1'
++    };
++    var me = this;
++    $.ajax({
++        dataType: 'json',
++        data: data,
++        cache: false,
++        url: askbot['urls']['tags'],
++        success: function(data) {
++            if (data['success']) {
++                me.renderResult(data['html']);
++                me.setIsRunning(false);
++            }
++        },
++        error: function() { me.setIsRunning(false); }
++    });
++    me.setIsRunning(true);
++};
++
++TagSearch.prototype.getToolTip = function() {
++    return this._toolTip;
++};
++
++TagSearch.prototype.makeKeyUpHandler = function() {
++    var me = this;
++    return function(evt) {
++        var keyCode = getKeyCode(evt);
++        if (me.getIsRunning() === false) {
++            me.runSearch();
++        }
++    };
++};
++
++TagSearch.prototype.makeKeyDownHandler = function() {
++    var me = this;
++    var xButton = this._xButton;
++    return function(evt) {
++        var query = me.getQuery();
++        var keyCode = getKeyCode(evt);
++        var toolTip = me.getToolTip();
++        if (keyCode === 27) {//escape
++            me.setQuery('');
++            toolTip.show();
++            xButton.hide();
++            return;
++        }
++        if (keyCode === 8 || keyCode === 48) {//del or backspace
++            if (query.length === 1) {
++                toolTip.show();
++                xButton.hide();
++            }
++        } else {
++            toolTip.hide();
++            xButton.show();
++        }
++    };
++};
++
++TagSearch.prototype.reset = function() {
++    if (this.getIsRunning() === false) {
++        this.setQuery('');
++        this._toolTip.show();
++        this._xButton.hide();
++        this.runSearch();
++        this._element.focus();
++    }
++};
++
++TagSearch.prototype.decorate = function(element) {
++    this._element = element;
++    this._contentBox = $('#ContentLeft');
++    this._xButton = $('input[name=reset_query]');
++    element.keyup(this.makeKeyUpHandler());
++    element.keydown(this.makeKeyDownHandler());
++
++    var me = this;
++    this._xButton.click(function(){ me.reset() });
++
++    var toolTip = new InputToolTip();
++    toolTip.setPromptText(askbot['data']['tagSearchPromptText']);
++    toolTip.setClickHandler(function() {
++        element.focus();
++    });
++    element.after(toolTip.getElement());
++    //below is called after getElement, b/c element must be defined
++    if (this.getQuery() !== '') {
++        toolTip.hide();//hide if search query is not empty
++    }
++    this._toolTip = toolTip;
++};
+diff --git a/askbot/media/style/style.css b/askbot/media/style/style.css
+index 2387213658..fa4cf1b1d2 100644
+--- a/askbot/media/style/style.css
++++ b/askbot/media/style/style.css
+@@ -547,7 +547,6 @@ input[type="submit"].searchBtn {
+   z-index: 10001;
+ }
+ .groups-page input[type="submit"].searchBtn,
+-.tags-page input[type="submit"].searchBtn,
+ .badges-pages input[type="submit"].searchBtn,
+ .user-profile-page input[type="submit"].searchBtn,
+ .meta input[type="submit"].searchBtn,
+diff --git a/askbot/media/style/style.less b/askbot/media/style/style.less
+index 1976e2da98..6a55aa2c78 100644
+--- a/askbot/media/style/style.less
++++ b/askbot/media/style/style.less
+@@ -592,7 +592,6 @@ input[type="submit"].searchBtn {
+ }
+ 
+ .groups-page, /* todo: clean up - should not need this */
+-.tags-page,
+ .badges-pages,
+ .user-profile-page,
+ .meta,
+diff --git a/askbot/templates/meta/bottom_scripts.html b/askbot/templates/meta/bottom_scripts.html
+index 805974cc08..86a2490bf4 100644
+--- a/askbot/templates/meta/bottom_scripts.html
++++ b/askbot/templates/meta/bottom_scripts.html
+@@ -84,6 +84,9 @@
+                 search.setAskButtonEnabled(false);
+             }
+             search.decorate(searchInput);
++        } else if (activeTab === 'tags') {
++            var search = new TagSearch();
++            search.decorate(searchInput);
+         }
+ 
+         if (askbot['data']['userIsAdminOrMod']) {
+diff --git a/askbot/templates/tags.html b/askbot/templates/tags.html
+index e160828074..e2ab2c9323 100644
+--- a/askbot/templates/tags.html
++++ b/askbot/templates/tags.html
+@@ -1,43 +1,8 @@
+ {% extends "two_column_body.html" %}
+-{% import "macros.html" as macros %}
+ <!-- tags.html -->
+ {% block title %}{% spaceless %}{% trans %}Tags{% endtrans %}{% endspaceless %}{% endblock %}
+ {% block content %}
+-<!-- Tabs -->
+-{% include "tags/header.html" %}
+-{% if tag_list_type == 'list' %}
+-    {% if not tags.object_list %}
+-        <span>{% trans %}Nothing found{% endtrans %}</span>
+-    {% endif %}
+-    {% if tags.object_list %}
+-        <div class='clearfix'></div>
+-        <ul class='tags'>
+-            {% for tag in tags.object_list %}
+-            <li>
+-                {{ macros.tag_widget(
+-                            tag=tag.name,
+-                            html_tag='div',
+-                            truncate_long_tag=True,
+-                            extra_content='<span class="tag-number">&#215; ' ~
+-                                            tag.used_count|intcomma ~ '</span>'
+-                    )
+-                }}
+-            </li>
+-            {% endfor %}
+-        </ul>
+-        <div class="clean"></div>
+-        <div class="pager">
+-            {{macros.paginator(paginator_context)}}
+-        </div>
+-    {% endif %}
+-{% else %}
+-    <div class="clearfix"></div>
+-    {% if not tags %}
+-        <span>{% trans %}Nothing found{% endtrans %}</span>
+-    {% endif %}
+-    {{ macros.tag_cloud(tags=tags, font_sizes=font_size, search_state=search_state) }}
+-{% endif %}
+-
++{% include "tags/content.html" %}
+ {% endblock %}
+ {% block endjs %}
+     <script type="text/javascript">
+@@ -49,7 +14,9 @@
+             Hilite.elementid = "searchtags";
+             Hilite.debug_referrer = location.href;
+         });
++        askbot['data']['tagSearchPromptText'] = "{% trans %}search for tags{% endtrans %}";
+     /*]]>*/
+     </script>
++    {% include "tags/custom_javascript.httml" ignore missing %}
+ {% endblock %}
+ <!-- end tags.html -->
+diff --git a/askbot/templates/tags/content.html b/askbot/templates/tags/content.html
+new file mode 100644
+index 0000000000..8567c27412
+--- /dev/null
++++ b/askbot/templates/tags/content.html
+@@ -0,0 +1,34 @@
++{% import "macros.html" as macros %}
++{% include "tags/header.html" %}
++{% if tag_list_type == 'list' %}
++    {% if not tags.object_list %}
++        <span>{% trans %}Nothing found{% endtrans %}</span>
++    {% endif %}
++    {% if tags.object_list %}
++        <div class='clearfix'></div>
++        <ul class='tags'>
++            {% for tag in tags.object_list %}
++            <li>
++                {{ macros.tag_widget(
++                            tag=tag.name,
++                            html_tag='div',
++                            truncate_long_tag=True,
++                            extra_content='<span class="tag-number">&#215; ' ~
++                                            tag.used_count|intcomma ~ '</span>'
++                    )
++                }}
++            </li>
++            {% endfor %}
++        </ul>
++        <div class="clean"></div>
++        <div class="pager">
++            {{macros.paginator(paginator_context)}}
++        </div>
++    {% endif %}
++{% else %}
++    <div class="clearfix"></div>
++    {% if not tags %}
++        <span>{% trans %}Nothing found{% endtrans %}</span>
++    {% endif %}
++    {{ macros.tag_cloud(tags=tags, font_sizes=font_size, search_state=search_state) }}
++{% endif %}
+diff --git a/askbot/templates/tags/header.html b/askbot/templates/tags/header.html
+index 0832300efe..37c16af801 100644
+--- a/askbot/templates/tags/header.html
++++ b/askbot/templates/tags/header.html
+@@ -1,9 +1,10 @@
+ <div id="content-header">
++    {% set tag_query = stag|escape %}
+     {% if page_title %}
+             <h1 class="section-title">{{ page_title }}</h1>
+     {% else %}
+         {% if stag %}
+-            <h1 class="section-title">{% trans %}Tags, matching "{{ stag }}"{% endtrans %}</h1>
++            <h1 class="section-title">{% trans %}Tags, matching "{{ tag_query }}"{% endtrans %}</h1>
+         {% else %}
+             <h1 class="section-title">{% trans %}Tags{% endtrans %}</h1>
+         {% endif %}
+@@ -13,13 +14,13 @@ <h1 class="section-title">{% trans %}Tags{% endtrans %}</h1>
+             <span class="label">{% trans %}Sort by &raquo;{% endtrans %}</span>
+             <a
+                 id="sort_name"
+-                href="{% url tags %}?sort=name"
++                href="{% url tags %}?sort=name{% if tag_query %}&query={{ tag_query }}{% endif %}"
+                 {% if tab_id == 'name' %}class="on"{% endif %}
+                 title="{% trans %}sorted alphabetically{% endtrans %}"
+             ><span>{% trans %}by name{% endtrans %}</span></a>
+             <a
+                 id="sort_used"
+-                href="{% url tags %}?sort=used"
++                href="{% url tags %}?sort=used{% if tag_query %}&query={{ tag_query }}{% endif %}"
+                 {% if tab_id == 'used' %}class="on"{% endif %}
+                 title="{% trans %}sorted by frequency of tag use{% endtrans %}"
+             ><span>{% trans %}by popularity{% endtrans %}</span></a>
+diff --git a/askbot/templates/widgets/search_bar.html b/askbot/templates/widgets/search_bar.html
+index 5f0bb8deeb..1ec4ee81f4 100644
+--- a/askbot/templates/widgets/search_bar.html
++++ b/askbot/templates/widgets/search_bar.html
+@@ -7,6 +7,7 @@
+     {# url action depends on which tab is active #}
+     {% if active_tab == "tags" %}
+         <input type="hidden" name="t" value="tag"/>
++        {% set query=stag %}
+     {% elif active_tab == "users" %}
+         <input type="hidden" name="t" value="user"/>
+     {% endif %}
+@@ -14,7 +15,7 @@
+         class="searchInput" 
+         type="text" 
+         autocomplete="off"
+-        value="{{ query|default_if_none('') }}" 
++        value="{{ query|default_if_none('')|escape }}" 
+         name="query" 
+         id="keywords"
+     />
+diff --git a/askbot/views/readers.py b/askbot/views/readers.py
+index b0cf0eca99..1d4594bb78 100644
+--- a/askbot/views/readers.py
++++ b/askbot/views/readers.py
+@@ -245,9 +245,10 @@ def questions(request, **kwargs):
+ def tags(request):#view showing a listing of available tags - plain list
+ 
+     #1) Get parameters. This normally belongs to form cleaning.
+-    sortby = request.GET.get('sort', 'used')
++    post_data = request.GET
++    sortby = post_data.get('sort', 'used')
+     try:
+-        page = int(request.GET.get('page', '1'))
++        page = int(post_data.get('page', '1'))
+     except ValueError:
+         page = 1
+ 
+@@ -256,13 +257,13 @@ def tags(request):#view showing a listing of available tags - plain list
+     else:
+         order_by = '-used_count'
+ 
+-    query = request.GET.get('query', '').strip()
++    query = post_data.get('query', '').strip()
+     tag_list_type = askbot_settings.TAG_LIST_FORMAT
+ 
+     #2) Get query set for the tags.
+     query_params = {'deleted': False}
+     if query != '':
+-        query_params['name__icontains': query]
++        query_params['name__icontains'] = query
+ 
+     tags_qs = Tag.objects.filter(**query_params).exclude(used_count=0)
+ 
+@@ -307,7 +308,14 @@ def tags(request):#view showing a listing of available tags - plain list
+ 
+     data['tags'] = tags
+ 
+-    return render(request, 'tags.html', data)
++    if request.is_ajax():
++        template = get_template('tags/content.html')
++        template_context = RequestContext(request, data)
++        json_data = {'success': True, 'html': template.render(template_context)}
++        json_string = simplejson.dumps(json_data)
++        return HttpResponse(json_string, mimetype='application/json')
++    else:
++        return render(request, 'tags.html', data)
+ 
+ @csrf.csrf_protect
+ def question(request, id):#refactor - long subroutine. display question body, answers and comments

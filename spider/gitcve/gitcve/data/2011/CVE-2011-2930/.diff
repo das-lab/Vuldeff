@@ -1,0 +1,67 @@
+diff --git a/activerecord/lib/active_record/connection_adapters/mysql2_adapter.rb b/activerecord/lib/active_record/connection_adapters/mysql2_adapter.rb
+index ae5ae16dc7143..ef51f5ebca493 100644
+--- a/activerecord/lib/active_record/connection_adapters/mysql2_adapter.rb
++++ b/activerecord/lib/active_record/connection_adapters/mysql2_adapter.rb
+@@ -169,7 +169,7 @@ def quote(value, column = nil)
+       end
+ 
+       def quote_column_name(name) #:nodoc:
+-        @quoted_column_names[name] ||= "`#{name}`"
++        @quoted_column_names[name] ||= "`#{name.to_s.gsub('`', '``')}`"
+       end
+ 
+       def quote_table_name(name) #:nodoc:
+diff --git a/activerecord/lib/active_record/connection_adapters/mysql_adapter.rb b/activerecord/lib/active_record/connection_adapters/mysql_adapter.rb
+index a44ac08ce4397..b844e5ab1034f 100644
+--- a/activerecord/lib/active_record/connection_adapters/mysql_adapter.rb
++++ b/activerecord/lib/active_record/connection_adapters/mysql_adapter.rb
+@@ -250,7 +250,7 @@ def type_cast(value, column)
+       end
+ 
+       def quote_column_name(name) #:nodoc:
+-        @quoted_column_names[name] ||= "`#{name}`"
++        @quoted_column_names[name] ||= "`#{name.to_s.gsub('`', '``')}`"
+       end
+ 
+       def quote_table_name(name) #:nodoc:
+diff --git a/activerecord/lib/active_record/connection_adapters/sqlite_adapter.rb b/activerecord/lib/active_record/connection_adapters/sqlite_adapter.rb
+index 486efc5ba0ca1..da86957028495 100644
+--- a/activerecord/lib/active_record/connection_adapters/sqlite_adapter.rb
++++ b/activerecord/lib/active_record/connection_adapters/sqlite_adapter.rb
+@@ -148,7 +148,7 @@ def quote_string(s) #:nodoc:
+       end
+ 
+       def quote_column_name(name) #:nodoc:
+-        %Q("#{name}")
++        %Q("#{name.to_s.gsub('"', '""')}")
+       end
+ 
+       # Quote date/time values for use in SQL input. Includes microseconds
+diff --git a/activerecord/test/cases/base_test.rb b/activerecord/test/cases/base_test.rb
+index b8ebabfe7094e..fe46c00b47a03 100644
+--- a/activerecord/test/cases/base_test.rb
++++ b/activerecord/test/cases/base_test.rb
+@@ -67,6 +67,23 @@ def setup
+ class BasicsTest < ActiveRecord::TestCase
+   fixtures :topics, :companies, :developers, :projects, :computers, :accounts, :minimalistics, 'warehouse-things', :authors, :categorizations, :categories, :posts
+ 
++  def test_column_names_are_escaped
++    conn      = ActiveRecord::Base.connection
++    classname = conn.class.name[/[^:]*$/]
++    badchar   = {
++      'SQLite3Adapter'    => '"',
++      'MysqlAdapter'      => '`',
++      'Mysql2Adapter'     => '`',
++      'PostgreSQLAdapter' => '"',
++      'OracleAdapter'     => '"',
++    }.fetch(classname) {
++      raise "need a bad char for #{classname}"
++    }
++
++    quoted = conn.quote_column_name "foo#{badchar}bar"
++    assert_equal("#{badchar}foo#{badchar * 2}bar#{badchar}", quoted)
++  end
++
+   def test_columns_should_obey_set_primary_key
+     pk = Subscriber.columns.find { |x| x.name == 'nick' }
+     assert pk.primary, 'nick should be primary key'

@@ -1,0 +1,169 @@
+{
+  "name": "jitsi-meet-electron",
+  "version": "2.2.0",
+  "description": "Electron application for Jitsi Meet",
+  "main": "./build/main.js",
+  "productName": "Jitsi Meet",
+  "scripts": {
+    "start": "webpack --config ./webpack.main.js --mode development && concurrently \"npm:watch\" \"electron ./build/main.js\"",
+    "clean": "rm -rf node_modules build dist",
+    "lint": "eslint . && flow",
+    "build": "webpack --config ./webpack.main.js --mode production && webpack --config ./webpack.renderer.js --mode production",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "postinstall": "patch-package && electron-builder install-app-deps",
+    "validate": "npm ls",
+    "watch": "webpack --config ./webpack.renderer.js --mode development --watch --watch-poll"
+  },
+  "engines" : {
+    "node" : ">=12.0.0"
+  },
+  "build": {
+    "appId": "org.jitsi.jitsi-meet",
+    "productName": "Jitsi Meet",
+    "generateUpdatesFilesForAllChannels": true,
+    "files": [
+      "**/*",
+      "resources",
+      "!app",
+      "!main.js"
+    ],
+    "mac": {
+      "artifactName": "jitsi-meet.${ext}",
+      "category": "public.app-category.video",
+      "darkModeSupport": true,
+      "hardenedRuntime": true,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
+      "extendInfo": {
+        "NSCameraUsageDescription": "Jitsi Meet requires access to your camera in order to make video-calls.",
+        "NSMicrophoneUsageDescription": "Jitsi Meet requires access to your microphone in order to make calls (audio/video)."
+      }
+    },
+    "linux": {
+      "artifactName": "jitsi-meet-${arch}.${ext}",
+      "category": "VideoConference;AudioVideo;Audio;Video;Network",
+      "description": "Jitsi Meet Desktop App",
+      "executableName": "jitsi-meet",
+      "target": [
+        {
+          "arch": "x64",
+          "target": "AppImage"
+        }
+      ]
+    },
+    "win": {
+      "artifactName": "jitsi-meet.${ext}",
+      "target": [
+        {
+          "arch": [
+            "ia32",
+            "x64"
+          ],
+          "target": "nsis"
+        }
+      ]
+    },
+    "directories": {
+      "buildResources": "resources"
+    },
+    "protocols": [
+      {
+        "name": "jitsi-protocol",
+        "role": "Viewer",
+        "schemes": [
+          "jitsi-meet"
+        ]
+      }
+    ]
+  },
+  "pre-commit": [
+    "lint"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jitsi/jitsi-meet-electron"
+  },
+  "keywords": [
+    "jingle",
+    "webrtc",
+    "xmpp",
+    "electron",
+    "jitsi-meet"
+  ],
+  "author": "Jitsi Team <support@jitsi.org>",
+  "readmeFilename": "README.md",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@atlaskit/button": "10.1.1",
+    "@atlaskit/css-reset": "3.0.5",
+    "@atlaskit/droplist": "7.0.17",
+    "@atlaskit/field-text": "7.0.19",
+    "@atlaskit/icon": "15.0.3",
+    "@atlaskit/navigation": "33.3.8",
+    "@atlaskit/onboarding": "6.1.14",
+    "@atlaskit/page": "8.0.12",
+    "@atlaskit/panel": "0.3.5",
+    "@atlaskit/spinner": "9.0.13",
+    "@atlaskit/theme": "7.0.1",
+    "@atlaskit/toggle": "5.0.14",
+    "electron-context-menu": "2.0.1",
+    "electron-debug": "3.0.1",
+    "electron-is-dev": "1.2.0",
+    "electron-log": "4.1.1",
+    "electron-reload": "1.5.0",
+    "electron-store": "5.1.1",
+    "electron-updater": "4.2.5",
+    "electron-window-state": "5.0.3",
+    "history": "4.10.1",
+    "i18next": "19.4.5",
+    "jitsi-meet-electron-utils": "github:jitsi/jitsi-meet-electron-utils#v2.0.7",
+    "js-utils": "github:jitsi/js-utils#cf11996bd866fdb47326c59a5d3bc24be17282d4",
+    "moment": "2.23.0",
+    "mousetrap": "1.6.2",
+    "react": "16.8.0",
+    "react-dom": "16.8.0",
+    "react-i18next": "11.5.1",
+    "react-redux": "5.1.1",
+    "react-router-redux": "5.0.0-alpha.9",
+    "redux": "4.0.1",
+    "redux-logger": "3.0.6",
+    "redux-persist": "5.10.0",
+    "redux-persist-electron-storage": "2.0.0",
+    "source-map-support": "0.5.16",
+    "styled-components": "3.4.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.9.0",
+    "@babel/plugin-proposal-class-properties": "7.8.3",
+    "@babel/plugin-proposal-export-namespace-from": "7.8.3",
+    "@babel/plugin-transform-flow-strip-types": "7.9.0",
+    "@babel/preset-env": "7.9.0",
+    "@babel/preset-flow": "7.9.0",
+    "@babel/preset-react": "7.9.4",
+    "@svgr/webpack": "^5.4.0",
+    "babel-eslint": "10.0.3",
+    "babel-loader": "8.1.0",
+    "concurrently": "5.1.0",
+    "css-loader": "3.5.0",
+    "devtron": "1.4.0",
+    "electron": "9.0.4",
+    "electron-builder": "22.7.0",
+    "electron-react-devtools": "0.5.3",
+    "eslint": "6.5.1",
+    "eslint-config-jitsi": "github:jitsi/eslint-config-jitsi#1.0.2",
+    "eslint-plugin-flowtype": "4.7.0",
+    "eslint-plugin-import": "2.20.2",
+    "eslint-plugin-jsdoc": "22.1.0",
+    "eslint-plugin-react": "7.19.0",
+    "file-loader": "6.0.0",
+    "flow-bin": "0.109.0",
+    "html-webpack-plugin": "4.0.4",
+    "patch-package": "6.2.2",
+    "precommit-hook": "3.0.0",
+    "style-loader": "1.1.3",
+    "svg-inline-loader": "0.8.2",
+    "webpack": "4.42.1",
+    "webpack-cli": "3.3.11"
+  }
+}

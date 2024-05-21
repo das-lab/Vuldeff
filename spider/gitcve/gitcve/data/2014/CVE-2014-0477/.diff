@@ -1,0 +1,13 @@
+diff --git a/lib/Email/Address.pm b/lib/Email/Address.pm
+index acece12..1e0feb8 100644
+--- a/lib/Email/Address.pm
++++ b/lib/Email/Address.pm
+@@ -51,7 +51,7 @@ my $dot_atom       = qr/$cfws*$dot_atom_text$cfws*/;
+ 
+ my $qtext          = qr/[^\\"]/;
+ my $qcontent       = qr/$qtext|$quoted_pair/;
+-my $quoted_string  = qr/$cfws*"$qcontent+"$cfws*/;
++my $quoted_string  = qr/$cfws*"$qcontent*"$cfws*/;
+ 
+ my $word           = qr/$atom|$quoted_string/;
+ 

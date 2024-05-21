@@ -1,0 +1,13 @@
+diff --git a/requests/sessions.py b/requests/sessions.py
+index 4f30696353..9d5498c6db 100644
+--- a/requests/sessions.py
++++ b/requests/sessions.py
+@@ -171,7 +171,7 @@ def resolve_redirects(self, resp, req, stream=False, timeout=None,
+             except KeyError:
+                 pass
+ 
+-            extract_cookies_to_jar(prepared_request._cookies, prepared_request, resp.raw)
++            extract_cookies_to_jar(prepared_request._cookies, req, resp.raw)
+             prepared_request._cookies.update(self.cookies)
+             prepared_request.prepare_cookies(prepared_request._cookies)
+ 

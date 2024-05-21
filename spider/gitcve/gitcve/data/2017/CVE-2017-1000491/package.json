@@ -1,0 +1,90 @@
+{
+  "name": "shiba",
+  "productName": "Shiba",
+  "version": "1.1.0",
+  "description": "Live markdown previewer with linter",
+  "main": "./build/src/browser/mainu.js",
+  "bin": {
+    "shiba": "./bin/cli.js"
+  },
+  "author": "rhysd <lin90162@yahoo.co.jp>",
+  "homepage": "https://github.com/rhysd/Shiba#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rhysd/Shiba.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rhysd/Shiba/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "markdown",
+    "viewer",
+    "preview",
+    "electron"
+  ],
+  "dependencies": {
+    "about-window": "^1.8.0",
+    "animate.css": "^3.5.2",
+    "chokidar": "^1.7.0",
+    "electron": "^1.7.9",
+    "electron-window-state": "^4.1.1",
+    "encoding-japanese": "^1.0.26",
+    "font-awesome": "^4.7.0",
+    "github-markdown-css": "^2.9.0",
+    "he": "^1.1.1",
+    "highlight.js": "^9.12.0",
+    "js-yaml": "^3.10.0",
+    "katex": "^0.8.3",
+    "markdownlint": "^0.6.2",
+    "marked": "github:rhysd/marked#emoji",
+    "mermaid": "7.0.17",
+    "mousetrap": "^1.6.1",
+    "remark": "^8.0.0",
+    "remark-lint": "^6.0.1",
+    "remark-preset-lint-consistent": "^2.0.1",
+    "remark-preset-lint-markdown-style-guide": "^2.1.1",
+    "remark-preset-lint-recommended": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/chokidar": "^1.7.3",
+    "@types/empower": "^1.2.30",
+    "@types/es6-promise": "0.0.33",
+    "@types/he": "^0.5.29",
+    "@types/highlight.js": "^9.12.1",
+    "@types/js-yaml": "^3.9.1",
+    "@types/katex": "0.5.0",
+    "@types/mocha": "^2.2.44",
+    "@types/mousetrap": "^1.5.34",
+    "@types/node": "8.0.53",
+    "@types/polymer": "^1.2.1",
+    "@types/power-assert": "^1.4.29",
+    "@types/power-assert-formatter": "^1.4.28",
+    "@types/webcomponents.js": "^0.6.32",
+    "@types/webdriverio": "^4.8.6",
+    "asar": "^0.14.0",
+    "bower": "^1.8.2",
+    "electron-packager": "^10.1.0",
+    "electron-rebuild": "^1.6.0",
+    "intelli-espower-loader": "^1.0.1",
+    "mocha": "^4.0.1",
+    "nsp": "^3.1.0",
+    "power-assert": "^1.4.4",
+    "spectron": "^3.7.2",
+    "touch": "^3.1.0",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.1"
+  },
+  "scripts": {
+    "dep": "rake dep",
+    "build": "rake build",
+    "watch": "rake watch",
+    "update-emoji": "rake update_emoji",
+    "show-readme": "./bin/cli.js README.md",
+    "app": "./bin/cli.js",
+    "debug": "NODE_ENV=development ./bin/cli.js",
+    "test": "rake test",
+    "e2e": "rake e2e",
+    "start": "npm run dep && npm run build && npm run show-readme"
+  }
+}

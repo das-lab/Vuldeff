@@ -1,0 +1,12 @@
+diff --git a/packages/apputils/src/sanitizer.ts b/packages/apputils/src/sanitizer.ts
+index b281cc4172d6..897f215229f0 100644
+--- a/packages/apputils/src/sanitizer.ts
++++ b/packages/apputils/src/sanitizer.ts
+@@ -624,7 +624,6 @@ export class Sanitizer implements ISanitizer {
+       font: ['color', 'face', 'size'],
+       form: [
+         'accept',
+-        'action',
+         'autocomplete',
+         'enctype',
+         'method',

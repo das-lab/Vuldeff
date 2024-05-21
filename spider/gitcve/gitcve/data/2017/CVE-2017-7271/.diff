@@ -1,0 +1,26 @@
+diff --git a/framework/CHANGELOG.md b/framework/CHANGELOG.md
+index a3fc2a1a95b..d87be35d68e 100644
+--- a/framework/CHANGELOG.md
++++ b/framework/CHANGELOG.md
+@@ -104,7 +104,7 @@ Yii Framework 2 Change Log
+ - Enh: Added support for field `yii\console\controllers\BaseMigrateController::$migrationNamespaces` setup from CLI (schmunk42)
+ - Bug #13287: Fixed translating "and" separator in `UniqueValidator` error message (jetexe)
+ - Enh #11464: Populate foreign key names from schema (joaoppereira)
+-
++- Bug #13401: Fixed lack of escaping of request dump at exception screens (samdark)
+ 
+ 2.0.10 October 20, 2016
+ -----------------------
+diff --git a/framework/web/ErrorHandler.php b/framework/web/ErrorHandler.php
+index 0f45277210c..b43d235675f 100644
+--- a/framework/web/ErrorHandler.php
++++ b/framework/web/ErrorHandler.php
+@@ -323,7 +323,7 @@ public function renderRequest()
+             }
+         }
+ 
+-        return '<pre>' . rtrim($request, "\n") . '</pre>';
++        return '<pre>' . $this->htmlEncode(rtrim($request, "\n")) . '</pre>';
+     }
+ 
+     /**

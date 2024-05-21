@@ -1,0 +1,275 @@
+diff --git a/src/common/server.c b/src/common/server.c
+index 8603f1385..6432a2b9c 100644
+--- a/src/common/server.c
++++ b/src/common/server.c
+@@ -723,9 +723,22 @@ ssl_do_connect (server * serv)
+ 		switch (verify_error)
+ 		{
+ 		case X509_V_OK:
++			{
++				X509 *cert = SSL_get_peer_certificate (serv->ssl);
++				int hostname_err;
++				if ((hostname_err = _SSL_check_hostname(cert, serv->hostname)) != 0)
++				{
++					snprintf (buf, sizeof (buf), "* Verify E: Failed to validate hostname? (%d)%s",
++							 hostname_err, serv->accept_invalid_cert ? " -- Ignored" : "");
++					if (serv->accept_invalid_cert)
++						EMIT_SIGNAL (XP_TE_SSLMESSAGE, serv->server_session, buf, NULL, NULL, NULL, 0);
++					else
++						goto conn_fail;
++				}
++				break;
++			}
+ 			/* snprintf (buf, sizeof (buf), "* Verify OK (?)"); */
+ 			/* EMIT_SIGNAL (XP_TE_SSLMESSAGE, serv->server_session, buf, NULL, NULL, NULL, 0); */
+-			break;
+ 		case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
+ 		case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+ 		case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
+@@ -744,6 +757,7 @@ ssl_do_connect (server * serv)
+ 			snprintf (buf, sizeof (buf), "%s.? (%d)",
+ 						 X509_verify_cert_error_string (verify_error),
+ 						 verify_error);
++conn_fail:
+ 			EMIT_SIGNAL (XP_TE_CONNFAIL, serv->server_session, buf, NULL, NULL,
+ 							 NULL, 0);
+ 
+diff --git a/src/common/ssl.c b/src/common/ssl.c
+index e929a1aa4..04cd6673f 100644
+--- a/src/common/ssl.c
++++ b/src/common/ssl.c
+@@ -25,6 +25,7 @@
+ #include "inet.h"				  /* make it first to avoid macro redefinitions */
+ #include <openssl/ssl.h>		  /* SSL_() */
+ #include <openssl/err.h>		  /* ERR_() */
++#include <openssl/x509v3.h>
+ #ifdef WIN32
+ #include <openssl/rand.h>		  /* RAND_seed() */
+ #endif
+@@ -35,6 +36,7 @@
+ 
+ #include <glib.h>
+ #include <glib/gprintf.h>
++#include <gio/gio.h>
+ #include "util.h"
+ 
+ /* If openssl was built without ec */
+@@ -339,3 +341,204 @@ _SSL_close (SSL * ssl)
+ 	SSL_free (ssl);
+ 	ERR_remove_state (0);		  /* free state buffer */
+ }
++
++/* Hostname validation code based on OpenBSD's libtls. */
++
++static int
++_SSL_match_hostname (const char *cert_hostname, const char *hostname)
++{
++	const char *cert_domain, *domain, *next_dot;
++
++	if (g_ascii_strcasecmp (cert_hostname, hostname) == 0)
++		return 0;
++
++	/* Wildcard match? */
++	if (cert_hostname[0] == '*')
++	{
++		/*
++		 * Valid wildcards:
++		 * - "*.domain.tld"
++		 * - "*.sub.domain.tld"
++		 * - etc.
++		 * Reject "*.tld".
++		 * No attempt to prevent the use of eg. "*.co.uk".
++		 */
++		cert_domain = &cert_hostname[1];
++		/* Disallow "*"  */
++		if (cert_domain[0] == '\0')
++			return -1;
++		/* Disallow "*foo" */
++		if (cert_domain[0] != '.')
++			return -1;
++		/* Disallow "*.." */
++		if (cert_domain[1] == '.')
++			return -1;
++		next_dot = strchr (&cert_domain[1], '.');
++		/* Disallow "*.bar" */
++		if (next_dot == NULL)
++			return -1;
++		/* Disallow "*.bar.." */
++		if (next_dot[1] == '.')
++			return -1;
++
++		domain = strchr (hostname, '.');
++
++		/* No wildcard match against a hostname with no domain part. */
++		if (domain == NULL || strlen(domain) == 1)
++			return -1;
++
++		if (g_ascii_strcasecmp (cert_domain, domain) == 0)
++			return 0;
++	}
++
++	return -1;
++}
++
++static int
++_SSL_check_subject_altname (X509 *cert, const char *host)
++{
++	STACK_OF(GENERAL_NAME) *altname_stack = NULL;
++	GInetAddress *addr;
++	GSocketFamily family;
++	int type = GEN_DNS;
++	int count, i;
++	int rv = -1;
++
++	altname_stack = X509_get_ext_d2i (cert, NID_subject_alt_name, NULL, NULL);
++	if (altname_stack == NULL)
++		return -1;
++
++	addr = g_inet_address_new_from_string (host);
++	if (addr != NULL)
++	{
++		family = g_inet_address_get_family (addr);
++		if (family == G_SOCKET_FAMILY_IPV4 || family == G_SOCKET_FAMILY_IPV6)
++			type = GEN_IPADD;
++	}
++
++	count = sk_GENERAL_NAME_num(altname_stack);
++	for (i = 0; i < count; i++)
++	{
++		GENERAL_NAME *altname;
++
++		altname = sk_GENERAL_NAME_value (altname_stack, i);
++
++		if (altname->type != type)
++			continue;
++
++		if (type == GEN_DNS)
++		{
++			unsigned char *data;
++			int format;
++
++			format = ASN1_STRING_type (altname->d.dNSName);
++			if (format == V_ASN1_IA5STRING)
++			{
++				data = ASN1_STRING_data (altname->d.dNSName);
++
++				if (ASN1_STRING_length (altname->d.dNSName) != (int)strlen(data))
++				{
++					g_warning("NUL byte in subjectAltName, probably a malicious certificate.\n");
++					rv = -2;
++					break;
++				}
++
++				if (_SSL_match_hostname (data, host) == 0)
++				{
++					rv = 0;
++					break;
++				}
++			}
++			else
++				g_warning ("unhandled subjectAltName dNSName encoding (%d)\n", format);
++
++		}
++		else if (type == GEN_IPADD)
++		{
++			unsigned char *data;
++			const guint8 *addr_bytes;
++			int datalen, addr_len;
++
++			datalen = ASN1_STRING_length (altname->d.iPAddress);
++			data = ASN1_STRING_data (altname->d.iPAddress);
++
++			addr_bytes = g_inet_address_to_bytes (addr);
++			addr_len = (int)g_inet_address_get_native_size (addr);
++
++			if (datalen == addr_len && memcmp (data, addr_bytes, addr_len) == 0)
++			{
++				rv = 0;
++				break;
++			}
++		}
++	}
++
++	if (addr != NULL)
++		g_object_unref (addr);
++	sk_GENERAL_NAME_free (altname_stack);
++	return rv;
++}
++
++static int
++_SSL_check_common_name (X509 *cert, const char *host)
++{
++	X509_NAME *name;
++	char *common_name = NULL;
++	int common_name_len;
++	int rv = -1;
++	GInetAddress *addr;
++
++	name = X509_get_subject_name (cert);
++	if (name == NULL)
++		return -1;
++
++	common_name_len = X509_NAME_get_text_by_NID (name, NID_commonName, NULL, 0);
++	if (common_name_len < 0)
++		return -1;
++
++	common_name = calloc (common_name_len + 1, 1);
++	if (common_name == NULL)
++		return -1;
++
++	X509_NAME_get_text_by_NID (name, NID_commonName, common_name, common_name_len + 1);
++
++	/* NUL bytes in CN? */
++	if (common_name_len != (int)strlen(common_name))
++	{
++		g_warning ("NUL byte in Common Name field, probably a malicious certificate.\n");
++		rv = -2;
++		goto out;
++	}
++
++	if ((addr = g_inet_address_new_from_string (host)) != NULL)
++	{
++		/*
++		 * We don't want to attempt wildcard matching against IP
++		 * addresses, so perform a simple comparison here.
++		 */
++		if (g_strcmp0 (common_name, host) == 0)
++			rv = 0;
++		else
++			rv = -1;
++
++		g_object_unref (addr);
++	}
++	else if (_SSL_match_hostname (common_name, host) == 0)
++		rv = 0;
++
++out:
++	free(common_name);
++	return rv;
++}
++
++int
++_SSL_check_hostname (X509 *cert, const char *host)
++{
++	int rv;
++
++	rv = _SSL_check_subject_altname (cert, host);
++	if (rv == 0 || rv == -2)
++		return rv;
++
++	return _SSL_check_common_name (cert, host);
++}
+\ No newline at end of file
+diff --git a/src/common/ssl.h b/src/common/ssl.h
+index 9c7298558..ce2f616c4 100644
+--- a/src/common/ssl.h
++++ b/src/common/ssl.h
+@@ -52,7 +52,7 @@ char *_SSL_set_verify (SSL_CTX *ctx, void *(verify_callback), char *cacert);
+     int SSL_get_fd(SSL *);
+ */
+ void _SSL_close (SSL * ssl);
+-
++int _SSL_check_hostname(X509 *cert, const char *host);
+ int _SSL_get_cert_info (struct cert_info *cert_info, SSL * ssl);
+ struct chiper_info *_SSL_get_cipher_info (SSL * ssl);
+ 

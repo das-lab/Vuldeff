@@ -1,0 +1,90 @@
+diff --git a/cmd/web.go b/cmd/web.go
+index d59ab52ee2..dc89fed78d 100644
+--- a/cmd/web.go
++++ b/cmd/web.go
+@@ -72,7 +72,7 @@ func checkVersion() {
+ 		log.Fatal(4, "Package i18n version is too old, did you forget to update?(github.com/macaron-contrib/i18n)")
+ 	}
+ 	sessionVer := git.MustParseVersion(session.Version())
+-	if sessionVer.LessThan(git.MustParseVersion("0.0.3")) {
++	if sessionVer.LessThan(git.MustParseVersion("0.0.5")) {
+ 		log.Fatal(4, "Package session version is too old, did you forget to update?(github.com/macaron-contrib/session)")
+ 	}
+ }
+diff --git a/conf/app.ini b/conf/app.ini
+index ed4a1b6219..014411ce45 100644
+--- a/conf/app.ini
++++ b/conf/app.ini
+@@ -163,10 +163,6 @@ ENABLE_SET_COOKIE = true
+ GC_INTERVAL_TIME = 86400
+ ; Session life time, default is 86400
+ SESSION_LIFE_TIME = 86400
+-; session id hash func, Either "sha1", "sha256" or "md5" default is sha1
+-SESSION_ID_HASHFUNC = sha1
+-; Session hash key, default is use random string
+-SESSION_ID_HASHKEY =
+ 
+ [picture]
+ ; The place to picture data, either "server" or "qiniu", default is "server"
+diff --git a/gogs.go b/gogs.go
+index f46a7cd064..5e817cc25f 100644
+--- a/gogs.go
++++ b/gogs.go
+@@ -17,7 +17,7 @@ import (
+ 	"github.com/gogits/gogs/modules/setting"
+ )
+ 
+-const APP_VER = "0.5.6.1102 Beta"
++const APP_VER = "0.5.6.1104 Beta"
+ 
+ func init() {
+ 	runtime.GOMAXPROCS(runtime.NumCPU())
+diff --git a/models/repo.go b/models/repo.go
+index 888dea1ea6..37cc7eabf5 100644
+--- a/models/repo.go
++++ b/models/repo.go
+@@ -1161,7 +1161,7 @@ func SearchRepositoryByName(opt SearchOption) (repos []*Repository, err error) {
+ 	if !opt.Private {
+ 		sess.And("is_private=false")
+ 	}
+-	sess.And("lower_name like '%" + opt.Keyword + "%'").Find(&repos)
++	sess.And("lower_name like ?", "%"+opt.Keyword+"%").Find(&repos)
+ 	return repos, err
+ }
+ 
+diff --git a/models/user.go b/models/user.go
+index ce85008ba4..e7e6ed409f 100644
+--- a/models/user.go
++++ b/models/user.go
+@@ -581,7 +581,7 @@ func SearchUserByName(opt SearchOption) (us []*User, err error) {
+ 	opt.Keyword = strings.ToLower(opt.Keyword)
+ 
+ 	us = make([]*User, 0, opt.Limit)
+-	err = x.Limit(opt.Limit).Where("type=0").And("lower_name like '%" + opt.Keyword + "%'").Find(&us)
++	err = x.Limit(opt.Limit).Where("type=0").And("lower_name like ?", "%"+opt.Keyword+"%").Find(&us)
+ 	return us, err
+ }
+ 
+diff --git a/modules/setting/setting.go b/modules/setting/setting.go
+index 64c32ec73a..99116fff70 100644
+--- a/modules/setting/setting.go
++++ b/modules/setting/setting.go
+@@ -394,9 +394,6 @@ func newSessionService() {
+ 	SessionConfig.EnableSetCookie = Cfg.MustBool("session", "ENABLE_SET_COOKIE", true)
+ 	SessionConfig.Gclifetime = Cfg.MustInt64("session", "GC_INTERVAL_TIME", 86400)
+ 	SessionConfig.Maxlifetime = Cfg.MustInt64("session", "SESSION_LIFE_TIME", 86400)
+-	SessionConfig.SessionIDHashFunc = Cfg.MustValueRange("session", "SESSION_ID_HASHFUNC",
+-		"sha1", []string{"sha1", "sha256", "md5"})
+-	SessionConfig.SessionIDHashKey = Cfg.MustValue("session", "SESSION_ID_HASHKEY", string(com.RandomCreateBytes(16)))
+ 
+ 	if SessionProvider == "file" {
+ 		os.MkdirAll(path.Dir(SessionConfig.ProviderConfig), os.ModePerm)
+diff --git a/templates/.VERSION b/templates/.VERSION
+index c6d37157f5..188756b2f0 100644
+--- a/templates/.VERSION
++++ b/templates/.VERSION
+@@ -1 +1 @@
+-0.5.6.1102 Beta
+\ No newline at end of file
++0.5.6.1104 Beta
+\ No newline at end of file

@@ -1,0 +1,299 @@
+diff --git a/lib/puppet/application/master.rb b/lib/puppet/application/master.rb
+index b4da770f0c9..62d9f5578ed 100644
+--- a/lib/puppet/application/master.rb
++++ b/lib/puppet/application/master.rb
+@@ -231,6 +231,9 @@ def setup
+     # Cache our nodes in yaml.  Currently not configurable.
+     Puppet::Node.indirection.cache_class = :yaml
+ 
++    Puppet::FileServing::Content.indirection.terminus_class = :file_server
++    Puppet::FileServing::Metadata.indirection.terminus_class = :file_server
++
+     # Configure all of the SSL stuff.
+     if Puppet::SSL::CertificateAuthority.ca?
+       Puppet::SSL::Host.ca_location = :local
+diff --git a/lib/puppet/file_serving/configuration.rb b/lib/puppet/file_serving/configuration.rb
+index 02bca1bea79..fb8aff7a8d4 100644
+--- a/lib/puppet/file_serving/configuration.rb
++++ b/lib/puppet/file_serving/configuration.rb
+@@ -64,7 +64,7 @@ def split_path(request)
+ 
+     mount_name, path = request.key.split(File::Separator, 2)
+ 
+-    raise(ArgumentError, "Cannot find file: Invalid path '#{mount_name}'") unless mount_name =~ %r{^[-\w]+$}
++    raise(ArgumentError, "Cannot find file: Invalid mount '#{mount_name}'") unless mount_name =~ %r{^[-\w]+$}
+ 
+     return nil unless mount = find_mount(mount_name, request.environment)
+     if mount.name == "modules" and mount_name != "modules"
+diff --git a/lib/puppet/file_serving/content.rb b/lib/puppet/file_serving/content.rb
+index 689e45af401..a6706bfccd2 100644
+--- a/lib/puppet/file_serving/content.rb
++++ b/lib/puppet/file_serving/content.rb
+@@ -1,14 +1,13 @@
+ require 'puppet/indirector'
+ require 'puppet/file_serving'
+ require 'puppet/file_serving/base'
+-require 'puppet/file_serving/indirection_hooks'
+ 
+ # A class that handles retrieving file contents.
+ # It only reads the file when its content is specifically
+ # asked for.
+ class Puppet::FileServing::Content < Puppet::FileServing::Base
+   extend Puppet::Indirector
+-  indirects :file_content, :extend => Puppet::FileServing::IndirectionHooks
++  indirects :file_content, :terminus_class => :selector
+ 
+   attr_writer :content
+ 
+diff --git a/lib/puppet/file_serving/metadata.rb b/lib/puppet/file_serving/metadata.rb
+index 587c2196d53..9756503fbf5 100644
+--- a/lib/puppet/file_serving/metadata.rb
++++ b/lib/puppet/file_serving/metadata.rb
+@@ -3,7 +3,6 @@
+ require 'puppet/file_serving'
+ require 'puppet/file_serving/base'
+ require 'puppet/util/checksums'
+-require 'puppet/file_serving/indirection_hooks'
+ 
+ # A class that handles retrieving file metadata.
+ class Puppet::FileServing::Metadata < Puppet::FileServing::Base
+@@ -11,7 +10,7 @@ class Puppet::FileServing::Metadata < Puppet::FileServing::Base
+   include Puppet::Util::Checksums
+ 
+   extend Puppet::Indirector
+-  indirects :file_metadata, :extend => Puppet::FileServing::IndirectionHooks
++  indirects :file_metadata, :terminus_class => :selector
+ 
+   attr_reader :path, :owner, :group, :mode, :checksum_type, :checksum, :ftype, :destination
+ 
+diff --git a/lib/puppet/file_serving/indirection_hooks.rb b/lib/puppet/file_serving/terminus_selector.rb
+similarity index 86%
+rename from lib/puppet/file_serving/indirection_hooks.rb
+rename to lib/puppet/file_serving/terminus_selector.rb
+index 4aafcb9fd3c..8bafc5bd9f6 100644
+--- a/lib/puppet/file_serving/indirection_hooks.rb
++++ b/lib/puppet/file_serving/terminus_selector.rb
+@@ -1,15 +1,12 @@
+-require 'uri'
+ require 'puppet/file_serving'
+-require 'puppet/util'
+ 
+ # This module is used to pick the appropriate terminus
+ # in file-serving indirections.  This is necessary because
+ # the terminus varies based on the URI asked for.
+-module Puppet::FileServing::IndirectionHooks
++module Puppet::FileServing::TerminusSelector
+   PROTOCOL_MAP = {"puppet" => :rest, "file" => :file}
+ 
+-  # Pick an appropriate terminus based on the protocol.
+-  def select_terminus(request)
++  def select(request)
+     # We rely on the request's parsing of the URI.
+ 
+     # Short-circuit to :file if it's a fully-qualified path or specifies a 'file' protocol.
+diff --git a/lib/puppet/indirector/file_content/selector.rb b/lib/puppet/indirector/file_content/selector.rb
+new file mode 100644
+index 00000000000..7aac4ee6896
+--- /dev/null
++++ b/lib/puppet/indirector/file_content/selector.rb
+@@ -0,0 +1,29 @@
++require 'puppet/indirector/file_content'
++require 'puppet/indirector/code'
++require 'puppet/file_serving/terminus_selector'
++
++class Puppet::Indirector::FileContent::Selector < Puppet::Indirector::Code
++  desc "Select the terminus based on the request"
++  include Puppet::FileServing::TerminusSelector
++
++  def get_terminus(request)
++    indirection.terminus(select(request))
++  end
++
++  def find(request)
++    get_terminus(request).find(request)
++  end
++
++  def search(request)
++    get_terminus(request).search(request)
++  end
++
++  def authorized?(request)
++    terminus = get_terminus(request)
++    if terminus.respond_to?(:authorized?)
++      terminus.authorized?(request)
++    else
++      true
++    end
++  end
++end
+diff --git a/lib/puppet/indirector/file_metadata/selector.rb b/lib/puppet/indirector/file_metadata/selector.rb
+new file mode 100644
+index 00000000000..26793b5c424
+--- /dev/null
++++ b/lib/puppet/indirector/file_metadata/selector.rb
+@@ -0,0 +1,29 @@
++require 'puppet/indirector/file_metadata'
++require 'puppet/indirector/code'
++require 'puppet/file_serving/terminus_selector'
++
++class Puppet::Indirector::FileMetadata::Selector < Puppet::Indirector::Code
++  desc "Select the terminus based on the request"
++  include Puppet::FileServing::TerminusSelector
++
++  def get_terminus(request)
++    indirection.terminus(select(request))
++  end
++
++  def find(request)
++    get_terminus(request).find(request)
++  end
++
++  def search(request)
++    get_terminus(request).search(request)
++  end
++
++  def authorized?(request)
++    terminus = get_terminus(request)
++    if terminus.respond_to?(:authorized?)
++      terminus.authorized?(request)
++    else
++      true
++    end
++  end
++end
+diff --git a/spec/shared_behaviours/file_serving.rb b/spec/shared_behaviours/file_serving.rb
+index bc1d46ca5cf..afcfac17373 100755
+--- a/spec/shared_behaviours/file_serving.rb
++++ b/spec/shared_behaviours/file_serving.rb
+@@ -5,9 +5,7 @@
+ 
+     # It appears that the mocking somehow interferes with the caching subsystem.
+     # This mock somehow causes another terminus to get generated.
+-    term = @indirection.terminus(:rest)
+-    @indirection.stubs(:terminus).with(:rest).returns term
+-    term.expects(:find)
++    @indirection.terminus(:rest).expects(:find)
+     @indirection.find(uri)
+   end
+ 
+diff --git a/spec/unit/file_serving/content_spec.rb b/spec/unit/file_serving/content_spec.rb
+index 7a9642fbb02..60c6be57ae6 100755
+--- a/spec/unit/file_serving/content_spec.rb
++++ b/spec/unit/file_serving/content_spec.rb
+@@ -6,7 +6,7 @@
+ describe Puppet::FileServing::Content do
+   let(:path) { File.expand_path('/path') }
+ 
+-  it "should should be a subclass of Base" do
++  it "should be a subclass of Base" do
+     Puppet::FileServing::Content.superclass.should equal(Puppet::FileServing::Base)
+   end
+ 
+@@ -14,10 +14,6 @@
+     Puppet::FileServing::Content.indirection.name.should == :file_content
+   end
+ 
+-  it "should should include the IndirectionHooks module in its indirection" do
+-    Puppet::FileServing::Content.indirection.singleton_class.included_modules.should include(Puppet::FileServing::IndirectionHooks)
+-  end
+-
+   it "should only support the raw format" do
+     Puppet::FileServing::Content.supported_formats.should == [:raw]
+   end
+diff --git a/spec/unit/file_serving/metadata_spec.rb b/spec/unit/file_serving/metadata_spec.rb
+index b458c12920b..4edeb4f2d4d 100755
+--- a/spec/unit/file_serving/metadata_spec.rb
++++ b/spec/unit/file_serving/metadata_spec.rb
+@@ -6,7 +6,7 @@
+ describe Puppet::FileServing::Metadata do
+   let(:foobar) { File.expand_path('/foo/bar') }
+ 
+-  it "should should be a subclass of Base" do
++  it "should be a subclass of Base" do
+     Puppet::FileServing::Metadata.superclass.should equal(Puppet::FileServing::Base)
+   end
+ 
+@@ -14,10 +14,6 @@
+     Puppet::FileServing::Metadata.indirection.name.should == :file_metadata
+   end
+ 
+-  it "should should include the IndirectionHooks module in its indirection" do
+-    Puppet::FileServing::Metadata.indirection.singleton_class.included_modules.should include(Puppet::FileServing::IndirectionHooks)
+-  end
+-
+   it "should have a method that triggers attribute collection" do
+     Puppet::FileServing::Metadata.new(foobar).should respond_to(:collect)
+   end
+diff --git a/spec/unit/file_serving/indirection_hooks_spec.rb b/spec/unit/file_serving/terminus_selector_spec.rb
+similarity index 69%
+rename from spec/unit/file_serving/indirection_hooks_spec.rb
+rename to spec/unit/file_serving/terminus_selector_spec.rb
+index 7bd713e78fa..ff3bbf21e65 100755
+--- a/spec/unit/file_serving/indirection_hooks_spec.rb
++++ b/spec/unit/file_serving/terminus_selector_spec.rb
+@@ -1,12 +1,12 @@
+ #!/usr/bin/env rspec
+ require 'spec_helper'
+ 
+-require 'puppet/file_serving/indirection_hooks'
++require 'puppet/file_serving/terminus_selector'
+ 
+-describe Puppet::FileServing::IndirectionHooks do
++describe Puppet::FileServing::TerminusSelector do
+   before do
+     @object = Object.new
+-    @object.extend(Puppet::FileServing::IndirectionHooks)
++    @object.extend(Puppet::FileServing::TerminusSelector)
+ 
+     @request = stub 'request', :key => "mymod/myfile", :options => {:node => "whatever"}, :server => nil, :protocol => nil
+   end
+@@ -14,17 +14,17 @@
+   describe "when being used to select termini" do
+     it "should return :file if the request key is fully qualified" do
+       @request.expects(:key).returns File.expand_path('/foo')
+-      @object.select_terminus(@request).should == :file
++      @object.select(@request).should == :file
+     end
+ 
+     it "should return :file if the URI protocol is set to 'file'" do
+       @request.expects(:protocol).returns "file"
+-      @object.select_terminus(@request).should == :file
++      @object.select(@request).should == :file
+     end
+ 
+     it "should fail when a protocol other than :puppet or :file is used" do
+       @request.stubs(:protocol).returns "http"
+-      proc { @object.select_terminus(@request) }.should raise_error(ArgumentError)
++      proc { @object.select(@request) }.should raise_error(ArgumentError)
+     end
+ 
+     describe "and the protocol is 'puppet'" do
+@@ -35,15 +35,15 @@
+       it "should choose :rest when a server is specified" do
+         @request.stubs(:protocol).returns "puppet"
+         @request.expects(:server).returns "foo"
+-        @object.select_terminus(@request).should == :rest
++        @object.select(@request).should == :rest
+       end
+ 
+       # This is so a given file location works when bootstrapping with no server.
+       it "should choose :rest when the Settings name isn't 'puppet'" do
+         @request.stubs(:protocol).returns "puppet"
+-        @request.stubs(:server).returns "foo"
++        # We have to stub this because we can't set name
+         Puppet.settings.stubs(:value).with(:name).returns "foo"
+-        @object.select_terminus(@request).should == :rest
++        @object.select(@request).should == :rest
+       end
+ 
+       it "should choose :file_server when the settings name is 'puppet' and no server is specified" do
+@@ -51,8 +51,7 @@
+ 
+         @request.expects(:protocol).returns "puppet"
+         @request.expects(:server).returns nil
+-        Puppet.settings.expects(:value).with(:name).returns "puppet"
+-        @object.select_terminus(@request).should == :file_server
++        @object.select(@request).should == :file_server
+       end
+     end
+   end

@@ -1,0 +1,27 @@
+diff --git a/plugins/jojo_core/external/bootstrap b/plugins/jojo_core/external/bootstrap
+index 8c7f9c66..ebc69356 160000
+--- a/plugins/jojo_core/external/bootstrap
++++ b/plugins/jojo_core/external/bootstrap
+@@ -1 +1 @@
+-Subproject commit 8c7f9c66a7d12f47f50618ef420868fe836d0c33
++Subproject commit ebc69356637143c938c07904d10928c11e742196
+diff --git a/plugins/jojo_core/external/lessphp b/plugins/jojo_core/external/lessphp
+index 00fdb9ea..e0b199ef 160000
+--- a/plugins/jojo_core/external/lessphp
++++ b/plugins/jojo_core/external/lessphp
+@@ -1 +1 @@
+-Subproject commit 00fdb9ea66c6d89b3864a9025374e52c338c06a3
++Subproject commit e0b199efdda5f0a09c979e91f95c622ae48e173a
+diff --git a/plugins/jojo_core/forgot_password.php b/plugins/jojo_core/forgot_password.php
+index 3d40f06f..abd2f87a 100755
+--- a/plugins/jojo_core/forgot_password.php
++++ b/plugins/jojo_core/forgot_password.php
+@@ -55,7 +55,7 @@ function _getContent()
+             $users = Jojo::selectQuery("SELECT userid, us_email, us_login, us_reminder FROM {user} WHERE us_email = ? OR us_login = ?", array($search, $search));
+ 
+             if (!count($users)) {
+-                $errors[] = 'There is no user in our system with email address or username: '.$search;
++                $errors[] = 'There is no user in our system with email address or username: '.htmlentities($search);
+             }
+             
+             foreach ($users as $user) {

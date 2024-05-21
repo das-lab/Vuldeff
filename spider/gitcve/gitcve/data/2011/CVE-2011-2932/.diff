@@ -1,0 +1,35 @@
+diff --git a/activesupport/lib/active_support/core_ext/string/output_safety.rb b/activesupport/lib/active_support/core_ext/string/output_safety.rb
+index 6d6c4912bb99c..f111c8e5a35cb 100644
+--- a/activesupport/lib/active_support/core_ext/string/output_safety.rb
++++ b/activesupport/lib/active_support/core_ext/string/output_safety.rb
+@@ -20,7 +20,7 @@ def html_escape(s)
+       if s.html_safe?
+         s
+       else
+-        s.gsub(/[&"><]/) { |special| HTML_ESCAPE[special] }.html_safe
++        s.to_s.gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/, "&gt;").gsub(/</, "&lt;").html_safe
+       end
+     end
+ 
+diff --git a/activesupport/test/core_ext/string_ext_test.rb b/activesupport/test/core_ext/string_ext_test.rb
+index a4bba056df3db..81a284ddedb23 100644
+--- a/activesupport/test/core_ext/string_ext_test.rb
++++ b/activesupport/test/core_ext/string_ext_test.rb
+@@ -7,10 +7,17 @@
+ require 'active_support/core_ext/string'
+ require 'active_support/time'
+ require 'active_support/core_ext/string/strip'
++require 'active_support/core_ext/string/output_safety'
+ 
+ class StringInflectionsTest < Test::Unit::TestCase
+   include InflectorTestCases
+ 
++  def test_erb_escape
++    string = [192, 60].pack('CC')
++    expected = 192.chr + "&lt;"
++    assert_equal expected, ERB::Util.html_escape(string)
++  end
++
+   def test_strip_heredoc_on_an_empty_string
+     assert_equal '', ''.strip_heredoc
+   end

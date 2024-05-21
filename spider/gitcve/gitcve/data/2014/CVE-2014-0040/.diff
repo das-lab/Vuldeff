@@ -1,0 +1,186 @@
+diff --git a/openshift-enterprise/dib/elements/openshift-enterprise-broker/install.d/30-openshift-enterprise-broker b/openshift-enterprise/dib/elements/openshift-enterprise-broker/install.d/30-openshift-enterprise-broker
+index 82c0c42a..7d441c15 100755
+--- a/openshift-enterprise/dib/elements/openshift-enterprise-broker/install.d/30-openshift-enterprise-broker
++++ b/openshift-enterprise/dib/elements/openshift-enterprise-broker/install.d/30-openshift-enterprise-broker
+@@ -12,9 +12,8 @@ if [ "${OSE_VERSION}" == "1.2" ]; then
+ name=OpenShift Client
+ baseurl=${DIB_CONF_REPO_BASE}/Client/x86_64/os/
+ enabled=1
+-gpgcheck=0
++gpgcheck=1
+ priority=1
+-sslverify=false
+ 
+ YUM
+ 
+@@ -23,9 +22,8 @@ YUM
+ name=OpenShift Infrastructure
+ baseurl=${DIB_CONF_REPO_BASE}/Infrastructure/x86_64/os/
+ enabled=1
+-gpgcheck=0
++gpgcheck=1
+ priority=1
+-sslverify=false
+ 
+ YUM
+   fi
+@@ -36,17 +34,15 @@ else
+ name=OpenShift Client
+ baseurl=${DIB_CONF_REPO_BASE}/RHOSE-CLIENT-2.0/x86_64/os/
+ enabled=1
+-gpgcheck=0
++gpgcheck=1
+ priority=10
+-sslverify=false
+ 
+ [openshift_infrastructure]
+ name=OpenShift Infrastructure
+ baseurl=${DIB_CONF_REPO_BASE}/RHOSE-INFRA-2.0/x86_64/os/
+ enabled=1
+-gpgcheck=0
++gpgcheck=1
+ priority=10
+-sslverify=false
+ 
+ YUM
+   fi
+diff --git a/openshift-enterprise/dib/elements/openshift-enterprise-node/install.d/30-openshift-enterprise-node b/openshift-enterprise/dib/elements/openshift-enterprise-node/install.d/30-openshift-enterprise-node
+index f7981ad8..43507473 100755
+--- a/openshift-enterprise/dib/elements/openshift-enterprise-node/install.d/30-openshift-enterprise-node
++++ b/openshift-enterprise/dib/elements/openshift-enterprise-node/install.d/30-openshift-enterprise-node
+@@ -12,9 +12,8 @@ if [ "${OSE_VERSION}" == "1.2" ]; then
+ name=OpenShift Node
+ baseurl=${DIB_CONF_REPO_BASE}/Node/x86_64/os/
+ enabled=1
+-gpgcheck=0
++gpgcheck=1
+ priority=1
+-sslverify=false
+ 
+ YUM
+ 
+@@ -23,9 +22,8 @@ YUM
+ name=OpenShift JBossEAP
+ baseurl=${DIB_CONF_REPO_BASE}/JBoss_EAP6_Cartridge/x86_64/os/
+ enabled=1
+-gpgcheck=0
++gpgcheck=1
+ priority=1
+-sslverify=false
+ 
+ YUM
+ 
+@@ -35,7 +33,7 @@ name=jbosseap
+ baseurl=${DIB_CONF_JBOSS_REPO_BASE}/jbeap/6/os
+ enabled=1
+ priority=3
+-gpgcheck=0
++gpgcheck=1
+ 
+ YUM
+ 
+@@ -45,7 +43,7 @@ name=jbossews
+ baseurl=${DIB_CONF_JBOSS_REPO_BASE}/jbews/2/os
+ enabled=1
+ priority=3
+-gpgcheck=0
++gpgcheck=1
+ 
+ YUM
+   fi
+@@ -56,17 +54,15 @@ else
+ name=OpenShift JBossEAP
+ baseurl=${DIB_CONF_REPO_BASE}/RHOSE-JBOSSEAP-2.0/x86_64/os/
+ enabled=1
+-gpgcheck=0
++gpgcheck=1
+ priority=10
+-sslverify=false
+ 
+ [openshift_node]
+ name=OpenShift Node
+ baseurl=${DIB_CONF_REPO_BASE}/RHOSE-NODE-2.0/x86_64/os/
+ enabled=1
+-gpgcheck=0
++gpgcheck=1
+ priority=10
+-sslverify=false
+ YUM
+     fi
+ 
+@@ -77,7 +73,7 @@ name=jbosseap62
+ baseurl=${DIB_CONF_JBOSS_REPO_BASE}
+ enabled=1
+ priority=30
+-gpgcheck=0
++gpgcheck=1
+ YUM
+   fi
+ fi
+diff --git a/openshift-enterprise/heat/neutron/highly-available/ose_ha_stack.yaml b/openshift-enterprise/heat/neutron/highly-available/ose_ha_stack.yaml
+index 05fd34fa..3fe969d7 100644
+--- a/openshift-enterprise/heat/neutron/highly-available/ose_ha_stack.yaml
++++ b/openshift-enterprise/heat/neutron/highly-available/ose_ha_stack.yaml
+@@ -145,7 +145,7 @@ parameters:
+     type: string
+     default: ""
+   rh_reg_opts:
+-    description: RHN options, e.g. --serverUrl=http://my.sat.server.com/XMLRPC
++    description: RHN options, e.g. --serverUrl=https://my.sat.server.com/XMLRPC
+     type: string
+     default: ""
+   rhel_repo_base:
+diff --git a/openshift-enterprise/heat/neutron/highly-available/ose_node_stack.yaml b/openshift-enterprise/heat/neutron/highly-available/ose_node_stack.yaml
+index 5e9118cc..5277fb2f 100644
+--- a/openshift-enterprise/heat/neutron/highly-available/ose_node_stack.yaml
++++ b/openshift-enterprise/heat/neutron/highly-available/ose_node_stack.yaml
+@@ -109,7 +109,7 @@ parameters:
+     type: string
+     default: ""
+   rh_reg_opts:
+-    description: RHN options, e.g. --serverUrl=http://my.sat.server.com/XMLRPC
++    description: RHN options, e.g. --serverUrl=https://my.sat.server.com/XMLRPC
+     type: string
+     default: ""
+   rhel_repo_base:
+diff --git a/openshift-origin/centos65/OpenShift-1B1N.yaml b/openshift-origin/centos65/OpenShift-1B1N.yaml
+index 95283345..6f1e210f 100644
+--- a/openshift-origin/centos65/OpenShift-1B1N.yaml
++++ b/openshift-origin/centos65/OpenShift-1B1N.yaml
+@@ -64,8 +64,8 @@ resources:
+           template: |
+             #!/bin/bash -v
+ 
+-            yum -y install http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+-            yum -y install http://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-10.noarch.rpm
++            yum -y install https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
++            yum -y install https://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-10.noarch.rpm
+             yum -y install augeas
+ 
+             augtool setm /files/etc/yum.repos.d/puppetlabs.repo/* exclude '*mcollective*\ activemq'
+@@ -119,8 +119,8 @@ resources:
+           template: |
+             #!/bin/bash -v
+ 
+-            yum -y install http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+-            yum -y install http://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-10.noarch.rpm
++            yum -y install https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
++            yum -y install https://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-10.noarch.rpm
+             yum -y install augeas
+ 
+             augtool setm /files/etc/yum.repos.d/puppetlabs.repo/* exclude '*mcollective*\ activemq'
+diff --git a/openshift-origin/centos65/OpenShift.yaml b/openshift-origin/centos65/OpenShift.yaml
+index 69672c7f..b516cce1 100644
+--- a/openshift-origin/centos65/OpenShift.yaml
++++ b/openshift-origin/centos65/OpenShift.yaml
+@@ -39,8 +39,8 @@ resources:
+           template: |
+             #!/bin/bash -v
+ 
+-            yum -y install http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+-            yum -y install http://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-10.noarch.rpm
++            yum -y install https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
++            yum -y install https://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-10.noarch.rpm
+             yum -y install augeas
+ 
+             augtool setm /files/etc/yum.repos.d/puppetlabs.repo/* exclude '*mcollective*\ activemq'
