@@ -1,2 +1,0 @@
-CVE-1999-0199 https://github.com/bminor/glibc/commit/2864e767053317538feafa815046fff89e5a16be#diff-94e8c502f255fdfc346df0e29fd4ef40
-CVE-1999-0731 https://github.com/KDE/kde1-kdebase/commit/04906bd5de2f220bf100b605dad37b4a1d9a91a6

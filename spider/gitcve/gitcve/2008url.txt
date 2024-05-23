@@ -1,4 +1,0 @@
-CVE-2008-5189 http://github.com/rails/rails/commit/7282ed863ca7e6f928bae9162c9a63a98775a19d
-CVE-2008-5619 https://github.com/PHPMailer/PHPMailer/commit/8beacc646acb67c995aea10ac5585970efc7355a
-CVE-2008-7050 http://github.com/Illydth/wowraidmanager/commit/7dd6367ae85003dd5d715431b6ab695f2c2f200a
-CVE-2008-7316 https://github.com/torvalds/linux/commit/124d3b7041f9a0ca7c43a6293e1cae4576c32fd5
